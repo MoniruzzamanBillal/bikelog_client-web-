@@ -2,6 +2,8 @@ import TableActionMenu from "@/components/shared/table/TableActionMenu";
 import { ColumnDef } from "@tanstack/react-table";
 import { TFuelLog } from "./type/fuel-log.types";
 
+import { format } from "date-fns";
+
 export const fuelLogColumns = ({
   onEdit,
   onDelete,
@@ -14,7 +16,7 @@ export const fuelLogColumns = ({
     header: "Date",
     cell: ({ row }) => {
       const date = new Date(row.getValue("date") as string);
-      return date.toLocaleDateString();
+      return <p className=" ">{format(new Date(date), "dd-MMM-yyyy")}</p>;
     },
   },
   {
