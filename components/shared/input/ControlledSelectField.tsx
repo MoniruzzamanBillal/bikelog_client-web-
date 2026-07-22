@@ -59,7 +59,7 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
                   `flex h-[42px] w-full rounded-md border border-input bg-surface-primary px-3 py-1 text-base shadow-sm transition-colors file:border-0 focus:outline-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${
                     error
                       ? "border border-rose-500"
-                      : "focus:ring-grayDark focus:border-[#D9E3E7]"
+                      : "focus:ring-ring focus:border-ring"
                   }`,
                   className,
                 )}

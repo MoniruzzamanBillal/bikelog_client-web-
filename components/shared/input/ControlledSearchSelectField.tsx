@@ -72,7 +72,7 @@ const ControlledSearchSelectField = ({
                     `flex h-[42px] w-full max-w-xs justify-between rounded-md border bg-surface-primary px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
                       error
                         ? "border-rose-500"
-                        : "focus:ring-grayDark focus:border-[#D9E3E7]"
+                        : "focus:ring-ring focus:border-ring"
                     }`,
                     className,
                   )}
