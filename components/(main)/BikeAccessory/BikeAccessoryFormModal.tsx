@@ -4,10 +4,15 @@ import BaseModal from "@/components/shared/Modal/BaseModal";
 import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import ControlledSelectField from "@/components/shared/input/ControlledSelectField";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { usePatch, usePost } from "@/hooks/useApi";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  bikeAccessorySchema,
+  TBikeAccessoryFormType,
+} from "./schema/bike-accessory.schema";
 import {
   TBikeAccessory,
   TCreateBikeAccessoryPayload,
@@ -24,12 +29,6 @@ const STATUS_OPTIONS = [
   { label: "Purchased", value: "purchased" },
   { label: "Cancelled", value: "cancelled" },
 ];
-
-type TBikeAccessoryFormValues = {
-  name: string;
-  urgency: string;
-  status: string;
-};
 
 type TBikeAccessoryFormModalProps = {
   open: boolean;
@@ -54,7 +53,8 @@ export default function BikeAccessoryFormModal({
     ["bikeAccessories", bikeId],
   ]);
 
-  const methods = useForm<TBikeAccessoryFormValues>({
+  const methods = useForm<TBikeAccessoryFormType>({
+    resolver: zodResolver(bikeAccessorySchema),
     defaultValues: {
       name: accessory?.name ?? "",
       urgency: accessory?.urgency ?? "",
@@ -64,7 +64,7 @@ export default function BikeAccessoryFormModal({
 
   const isPending = isCreating || isUpdating;
 
-  const onSubmit: SubmitHandler<TBikeAccessoryFormValues> = async (data) => {
+  const onSubmit = async (data: TBikeAccessoryFormType) => {
     try {
       const basePayload: TCreateBikeAccessoryPayload = {
         name: data.name,
