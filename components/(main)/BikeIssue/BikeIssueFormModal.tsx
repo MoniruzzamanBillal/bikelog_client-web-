@@ -5,22 +5,16 @@ import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import ControlledTextArea from "@/components/shared/input/ControlledTextArea";
 import DateSelect from "@/components/shared/input/DateSelect";
-import {
-  Controller,
-  FormProvider,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { usePatch, usePost } from "@/hooks/useApi";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  bikeIssueSchema,
+  TBikeIssueFormType,
+} from "./schema/bike-issue.schema";
 import { TBikeIssue, TCreateBikeIssuePayload } from "./type/bike-issue.types";
-
-type TBikeIssueFormValues = {
-  title: string;
-  description: string;
-  dateReported: Date | undefined;
-};
 
 type TBikeIssueFormModalProps = {
   open: boolean;
@@ -45,7 +39,8 @@ export default function BikeIssueFormModal({
     ["bikeIssues", bikeId],
   ]);
 
-  const methods = useForm<TBikeIssueFormValues>({
+  const methods = useForm<TBikeIssueFormType>({
+    resolver: zodResolver(bikeIssueSchema),
     defaultValues: {
       title: issue?.title ?? "",
       description: issue?.description ?? "",
@@ -57,7 +52,7 @@ export default function BikeIssueFormModal({
 
   const isPending = isCreating || isUpdating;
 
-  const onSubmit: SubmitHandler<TBikeIssueFormValues> = async (data) => {
+  const onSubmit = async (data: TBikeIssueFormType) => {
     try {
       const basePayload: TCreateBikeIssuePayload = {
         title: data.title,
@@ -115,16 +110,24 @@ export default function BikeIssueFormModal({
 
           <div className="space-y-1">
             <label className="text-sm font-medium">Date Reported</label>
+
             <Controller
               name="dateReported"
               control={methods.control}
-              render={({ field }) => (
-                <DateSelect
-                  value={field.value}
-                  onChange={(date) => field.onChange(date)}
-                  mode="single"
-                  placeholder="Select date"
-                />
+              rules={{ required: true }}
+              render={({ field, fieldState: { error } }) => (
+                <div className="space-y-1">
+                  <DateSelect
+                    value={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    mode="single"
+                    placeholder="Select purchase date"
+                  />
+
+                  {error && (
+                    <p className="text-sm text-red-500">{error.message}</p>
+                  )}
+                </div>
               )}
             />
           </div>
