@@ -5,10 +5,10 @@ import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
 import ControlledCheckbox from "@/components/shared/input/ControlledCheckbox";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import ControlledTextArea from "@/components/shared/input/ControlledTextArea";
-import DateSelect from "@/components/shared/input/DateSelect";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import ControlledDateSelect from "@/components/shared/input/ControlledDateSelect";
 import { usePatch, usePost } from "@/hooks/useApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fuelLogSchema, TFuelLogFormType } from "./schema/fuel-log.schema";
@@ -136,7 +136,9 @@ export default function FuelLogFormModal({
             placeholder="e.g., Shell, BP"
           />
 
-          <div className="space-y-1">
+          <ControlledDateSelect name="date" label="Date" isRequired />
+
+          {/* <div className="space-y-1">
             <label className="text-sm font-medium">
               Date<span className="ml-1 text-red-500">*</span>
             </label>
@@ -153,7 +155,7 @@ export default function FuelLogFormModal({
                 />
               )}
             />
-          </div>
+          </div> */}
 
           <ControlledTextArea
             name="notes"

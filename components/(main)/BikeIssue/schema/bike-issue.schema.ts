@@ -13,9 +13,11 @@ export const bikeIssueSchema = z.object({
     .max(1000, "Description cannot exceed 1000 characters")
     .optional(),
 
-  dateReported: z.date().refine((date) => date <= new Date(), {
-    message: "Purchase date cannot be in the future",
-  }),
+  dateReported: z
+    .date({ message: "Date is required!!!" })
+    .refine((date) => date <= new Date(), {
+      message: "Purchase date cannot be in the future",
+    }),
 });
 
 export type TBikeIssueFormType = z.infer<typeof bikeIssueSchema>;

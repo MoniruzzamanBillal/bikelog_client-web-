@@ -4,10 +4,10 @@ import BaseModal from "@/components/shared/Modal/BaseModal";
 import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import ControlledTextArea from "@/components/shared/input/ControlledTextArea";
-import DateSelect from "@/components/shared/input/DateSelect";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import ControlledDateSelect from "@/components/shared/input/ControlledDateSelect";
 import { usePatch, usePost } from "@/hooks/useApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -108,7 +108,9 @@ export default function BikeIssueFormModal({
             rows={3}
           />
 
-          <div className="space-y-1">
+          <ControlledDateSelect name="dateReported" label="Date Reported" />
+
+          {/* <div className="space-y-1">
             <label className="text-sm font-medium">Date Reported</label>
 
             <Controller
@@ -130,7 +132,7 @@ export default function BikeIssueFormModal({
                 </div>
               )}
             />
-          </div>
+          </div> */}
 
           <FormActionButtons isEditMode={isEditMode} isPending={isPending} />
         </form>

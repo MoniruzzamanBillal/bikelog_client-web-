@@ -2,38 +2,25 @@
 
 import BaseModal from "@/components/shared/Modal/BaseModal";
 import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
+import ControlledDateSelect from "@/components/shared/input/ControlledDateSelect";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import ControlledSelectField from "@/components/shared/input/ControlledSelectField";
 import ControlledTextArea from "@/components/shared/input/ControlledTextArea";
-import DateSelect from "@/components/shared/input/DateSelect";
 import { useFetchData, usePatch, usePost } from "@/hooks/useApi";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import {
-  Controller,
-  FormProvider,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { TEngineOilType } from "../SettingsCatalog/type/engine-oil-type.types";
 import { TMaintenanceType } from "../SettingsCatalog/type/maintenance-type.types";
 import {
+  maintenanceLogSchema,
+  TMaintenanceLogFormType,
+} from "./schema/maintenance-log.schema";
+import {
   TCreateMaintenanceLogPayload,
   TMaintenanceLog,
 } from "./type/maintenance-log.types";
-
-type TFormValues = {
-  maintenanceType: string;
-  odometerReading: string;
-  oilType: string;
-  intervalKmUsed: string;
-  cost: string;
-  serviceDate: Date | undefined;
-  nextDueDate: Date | undefined;
-  serviceCenter: string;
-  partsReplaced: string;
-  notes: string;
-};
 
 type TProps = {
   open: boolean;
@@ -60,7 +47,8 @@ export default function MaintenanceLogFormModal({
   const maintenanceTypes = mtData?.data ?? [];
   const oilTypes = oilData?.data ?? [];
 
-  const methods = useForm<TFormValues>({
+  const methods = useForm<TMaintenanceLogFormType>({
+    resolver: zodResolver(maintenanceLogSchema),
     defaultValues: {
       maintenanceType: "",
       odometerReading: "",
@@ -119,7 +107,7 @@ export default function MaintenanceLogFormModal({
   ]);
   const isPending = isCreating || isUpdating;
 
-  const onSubmit: SubmitHandler<TFormValues> = async (data) => {
+  const onSubmit = async (data: TMaintenanceLogFormType) => {
     try {
       const parts: string[] = data.partsReplaced
         ? data.partsReplaced
@@ -220,7 +208,13 @@ export default function MaintenanceLogFormModal({
             isRequired
           />
 
-          <div className="space-y-1">
+          <ControlledDateSelect
+            name="serviceDate"
+            label="Service Date"
+            isRequired
+          />
+
+          {/* <div className="space-y-1">
             <label className="text-sm font-medium">
               Service Date<span className="ml-1 text-red-500">*</span>
             </label>
@@ -237,9 +231,14 @@ export default function MaintenanceLogFormModal({
                 />
               )}
             />
-          </div>
+          </div> */}
 
-          <div className="space-y-1">
+          <ControlledDateSelect
+            name="nextDueDate"
+            label="Next Due Date (optional)"
+          />
+
+          {/* <div className="space-y-1">
             <label className="text-sm font-medium">
               Next Due Date (optional)
             </label>
@@ -255,7 +254,7 @@ export default function MaintenanceLogFormModal({
                 />
               )}
             />
-          </div>
+          </div> */}
 
           <ControlledInput
             name="serviceCenter"
