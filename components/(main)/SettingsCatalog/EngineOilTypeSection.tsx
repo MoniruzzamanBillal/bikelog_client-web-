@@ -3,9 +3,7 @@
 import { useFetchData, usePost } from "@/hooks/useApi";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  TEngineOilType
-} from "./type/engine-oil-type.types";
+import { TEngineOilType } from "./type/engine-oil-type.types";
 
 export default function EngineOilTypeSection() {
   const { data, isLoading } = useFetchData<TEngineOilType[]>(
