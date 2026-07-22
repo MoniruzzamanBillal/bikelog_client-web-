@@ -1,5 +1,8 @@
 "use client";
 
+import ControlledInput from "@/components/shared/input/ControlledInput";
+import { usePost } from "@/hooks/useApi";
+import { setToken } from "@/lib/tokenManager";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -7,9 +10,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import ControlledInput from "@/components/shared/input/ControlledInput";
-import { usePost } from "@/hooks/useApi";
-import { setToken } from "@/lib/tokenManager";
 import { loginSchema, TLoginForm } from "./auth.schema";
 
 export default function LoginForm() {
