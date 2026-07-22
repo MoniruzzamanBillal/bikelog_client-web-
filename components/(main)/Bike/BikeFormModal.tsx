@@ -5,24 +5,11 @@ import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import DateSelect from "@/components/shared/input/DateSelect";
 import { usePatch, usePost } from "@/hooks/useApi";
-import {
-  Controller,
-  FormProvider,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { bikeSchema, TBikeFormType } from "./schema/bike.schema";
 import { TBike, TCreateBikePayload } from "./type/bike.types";
-
-type TBikeFormValues = {
-  nickname: string;
-  brand: string;
-  model: string;
-  registrationNumber: string;
-  purchaseDate?: Date;
-  fuelTankCapacityLiters: string;
-  currentOdometer: string;
-};
 
 type TBikeFormModalProps = {
   open: boolean;
@@ -44,7 +31,8 @@ export default function BikeFormModal({
     ["bikes", bike?._id ?? ""],
   ]);
 
-  const methods = useForm<TBikeFormValues>({
+  const methods = useForm<TBikeFormType>({
+    resolver: zodResolver(bikeSchema),
     defaultValues: {
       nickname: bike?.nickname ?? "",
       brand: bike?.brand ?? "",
@@ -60,7 +48,7 @@ export default function BikeFormModal({
 
   const isPending = isCreating || isUpdating;
 
-  const onSubmit: SubmitHandler<TBikeFormValues> = async (data) => {
+  const onSubmit = async (data: TBikeFormType) => {
     try {
       const basePayload: TCreateBikePayload = {
         nickname: data.nickname,
@@ -101,6 +89,8 @@ export default function BikeFormModal({
     }
   };
 
+  // console.log(methods?.formState?.errors);
+
   return (
     <BaseModal
       open={open}
@@ -126,13 +116,19 @@ export default function BikeFormModal({
               name="purchaseDate"
               control={methods.control}
               rules={{ required: true }}
-              render={({ field }) => (
-                <DateSelect
-                  value={field.value}
-                  onChange={(date) => field.onChange(date)}
-                  mode="single"
-                  placeholder="Select purchase date"
-                />
+              render={({ field, fieldState: { error } }) => (
+                <div className="space-y-1">
+                  <DateSelect
+                    value={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    mode="single"
+                    placeholder="Select purchase date"
+                  />
+
+                  {error && (
+                    <p className="text-sm text-red-500">{error.message}</p>
+                  )}
+                </div>
               )}
             />
           </div>

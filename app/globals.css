@@ -83,12 +83,12 @@
   --secondary: #f4f4f5;
   --secondary-foreground: #18181b;
   --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --muted-foreground: #52525b;
   --accent: #f4f4f5;
   --accent-foreground: #18181b;
   --destructive: #ef4444;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
+  --border: #d4d4d8;
+  --input: #d4d4d8;
   --ring: #a1a1aa;
   --chart-1: #e76e50;
   --chart-2: #2a9d90;
@@ -104,13 +104,13 @@
   --sidebar-border: #e4e4e7;
   --sidebar-ring: #a1a1aa;
 
-  --surface-primary: #ffffff;
-  --surface-secondary: #f4f4f5;
-  --surface-border: #e4e4e7;
-  --surface-text: #09090b;
-  --surface-text-muted: #71717a;
-  --surface-hover: #fafafa;
-  --surface-popover: #ffffff;
+  --surface-primary: var(--card);
+  --surface-secondary: var(--muted);
+  --surface-border: var(--border);
+  --surface-text: var(--foreground);
+  --surface-text-muted: var(--muted-foreground);
+  --surface-hover: var(--accent);
+  --surface-popover: var(--popover);
 
   --table-border: var(--surface-border);
 }
@@ -118,9 +118,9 @@
 .dark {
   --background: #09090b;
   --foreground: #fafafa;
-  --card: #09090b;
+  --card: #18181b;
   --card-foreground: #fafafa;
-  --popover: #09090b;
+  --popover: #18181b;
   --popover-foreground: #fafafa;
   --primary: #fafafa;
   --primary-foreground: #18181b;
@@ -131,8 +131,8 @@
   --accent: #27272a;
   --accent-foreground: #fafafa;
   --destructive: #7f1d1d;
-  --border: #27272a;
-  --input: #27272a;
+  --border: #3f3f46;
+  --input: #3f3f46;
   --ring: #d4d4d8;
   --chart-1: #2662d9;
   --chart-2: #2eb88a;
@@ -148,13 +148,13 @@
   --sidebar-border: #27272a;
   --sidebar-ring: #d4d4d8;
 
-  --surface-primary: #18181b;
-  --surface-secondary: #27272a;
-  --surface-border: #3f3f46;
-  --surface-text: #fafafa;
-  --surface-text-muted: #a1a1aa;
-  --surface-hover: #27272a;
-  --surface-popover: #18181b;
+  --surface-primary: var(--card);
+  --surface-secondary: var(--muted);
+  --surface-border: var(--border);
+  --surface-text: var(--foreground);
+  --surface-text-muted: var(--muted-foreground);
+  --surface-hover: var(--accent);
+  --surface-popover: var(--popover);
 
   --table-border: var(--surface-border);
 }

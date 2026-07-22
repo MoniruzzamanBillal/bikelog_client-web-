@@ -3,9 +3,7 @@
 import { useFetchData, usePost } from "@/hooks/useApi";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  TMaintenanceType
-} from "./type/maintenance-type.types";
+import { TMaintenanceType } from "./type/maintenance-type.types";
 
 export default function MaintenanceTypeSection() {
   const { data, isLoading } = useFetchData<TMaintenanceType[]>(

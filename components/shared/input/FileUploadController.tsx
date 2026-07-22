@@ -87,7 +87,7 @@ export function FileUploadController({
           <div>
             <div
               className={cn(
-                "  border border-dashed hover:border-dashboard-primary bg-[#F5F5F5] border-[#B0B0B0] rounded-lg cursor-pointer block relative",
+                "  border border-dashed hover:border-primary bg-muted border-border rounded-lg cursor-pointer block relative",
                 className,
               )}
             >
@@ -121,7 +121,7 @@ export function FileUploadController({
                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 relative">
                     <button
                       onClick={handleDelete}
-                      className="absolute w-6 h-6 flex items-center justify-center bg-dashboard-primary hover:bg-dashboard-primary rounded-full p-1 -right-2 -top-2"
+                      className="absolute w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 rounded-full p-1 -right-2 -top-2"
                       aria-label="Delete file"
                       type="button"
                     >
@@ -160,7 +160,7 @@ export function FileUploadController({
                     alt="Upload image  "
                     className=" rounded-md  "
                   /> */}
-                  <span className="text-grayDark lg:text-[#A6A6A6] text-xs font-poppins font-normal text-center px-2">
+                  <span className="text-muted-foreground text-xs font-poppins font-normal text-center px-2">
                     {label || "Upload image (PNG, JPEG, JPG, WEBP, SVG)"}
                   </span>
                   <input

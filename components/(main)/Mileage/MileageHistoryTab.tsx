@@ -1,6 +1,7 @@
 "use client";
 
 import { useFetchData } from "@/hooks/useApi";
+import { format } from "date-fns";
 import { TMileageHistoryResponse } from "./type/mileage.types";
 
 export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
@@ -45,8 +46,8 @@ export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
               className="rounded-lg border border-border bg-card p-4"
             >
               <p className="text-sm text-surface-text">
-                {new Date(record.periodStartDate).toLocaleDateString()} —{" "}
-                {new Date(record.periodEndDate).toLocaleDateString()}
+                {format(new Date(record.periodStartDate), "dd-MMM-yyyy")} —{" "}
+                {format(new Date(record.periodEndDate), "dd-MMM-yyyy")}
               </p>
               <p className="mt-1 text-lg font-semibold">
                 {record.mileageKmPerLiter.toFixed(2)} km/l

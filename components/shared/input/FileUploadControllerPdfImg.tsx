@@ -75,7 +75,7 @@ export default function FileUploadControllerPdfImg({
           <div>
             <div
               className={cn(
-                "w-[244px] h-[150px] border border-dashed rounded-lg bg-[#F5F5F5] flex items-center justify-center relative",
+                "w-[244px] h-[150px] border border-dashed border-border rounded-lg bg-muted flex items-center justify-center relative",
                 className,
               )}
             >
@@ -85,7 +85,7 @@ export default function FileUploadControllerPdfImg({
                   <button
                     onClick={handleDelete}
                     type="button"
-                    className="absolute w-6 h-6 flex items-center justify-center bg-dashboard-primary rounded-full p-1 -right-2 -top-2 z-10"
+                    className="absolute w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 rounded-full p-1 -right-2 -top-2 z-10"
                   >
                     <X className="w-4 h-4 text-white" />
                   </button>
@@ -111,7 +111,7 @@ export default function FileUploadControllerPdfImg({
 
                   {/* UNKNOWN TYPE */}
                   {!isImage && !isPdf && (
-                    <div className="text-center text-gray-600">
+                    <div className="text-center text-muted-foreground">
                       <p>Unsupported file</p>
                     </div>
                   )}
@@ -128,7 +128,7 @@ export default function FileUploadControllerPdfImg({
                     src="/gallery-add.svg"
                     alt="Upload"
                   />
-                  <span className="text-xs text-gray-500 px-2">
+                  <span className="text-xs text-muted-foreground px-2">
                     {label || "Upload Image or PDF (PNG, JPG, WEBP, SVG, PDF)"}
                   </span>
 

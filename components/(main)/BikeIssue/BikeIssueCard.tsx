@@ -1,8 +1,8 @@
 "use client";
 
+import { format } from "date-fns";
 import { CheckCircle2, RotateCcw, SquarePen, Trash2 } from "lucide-react";
 import { TBikeIssue, TBikeIssueStatus } from "./type/bike-issue.types";
-
 type TProps = {
   issue: TBikeIssue;
   onEdit: (issue: TBikeIssue) => void;
@@ -12,8 +12,7 @@ type TProps = {
 
 const ISSUE_STATUS_BADGE: Record<TBikeIssueStatus, string> = {
   open: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
-  resolved:
-    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  resolved: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
 };
 
 export default function BikeIssueCard({
@@ -36,8 +35,8 @@ export default function BikeIssueCard({
               {issue.status === "open" ? "Open" : "Resolved"}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {new Date(issue.dateReported).toLocaleDateString()}
+          <p className="text-xs text-muted-foreground pt-2 ">
+            {format(new Date(issue.dateReported), "dd-MMM-yyyy")}
           </p>
         </div>
         <div className="flex shrink-0 gap-1">
@@ -51,9 +50,7 @@ export default function BikeIssueCard({
           </button>
           <button
             type="button"
-            onClick={() =>
-              onToggleStatus(issue, isOpen ? "resolved" : "open")
-            }
+            onClick={() => onToggleStatus(issue, isOpen ? "resolved" : "open")}
             className="rounded p-1 text-muted-foreground hover:text-foreground"
             title={isOpen ? "Mark Resolved" : "Reopen"}
           >
