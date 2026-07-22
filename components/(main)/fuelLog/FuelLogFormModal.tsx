@@ -6,26 +6,13 @@ import ControlledCheckbox from "@/components/shared/input/ControlledCheckbox";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import ControlledTextArea from "@/components/shared/input/ControlledTextArea";
 import DateSelect from "@/components/shared/input/DateSelect";
-import {
-  Controller,
-  FormProvider,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { usePatch, usePost } from "@/hooks/useApi";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { fuelLogSchema, TFuelLogFormType } from "./schema/fuel-log.schema";
 import { TCreateFuelLogPayload, TFuelLog } from "./type/fuel-log.types";
-
-type TFuelLogFormValues = {
-  odometerReading: string;
-  litersAdded: string;
-  isFullTank: boolean;
-  pricePerLiter: string;
-  fuelStation: string;
-  date: Date | undefined;
-  notes: string;
-};
 
 type TFuelLogFormModalProps = {
   open: boolean;
@@ -50,7 +37,8 @@ export default function FuelLogFormModal({
     ["fuelLogs", bikeId],
   ]);
 
-  const methods = useForm<TFuelLogFormValues>({
+  const methods = useForm<TFuelLogFormType>({
+    resolver: zodResolver(fuelLogSchema),
     defaultValues: {
       odometerReading: fuelLog?.odometerReading?.toString() ?? "",
       litersAdded: fuelLog?.litersAdded?.toString() ?? "",
@@ -64,7 +52,7 @@ export default function FuelLogFormModal({
 
   const isPending = isCreating || isUpdating;
 
-  const onSubmit: SubmitHandler<TFuelLogFormValues> = async (data) => {
+  const onSubmit = async (data: TFuelLogFormType) => {
     try {
       const basePayload: TCreateFuelLogPayload = {
         odometerReading: Number(data.odometerReading),
