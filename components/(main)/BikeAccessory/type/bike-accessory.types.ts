@@ -10,12 +10,14 @@ export interface TBikeAccessory {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  price?: number;
 }
 
 export interface TCreateBikeAccessoryPayload {
   name: string;
   urgency: TAccessoryUrgency;
   status?: TAccessoryStatus;
+  price?: number;
 }
 
 export interface TUpdateBikeAccessoryPayload {
