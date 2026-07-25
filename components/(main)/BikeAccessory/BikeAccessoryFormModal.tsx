@@ -70,6 +70,7 @@ export default function BikeAccessoryFormModal({
         name: data.name,
         urgency: data.urgency as TCreateBikeAccessoryPayload["urgency"],
         status: data.status as TCreateBikeAccessoryPayload["status"],
+        ...(data?.price ? { price: Number(data?.price) } : {}),
       };
 
       if (isEditMode) {
@@ -120,6 +121,8 @@ export default function BikeAccessoryFormModal({
             placeholder="Select urgency"
             isRequired
           />
+
+          <ControlledInput name="price" label="Price (৳)" type="number" />
 
           <ControlledSelectField
             name="status"

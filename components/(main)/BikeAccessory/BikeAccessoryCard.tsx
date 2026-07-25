@@ -43,6 +43,16 @@ export default function BikeAccessoryCard({
   onEdit,
   onDelete,
 }: TProps) {
+  const formatPrice = (price?: number) => {
+    if (!price) return "N/A";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "BDT",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-2">
@@ -59,6 +69,11 @@ export default function BikeAccessoryCard({
             >
               {STATUS_LABEL[accessory.status]}
             </span>
+            {accessory.price && (
+              <span className="px-2 py-1 text-xs rounded-full font-medium bg-purple-100 text-purple-800">
+                {formatPrice(accessory.price)}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 gap-1">

@@ -15,6 +15,16 @@ export const bikeAccessorySchema = z.object({
     }),
 
   status: z.enum(["pending", "purchased", "cancelled"]),
+  price: z
+    .string()
+    .optional()
+
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "Cost must be a valid number",
+    })
+    .refine((val) => Number(val) <= 999999, {
+      message: "Cost cannot exceed 999,999",
+    }),
 });
 
 export type TBikeAccessoryFormType = z.infer<typeof bikeAccessorySchema>;
