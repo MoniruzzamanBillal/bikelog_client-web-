@@ -9,11 +9,13 @@ Consume the three new AI endpoints (`bikelog_server` spec 16, `context/specs/16-
 ## Context
 
 Backend contract (spec 16):
+
 - `GET /bikes/:bikeId/ai/spending-insight` → `{ insight: string, generated: boolean, cached: boolean }`
 - `GET /bikes/:bikeId/ai/mileage-insight` → `{ insight: string, generated: boolean, cached: boolean }`
 - `POST /bikes/:bikeId/ai/chat`, body `{ messages: {role: "user"|"assistant", content: string}[] }` → `{ reply: string }`. Stateless — the client owns and resends the full conversation history each call; the backend never persists messages, and rejects any client-supplied `role: "system"` message.
 
 Confirmed reusable pieces from direct exploration of the current codebase:
+
 - `components/(main)/Bike/BikeDetailPage/BikeDetailPage.tsx`'s nav grid is a plain `links` array mapped to `Link` tiles (`grid grid-cols-2 gap-3`, each tile `flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4`) — adding a 7th "AI Assistant" tile is a pure array addition, no restructuring.
 - The card idiom used everywhere (`SpendingSummaryView.tsx`, `BikeDetailPage`'s header) is `rounded-lg border border-border bg-card p-4` with a `text-sm text-muted-foreground` label line and a larger value/body line below.
 - `usePost()` (no arguments) is safe for a one-off mutation needing no cache invalidation — exactly the chat-send case.
@@ -24,7 +26,7 @@ Confirmed reusable pieces from direct exploration of the current codebase:
 
 ### Spending insight card
 
-New `components/(main)/Spending/AiSpendingInsightCard.tsx`: `useFetchData<TSpendingInsight>(["ai", "spending-insight", bikeId], \`/bikes/${bikeId}/ai/spending-insight\`)`, rendered as a card using the standard idiom, placed at the top of `Spending.tsx` (above the existing period pill-buttons) so it's visible regardless of which period tab is active. Loading state: `"Thinking..."` text (matches this codebase's existing plain-text loading convention, not a spinner, for consistency with `SpendingSummaryView`'s own loading state).
+New `components/(main)/Spending/AiSpendingInsightCard.tsx`: `useFetchData<TSpendingInsight>(["ai", "spending-insight", bikeId], \`/bikes/${bikeId}/ai/spending-insight\`)`, rendered as a card using the standard idiom, placed at the top of `Spending.tsx`(above the existing period pill-buttons) so it's visible regardless of which period tab is active. Loading state:`"Thinking..."`text (matches this codebase's existing plain-text loading convention, not a spinner, for consistency with`SpendingSummaryView`'s own loading state).
 
 ### Mileage insight card
 
@@ -37,6 +39,7 @@ No manual "regenerate" button in this pass — the backend already regenerates a
 ### Bike chat page
 
 New domain folder `components/(main)/AiAssistant/`:
+
 - `AiAssistant.tsx` — reads `bikeId` via `useParams()`, owns the conversation as local state (`useState<TChatMessage[]>([])` — client-side only, matches the backend's stateless design), renders the message list + input.
 - `type/aiAssistant.types.ts` — `TChatMessage { role: "user" | "assistant"; content: string }`, `TBikeChatResponse { reply: string }`.
 
@@ -44,7 +47,7 @@ Message list: a `flex-1 overflow-y-auto` scrollable container (same layout idiom
 
 Input: a plain controlled `<textarea>` (uncontrolled local `useState<string>`, not wrapped in react-hook-form — this isn't a validated form, just a message box) + a send button (`components/ui/button`, `size="icon"`, disabled while `isPending` or input is empty).
 
-Send flow: on submit, append the user's message to local state immediately (optimistic — no need to wait for a round trip to show what was just typed), call `usePost().mutateAsync({ url: \`/bikes/${bikeId}/ai/chat\`, payload: { messages: [...history, newUserMessage] } })`, append the returned `reply` as an assistant message on success. While pending, show a `Loader2` spinning icon in place of/alongside the send button ("AI is thinking...").
+Send flow: on submit, append the user's message to local state immediately (optimistic — no need to wait for a round trip to show what was just typed), call `usePost().mutateAsync({ url: \`/bikes/${bikeId}/ai/chat\`, payload: { messages: [...history, newUserMessage] } })`, append the returned `reply`as an assistant message on success. While pending, show a`Loader2` spinning icon in place of/alongside the send button ("AI is thinking...").
 
 Error handling: if the mutation fails (e.g. the backend's `AppError(503)` when every free model is down), show the existing toast pattern (`sonner`, already used elsewhere in this codebase for mutation errors) rather than silently dropping the message — the optimistically-appended user message stays visible, but no fake assistant reply is added.
 
