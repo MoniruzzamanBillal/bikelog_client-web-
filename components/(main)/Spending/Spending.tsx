@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import AiSpendingInsightCard from "./AiSpendingInsightCard";
 import SpendingSummaryView from "./SpendingSummaryView";
 import SpendingTrendChart from "./SpendingTrendChart";
 import { useFetchData } from "@/hooks/useApi";
@@ -48,6 +49,8 @@ export default function Spending() {
   return (
     <div className="space-y-4 p-4">
       <h1 className="text-lg font-semibold">Spending</h1>
+
+      <AiSpendingInsightCard bikeId={bikeId} />
 
       <div className="flex gap-2 overflow-x-auto">
         {(["month", "year", "lifetime", "trend"] as TPeriod[]).map((p) => (

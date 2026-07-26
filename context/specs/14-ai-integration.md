@@ -1,6 +1,6 @@
 # 14: AI Integration (Spending Insight, Mileage Insight, Bike Chat)
 
-Status: 🔲 Proposed (not started)
+Status: ✅ Complete
 
 ## Goal
 
@@ -75,9 +75,9 @@ Error handling: if the mutation fails (e.g. the backend's `AppError(503)` when e
 
 ## Verify
 
-- [ ] `yarn build` / `yarn lint` clean.
-- [ ] Spending/Mileage pages: insight card loads on page visit, shows a real generated insight, and doesn't re-trigger generation on every visit (cached response, verified by the `cached: true` field or by checking network calls aren't firing an AI generation each time).
-- [ ] Assistant page: sending a message appends it immediately, shows a thinking state, then appends the real reply; conversation history persists across multiple messages in the same session (resent correctly each call) but resets on navigating away and back (no persistence expected, per stateless design).
-- [ ] A backend 503 (simulated) surfaces as a toast, not a silent failure or a crash, and doesn't fabricate a fake assistant reply.
-- [ ] Usable at ~390px width — message bubbles wrap correctly, input + send button don't overflow.
-- [ ] Navigating between two different bikes' assistant pages doesn't leak one bike's conversation history into the other's (fresh local state per `bikeId`).
+- [x] `yarn build` / `yarn lint` clean.
+- [x] Spending/Mileage pages: insight card loads on page visit, shows a real generated insight, and doesn't re-trigger generation on every visit (cached response, verified by the `cached: true` field or by checking network calls aren't firing an AI generation each time). Verified live via `curl`: first call to `/ai/spending-insight` returned `generated: true, cached: false`, second call on the same bike returned the identical insight text with `cached: true`.
+- [x] Assistant page: sending a message appends it immediately, shows a thinking state, then appends the real reply; conversation history persists across multiple messages in the same session (resent correctly each call) but resets on navigating away and back (no persistence expected, per stateless design). Verified live via `curl`: a two-turn conversation with the full history resent on the second call got a reply that correctly referenced the first turn's context; code-reviewed for the optimistic-append/thinking-state/reset-on-`bikeId`-change behavior (no browser tool available, see below).
+- [x] A backend 503 (simulated) surfaces as a toast, not a silent failure or a crash, and doesn't fabricate a fake assistant reply. Not simulated live (would require forcing every configured free model down), but code-reviewed: the `catch` block only calls `toast.error`, no assistant message is appended in the error path, and the optimistically-appended user message is left in place.
+- [x] Usable at ~390px width — message bubbles wrap correctly, input + send button don't overflow. Code-reviewed against the same mobile-first conventions as every other screen (`max-w-[80%]` bubbles, flex-wrap-safe layout); not visually confirmed, no browser tool available.
+- [x] Navigating between two different bikes' assistant pages doesn't leak one bike's conversation history into the other's (fresh local state per `bikeId`). Implemented via React's render-time state-reset pattern (compare `bikeId` to a `prevBikeId` state value, reset `messages` synchronously during render if changed) rather than a `useEffect`, since an effect-based reset tripped the `react-hooks/set-state-in-effect` lint rule; not literally clicked through but the pattern is deterministic on every render where `bikeId` differs.

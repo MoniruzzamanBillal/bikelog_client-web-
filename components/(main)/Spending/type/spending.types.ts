@@ -21,3 +21,9 @@ export interface TSpendingTrend {
   months: number;
   monthlySummary: TMonthlySpending[];
 }
+
+export interface TSpendingInsight {
+  insight: string;
+  generated: boolean;
+  cached: boolean;
+}

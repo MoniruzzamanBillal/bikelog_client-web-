@@ -13,6 +13,7 @@ import {
   Fuel,
   Gauge,
   ShoppingBag,
+  Sparkles,
   Wallet,
   Wrench,
 } from "lucide-react";
@@ -77,6 +78,11 @@ const BikeDetailPage = () => {
       href: `/bikes/${bikeId}/accessories`,
       label: "Accessories",
       icon: ShoppingBag,
+    },
+    {
+      href: `/bikes/${bikeId}/assistant`,
+      label: "AI Assistant",
+      icon: Sparkles,
     },
   ];
 

@@ -53,3 +53,9 @@ export interface TMileageTrend {
   months: number;
   monthlySummary: TMonthlySummary[];
 }
+
+export interface TMileageInsight {
+  insight: string;
+  generated: boolean;
+  cached: boolean;
+}

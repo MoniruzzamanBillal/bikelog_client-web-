@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import AiMileageInsightCard from "./AiMileageInsightCard";
 import LifetimeMileageTab from "./LifetimeMileageTab";
 import MileageHistoryTab from "./MileageHistoryTab";
 import MileageTrendTab from "./MileageTrendTab";
@@ -26,6 +27,8 @@ export default function Mileage() {
   return (
     <div className="space-y-4 p-4">
       <h1 className="text-lg font-semibold">Mileage</h1>
+
+      <AiMileageInsightCard bikeId={bikeId} />
 
       <div className="flex gap-2 overflow-x-auto">
         {tabs.map(({ key, label }) => (
