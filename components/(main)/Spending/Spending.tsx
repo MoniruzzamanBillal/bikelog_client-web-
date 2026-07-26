@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import SpendingSummaryView from "./SpendingSummaryView";
+import SpendingTrendChart from "./SpendingTrendChart";
 import { useFetchData } from "@/hooks/useApi";
 import { TSpendingSummary } from "./type/spending.types";
 
-type TPeriod = "month" | "year" | "lifetime";
+type TPeriod = "month" | "year" | "lifetime" | "trend";
 
 function formatMonth(d: Date): string {
   const y = d.getFullYear();
@@ -34,7 +35,12 @@ export default function Spending() {
   const { data, isLoading } = useFetchData<TSpendingSummary>(
     queryKey,
     `/bikes/${bikeId}/spending-summary?${searchParams.toString()}`,
-    { enabled: period === "lifetime" || (period === "month" && !!targetMonth) || (period === "year" && !!targetYear) },
+    {
+      enabled:
+        period === "lifetime" ||
+        (period === "month" && !!targetMonth) ||
+        (period === "year" && !!targetYear),
+    },
   );
 
   const spending = data?.data;
@@ -44,7 +50,7 @@ export default function Spending() {
       <h1 className="text-lg font-semibold">Spending</h1>
 
       <div className="flex gap-2 overflow-x-auto">
-        {(["month", "year", "lifetime"] as TPeriod[]).map((p) => (
+        {(["month", "year", "lifetime", "trend"] as TPeriod[]).map((p) => (
           <button
             key={p}
             type="button"
@@ -89,11 +95,15 @@ export default function Spending() {
         </div>
       )}
 
-      <SpendingSummaryView
-        totalSpending={spending?.totalSpending ?? 0}
-        categoryBreakdown={spending?.categoryBreakdown ?? []}
-        isLoading={isLoading}
-      />
+      {period === "trend" ? (
+        <SpendingTrendChart bikeId={bikeId} />
+      ) : (
+        <SpendingSummaryView
+          totalSpending={spending?.totalSpending ?? 0}
+          categoryBreakdown={spending?.categoryBreakdown ?? []}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   );
 }

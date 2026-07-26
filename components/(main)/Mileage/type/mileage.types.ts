@@ -48,3 +48,8 @@ export interface TLifetimeMileage {
   totalLitersConsumed: number;
   fuelLogCount: number;
 }
+
+export interface TMileageTrend {
+  months: number;
+  monthlySummary: TMonthlySummary[];
+}

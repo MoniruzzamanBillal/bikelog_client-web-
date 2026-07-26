@@ -10,3 +10,14 @@ export interface TSpendingSummary {
   totalSpending: number;
   categoryBreakdown: TCategoryBreakdown[];
 }
+
+export interface TMonthlySpending {
+  targetMonth: string;
+  totalSpending: number;
+  categoryBreakdown: TCategoryBreakdown[];
+}
+
+export interface TSpendingTrend {
+  months: number;
+  monthlySummary: TMonthlySpending[];
+}
