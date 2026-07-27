@@ -1,9 +1,10 @@
 "use client";
 
+import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 type TGalleryImage = { _id: string; url: string; publicId: string };
@@ -27,6 +28,7 @@ export default function ImageGalleryField({
   max = MAX_IMAGES_PER_REQUEST,
 }: TImageGalleryFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -45,8 +47,13 @@ export default function ImageGalleryField({
     e.target.value = "";
   };
 
-  const handleRemove = (imageId: string) => {
-    if (confirm("Delete this image?")) onRemove(imageId);
+  const handleRemoveClick = (imageId: string) => {
+    setPendingRemoveId(imageId);
+  };
+
+  const handleConfirmRemove = () => {
+    if (pendingRemoveId) onRemove(pendingRemoveId);
+    setPendingRemoveId(null);
   };
 
   return (
@@ -65,8 +72,8 @@ export default function ImageGalleryField({
           {/* Positioned on the outer (non-clipping) wrapper so it isn't cut off by the inner thumbnail's overflow-hidden */}
           <button
             type="button"
-            onClick={() => handleRemove(image._id)}
-            className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-red-600"
+            onClick={() => handleRemoveClick(image._id)}
+            className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
             aria-label="Delete image"
           >
             <X className="size-3 text-white" />
@@ -97,6 +104,14 @@ export default function ImageGalleryField({
         className="hidden"
         onChange={handleFileChange}
         disabled={uploading}
+      />
+
+      <ConfirmDeleteModal
+        open={pendingRemoveId !== null}
+        onClose={() => setPendingRemoveId(null)}
+        onConfirm={handleConfirmRemove}
+        title="Delete image?"
+        description="This will permanently remove this image and cannot be undone."
       />
     </div>
   );

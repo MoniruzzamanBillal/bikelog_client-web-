@@ -1,9 +1,10 @@
 "use client";
 
+import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
 import { cn } from "@/lib/utils";
 import { Image as ImageIcon, Loader2, X } from "lucide-react";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 type TImageUploadThumbProps = {
   imageUrl?: string;
@@ -23,6 +24,7 @@ export default function ImageUploadThumb({
   className,
 }: TImageUploadThumbProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,9 +32,14 @@ export default function ImageUploadThumb({
     e.target.value = "";
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(`Delete this ${label.toLowerCase()}?`)) onDelete();
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setConfirmOpen(false);
+    onDelete();
   };
 
   return (
@@ -72,8 +79,8 @@ export default function ImageUploadThumb({
       {imageUrl && !uploading && (
         <button
           type="button"
-          onClick={handleDelete}
-          className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-red-600"
+          onClick={handleDeleteClick}
+          className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
           aria-label={`Delete ${label}`}
         >
           <X className="size-3 text-white" />
@@ -87,6 +94,14 @@ export default function ImageUploadThumb({
         className="hidden"
         onChange={handleFileChange}
         disabled={uploading}
+      />
+
+      <ConfirmDeleteModal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={`Delete ${label.toLowerCase()}?`}
+        description={`This will permanently remove this ${label.toLowerCase()} and cannot be undone.`}
       />
     </div>
   );
