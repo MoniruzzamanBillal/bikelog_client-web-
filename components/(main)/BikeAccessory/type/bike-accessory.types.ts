@@ -1,3 +1,5 @@
+import { TCloudinaryImage } from "@/components/shared/type/image.types";
+
 export type TAccessoryUrgency = "immediate" | "medium" | "low";
 export type TAccessoryStatus = "pending" | "purchased" | "cancelled";
 
@@ -11,6 +13,7 @@ export interface TBikeAccessory {
   createdAt: string;
   updatedAt: string;
   price?: number;
+  productImage?: TCloudinaryImage;
 }
 
 export interface TCreateBikeAccessoryPayload {

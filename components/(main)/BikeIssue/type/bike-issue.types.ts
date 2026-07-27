@@ -1,3 +1,5 @@
+import { TCloudinaryImage } from "@/components/shared/type/image.types";
+
 export type TBikeIssueStatus = "open" | "resolved";
 
 export interface TBikeIssue {
@@ -7,6 +9,7 @@ export interface TBikeIssue {
   description?: string;
   dateReported: string;
   status: TBikeIssueStatus;
+  images?: (TCloudinaryImage & { _id: string })[];
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;

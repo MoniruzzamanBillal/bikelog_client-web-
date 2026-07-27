@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { TFuelLog } from "./type/fuel-log.types";
 
 import { format } from "date-fns";
+import FuelLogReceiptCell from "./FuelLogReceiptCell";
 
 export const fuelLogColumns = ({
   onEdit,
@@ -48,6 +49,11 @@ export const fuelLogColumns = ({
         {(row.getValue("isFullTank") as boolean) ? "Yes" : "No"}
       </span>
     ),
+  },
+  {
+    id: "receipt",
+    header: "Receipt",
+    cell: ({ row }) => <FuelLogReceiptCell fuelLog={row.original} />,
   },
   {
     id: "actions",
