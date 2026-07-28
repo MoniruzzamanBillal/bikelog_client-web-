@@ -1,7 +1,10 @@
 "use client";
 
+import ImageGalleryField from "@/components/shared/input/ImageGalleryField";
+import { useDelete, usePost } from "@/hooks/useApi";
 import { format } from "date-fns";
 import { CheckCircle2, RotateCcw, SquarePen, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { TBikeIssue, TBikeIssueStatus } from "./type/bike-issue.types";
 type TProps = {
   issue: TBikeIssue;
@@ -22,6 +25,40 @@ export default function BikeIssueCard({
   onToggleStatus,
 }: TProps) {
   const isOpen = issue.status === "open";
+
+  const { mutateAsync: addImages, isPending: isAdding } = usePost([
+    ["bikeIssues", issue.bike],
+  ]);
+  const { mutateAsync: removeImage, isPending: isRemoving } = useDelete([
+    ["bikeIssues", issue.bike],
+  ]);
+
+  const handleAddImages = async (files: File[]) => {
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("images", file));
+      await addImages({
+        url: `/bikes/${issue.bike}/issues/${issue._id}/images`,
+        payload: formData,
+      });
+      toast.success("Images added");
+    } catch (error) {
+      const message = (error as { message?: string })?.message;
+      toast.error(message ?? "Failed to add images");
+    }
+  };
+
+  const handleRemoveImage = async (imageId: string) => {
+    try {
+      await removeImage({
+        url: `/bikes/${issue.bike}/issues/${issue._id}/images/${imageId}`,
+      });
+      toast.success("Image deleted");
+    } catch (error) {
+      const message = (error as { message?: string })?.message;
+      toast.error(message ?? "Failed to delete image");
+    }
+  };
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
@@ -76,6 +113,15 @@ export default function BikeIssueCard({
           {issue.description}
         </p>
       )}
+
+      <div className="mt-3">
+        <ImageGalleryField
+          images={issue.images ?? []}
+          onAdd={handleAddImages}
+          onRemove={handleRemoveImage}
+          uploading={isAdding || isRemoving}
+        />
+      </div>
     </div>
   );
 }

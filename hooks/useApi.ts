@@ -1,5 +1,5 @@
 import { TgenericResponse } from "@/lib/apiResponse";
-import { apiDelete, apiGet, apiPatch, apiPost } from "@/utils/api";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/utils/api";
 import {
   useMutation,
   useQuery,
@@ -51,6 +51,23 @@ export const usePatch = (invalidateQueriesKeys?: Array<string[]>) => {
       payload: Record<string, unknown> | FormData;
       config?: AxiosRequestConfig;
     }) => apiPatch(params.url, params.payload),
+    onSuccess: () => {
+      invalidateQueriesKeys?.forEach((key) =>
+        queryClient.invalidateQueries({ queryKey: key }),
+      );
+    },
+  });
+};
+
+export const usePut = (invalidateQueriesKeys?: Array<string[]>) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: {
+      url: string;
+      payload: Record<string, unknown> | FormData;
+      config?: AxiosRequestConfig;
+    }) => apiPut(params.url, params.payload, params.config),
     onSuccess: () => {
       invalidateQueriesKeys?.forEach((key) =>
         queryClient.invalidateQueries({ queryKey: key }),

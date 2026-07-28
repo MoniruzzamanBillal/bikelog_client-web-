@@ -1,6 +1,9 @@
 "use client";
 
+import ImageUploadThumb from "@/components/shared/input/ImageUploadThumb";
+import { useDelete, usePut } from "@/hooks/useApi";
 import { SquarePen, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   TAccessoryStatus,
   TAccessoryUrgency,
@@ -53,27 +56,70 @@ export default function BikeAccessoryCard({
     }).format(price);
   };
 
+  const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
+    ["bikeAccessories", accessory.bike],
+  ]);
+  const { mutateAsync: deleteImage, isPending: isDeleting } = useDelete([
+    ["bikeAccessories", accessory.bike],
+  ]);
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      await uploadImage({
+        url: `/bikes/${accessory.bike}/accessories/${accessory._id}/image`,
+        payload: formData,
+      });
+      toast.success("Product image uploaded");
+    } catch (error) {
+      const message = (error as { message?: string })?.message;
+      toast.error(message ?? "Failed to upload image");
+    }
+  };
+
+  const handleImageDelete = async () => {
+    try {
+      await deleteImage({
+        url: `/bikes/${accessory.bike}/accessories/${accessory._id}/image`,
+      });
+      toast.success("Product image deleted");
+    } catch (error) {
+      const message = (error as { message?: string })?.message;
+      toast.error(message ?? "Failed to delete image");
+    }
+  };
+
   return (
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-sm font-medium">{accessory.name}</p>
-          <div className="mt-1 flex gap-2">
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ACCESSORY_URGENCY_BADGE[accessory.urgency]}`}
-            >
-              {URGENCY_LABEL[accessory.urgency]}
-            </span>
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ACCESSORY_STATUS_BADGE[accessory.status]}`}
-            >
-              {STATUS_LABEL[accessory.status]}
-            </span>
-            {accessory.price && (
-              <span className="px-2 py-1 text-xs rounded-full font-medium bg-purple-100 text-purple-800">
-                {formatPrice(accessory.price)}
+        <div className="flex gap-3">
+          <ImageUploadThumb
+            imageUrl={accessory.productImage?.url}
+            onUpload={handleImageUpload}
+            onDelete={handleImageDelete}
+            uploading={isUploading || isDeleting}
+            label="Product"
+          />
+          <div>
+            <p className="text-sm font-medium">{accessory.name}</p>
+            <div className="mt-1 flex gap-2">
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ACCESSORY_URGENCY_BADGE[accessory.urgency]}`}
+              >
+                {URGENCY_LABEL[accessory.urgency]}
               </span>
-            )}
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ACCESSORY_STATUS_BADGE[accessory.status]}`}
+              >
+                {STATUS_LABEL[accessory.status]}
+              </span>
+              {accessory.price && (
+                <span className="px-2 py-1 text-xs rounded-full font-medium bg-purple-100 text-purple-800">
+                  {formatPrice(accessory.price)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex shrink-0 gap-1">

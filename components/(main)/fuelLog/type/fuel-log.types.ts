@@ -1,3 +1,5 @@
+import { TCloudinaryImage } from "@/components/shared/type/image.types";
+
 export interface TFuelLog {
   _id: string;
   bike: string;
@@ -9,6 +11,7 @@ export interface TFuelLog {
   fuelStation?: string;
   date: string;
   notes?: string;
+  receiptImage?: TCloudinaryImage;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;

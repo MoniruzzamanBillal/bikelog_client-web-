@@ -13,5 +13,11 @@ export const apiPost = async (
 export const apiPatch = async (endpoint: string, payload: object) =>
   (await axiosInstance.patch(endpoint, payload)).data;
 
+export const apiPut = async (
+  endpoint: string,
+  payload: object,
+  config?: AxiosRequestConfig,
+) => (await axiosInstance.put(endpoint, payload, config)).data;
+
 export const apiDelete = async (endpoint: string) =>
   (await axiosInstance.delete(endpoint)).data;
