@@ -1,5 +1,6 @@
 "use client";
 
+import ImageLightbox from "@/components/shared/ImageLightbox/ImageLightbox";
 import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
@@ -29,6 +30,7 @@ export default function ImageGalleryField({
 }: TImageGalleryFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -58,9 +60,14 @@ export default function ImageGalleryField({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {images.map((image) => (
+      {images.map((image, index) => (
         <div key={image._id} className="relative size-16 shrink-0">
-          <div className="size-full overflow-hidden rounded-md border border-border bg-muted">
+          <button
+            type="button"
+            onClick={() => setLightboxIndex(index)}
+            className="size-full overflow-hidden rounded-md border border-border bg-muted"
+            aria-label="View image"
+          >
             <Image
               src={image.url}
               alt="Issue evidence"
@@ -68,11 +75,14 @@ export default function ImageGalleryField({
               sizes="64px"
               className="object-cover"
             />
-          </div>
+          </button>
           {/* Positioned on the outer (non-clipping) wrapper so it isn't cut off by the inner thumbnail's overflow-hidden */}
           <button
             type="button"
-            onClick={() => handleRemoveClick(image._id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemoveClick(image._id);
+            }}
             className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
             aria-label="Delete image"
           >
@@ -112,6 +122,13 @@ export default function ImageGalleryField({
         onConfirm={handleConfirmRemove}
         title="Delete image?"
         description="This will permanently remove this image and cannot be undone."
+      />
+
+      <ImageLightbox
+        images={images.map((image) => ({ url: image.url }))}
+        initialIndex={lightboxIndex ?? 0}
+        open={lightboxIndex !== null}
+        onClose={() => setLightboxIndex(null)}
       />
     </div>
   );
