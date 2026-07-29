@@ -55,14 +55,17 @@ The original product plan (`../../bikelog_server/context/specs/bike-log-plan.md`
 ## Out of Scope
 
 **Deferred to a later version of this same web app (not abandoned):**
+
 - Admin panel / any `admin`-role functionality — `app/(admin)/` stays an empty, reserved route group in v1 (see "Roles" above).
 - Charts of any kind (mileage trend, spend trend) — plain totals/cards only, per the backend's "no charting library chosen yet" stance and the developer's explicit "no animation, minimal" instruction.
 - Any richer maintenance-type catalog than what's seeded (Engine Oil, Chain Lube, Tire Change, Brake Pads, General Service, Insurance, Registration/Tax, Other) — the UI supports adding more, but no extra product logic beyond the generic catalog form.
 
 **Deferred to the React Native app (a different, later build, not this one):**
+
 - Push notifications (Expo push was the backend's Phase-2 plan for a native app; not applicable to this web client — an in-app reminders banner is the only mechanism here, same as the backend's Tier 1). This is exactly the kind of feature that's the React Native app's job, not this prototype's.
 
 **Not relevant to Bike Log at all:**
+
 - The old scaffold's leftover pages/components (TipTap rich text editor, GSAP animation, the shop-domain demo pages under `app/table`, `app/table2`, `app/multi-form`, `app/input`) — see `architecture.md` for what's kept vs. deleted.
 
 ## Success Criteria
