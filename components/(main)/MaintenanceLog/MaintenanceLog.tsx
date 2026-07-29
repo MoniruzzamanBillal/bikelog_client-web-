@@ -53,7 +53,7 @@ export default function MaintenanceLog() {
   };
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-3.5 ">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Maintenance Logs</h1>
         <PrimaryButton onClick={() => setCreateOpen(true)}>
