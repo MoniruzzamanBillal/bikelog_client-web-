@@ -3,7 +3,7 @@
 import ImageLightbox from "@/components/shared/ImageLightbox/ImageLightbox";
 import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
 import { cn } from "@/lib/utils";
-import { FileText, Plus, X } from "lucide-react";
+import { FileText, Loader2, Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ export default function FileGalleryField({
 }: TFileGalleryFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const imageFiles = files.filter((file) => file.resourceType === "image");
@@ -62,15 +63,26 @@ export default function FileGalleryField({
     setPendingRemoveId(fileId);
   };
 
-  const handleConfirmRemove = () => {
-    if (pendingRemoveId) onRemove(pendingRemoveId);
-    setPendingRemoveId(null);
+  const handleConfirmRemove = async () => {
+    if (pendingRemoveId) {
+      const idToDelete = pendingRemoveId;
+      setPendingRemoveId(null);
+      setDeletingId(idToDelete);
+      try {
+        await onRemove(idToDelete);
+      } finally {
+        setDeletingId(null);
+      }
+    } else {
+      setPendingRemoveId(null);
+    }
   };
 
   return (
     <div className="flex flex-wrap gap-2">
       {files.map((file) => {
         const isImage = file.resourceType === "image";
+        const isDeleting = deletingId === file._id;
 
         return (
           <div key={file._id} className="relative size-16 shrink-0">
@@ -108,18 +120,26 @@ export default function FileGalleryField({
               </a>
             )}
 
+            {isDeleting && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-sm">
+                <Loader2 className="size-5 animate-spin text-primary" />
+              </div>
+            )}
+
             {/* Positioned on the outer (non-clipping) wrapper so it isn't cut off by the inner tile's overflow-hidden */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemoveClick(file._id);
-              }}
-              className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
-              aria-label="Delete file"
-            >
-              <X className="size-3 text-white" />
-            </button>
+            {!isDeleting && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveClick(file._id);
+                }}
+                className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
+                aria-label="Delete file"
+              >
+                <X className="size-3 text-white" />
+              </button>
+            )}
           </div>
         );
       })}
@@ -135,7 +155,11 @@ export default function FileGalleryField({
           )}
           aria-label="Add file"
         >
-          <Plus className="size-5" />
+          {uploading && !deletingId ? (
+            <Loader2 className="size-5 animate-spin" />
+          ) : (
+            <Plus className="size-5" />
+          )}
         </button>
       )}
 

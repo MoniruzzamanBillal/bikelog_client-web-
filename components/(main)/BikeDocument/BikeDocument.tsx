@@ -7,7 +7,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import BikeDocumentCard from "./BikeDocumentCard";
 import BikeDocumentFormModal from "./BikeDocumentFormModal";
-import { TBikeDocument, TBikeDocumentsApiResponse } from "./type/bike-document.types";
+import {
+  TBikeDocument,
+  TBikeDocumentsApiResponse,
+} from "./type/bike-document.types";
 
 export default function BikeDocument() {
   const params = useParams();

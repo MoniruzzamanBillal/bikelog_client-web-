@@ -46,7 +46,11 @@ function ExpiryBadge({ expiryDate }: { expiryDate?: string }) {
   );
 }
 
-export default function BikeDocumentCard({ document, onEdit, onDelete }: TProps) {
+export default function BikeDocumentCard({
+  document,
+  onEdit,
+  onDelete,
+}: TProps) {
   const { mutateAsync: addFiles, isPending: isAdding } = usePost([
     ["bikeDocuments", document.bike],
   ]);
