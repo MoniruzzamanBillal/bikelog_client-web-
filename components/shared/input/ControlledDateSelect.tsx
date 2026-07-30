@@ -8,6 +8,7 @@ type TControlledDateSelectProps = {
   label?: string;
 
   isRequired?: boolean;
+  placeholder?: string;
 };
 
 const ControlledDateSelect = ({
@@ -15,6 +16,7 @@ const ControlledDateSelect = ({
   label,
 
   isRequired = false,
+  placeholder = "Select purchase date",
 }: TControlledDateSelectProps) => {
   const { control } = useFormContext();
 
@@ -35,7 +37,7 @@ const ControlledDateSelect = ({
             value={field.value}
             onChange={(date) => field.onChange(date)}
             mode="single"
-            placeholder="Select purchase date"
+            placeholder={placeholder}
           />
 
           {error && <p className="text-sm text-red-500">{error.message}</p>}

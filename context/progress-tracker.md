@@ -38,6 +38,7 @@ The backend has two roles (`user`/`admin`) but no role-based authorization imple
 | [14-ai-integration.md](specs/14-ai-integration.md)                                       | ✅ Complete | AI spending/mileage insight cards + bike chat page — client for backend spec 16.                                     |
 | [15-image-uploads.md](specs/15-image-uploads.md)                                         | ✅ Complete | Client for backend spec 17 — receipt/service/product/issue-evidence image upload.                                    |
 | [16-image-lightbox.md](specs/16-image-lightbox.md)                                       | ✅ Complete | Full-screen image lightbox on top of spec 15's uploaded images — no backend changes.                                 |
+| [17-bike-documents.md](specs/17-bike-documents.md)                                       | 🔨 In Progress | Bike papers/IDs with expiry tracking, mixed image+PDF files — client for backend spec 19.                            |
 |                                                                                          |
 
 ## Completed (already implemented)
