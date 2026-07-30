@@ -10,6 +10,7 @@ import ModalActionButtons from "@/components/shared/Modal/ModalActionButtons";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
+  BookOpen,
   FileText,
   Fuel,
   Gauge,
@@ -89,6 +90,11 @@ const BikeDetailPage = () => {
       href: `/bikes/${bikeId}/documents`,
       label: "Documents",
       icon: FileText,
+    },
+    {
+      href: `/bikes/${bikeId}/manual`,
+      label: "Manual",
+      icon: BookOpen,
     },
   ];
 
