@@ -137,6 +137,7 @@ export default function BikeFormModal({
             name="fuelTankCapacityLiters"
             label="Fuel Tank Capacity (L)"
             type="number"
+            step="0.01"
             isRequired
           />
 
@@ -145,6 +146,7 @@ export default function BikeFormModal({
               name="currentOdometer"
               label="Starting Odometer (km)"
               type="number"
+              step="0.01"
             />
           )}
 

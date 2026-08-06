@@ -182,6 +182,7 @@ export default function MaintenanceLogFormModal({
             name="odometerReading"
             label="Odometer (km)"
             type="number"
+            step="0.01"
             isRequired
           />
 
@@ -198,6 +199,7 @@ export default function MaintenanceLogFormModal({
             name="intervalKmUsed"
             label="Service Interval (km)"
             type="number"
+            step="0.01"
             isRequired
           />
 
@@ -205,6 +207,7 @@ export default function MaintenanceLogFormModal({
             name="cost"
             label="Cost (৳)"
             type="number"
+            step="0.01"
             isRequired
           />
 
