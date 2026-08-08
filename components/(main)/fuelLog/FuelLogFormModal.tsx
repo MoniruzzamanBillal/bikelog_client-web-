@@ -109,6 +109,7 @@ export default function FuelLogFormModal({
             name="odometerReading"
             label="Odometer Reading (km)"
             type="number"
+            step="0.01"
             isRequired
           />
 
