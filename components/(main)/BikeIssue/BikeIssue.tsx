@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TablePagination } from "@/components/shared/table/TablePagination";
 import { useDelete, useFetchData, usePatch } from "@/hooks/useApi";
 import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -46,6 +47,8 @@ export default function BikeIssue() {
   ]);
 
   const issues = data?.data?.result ?? [];
+  const meta = data?.data?.meta ?? 0;
+  const totalPages = Math.ceil(meta / limit);
 
   const handleEdit = (issue: TBikeIssue) => setEditingIssue(issue);
 
@@ -131,6 +134,17 @@ export default function BikeIssue() {
             />
           ))}
         </div>
+      )}
+
+      {!isLoading && totalPages > 1 && (
+        <TablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={meta}
+          itemsPerPage={limit}
+          onPageChange={setPage}
+          className="rounded-lg border border-border bg-card"
+        />
       )}
 
       <BikeIssueFormModal

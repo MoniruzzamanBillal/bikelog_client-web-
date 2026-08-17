@@ -52,7 +52,7 @@ export function generateSpendingPdf(
       startY: cursorY,
       head: [["Category", `Total (${CURRENCY_PREFIX})`]],
       body: details.categoryBreakdown.map((cat) => [
-        cat.category,
+        sanitizeForPdf(cat.category),
         cat.total.toLocaleString(),
       ]),
     });
@@ -68,11 +68,11 @@ export function generateSpendingPdf(
       ],
       body: details.records.map((record) => [
         format(new Date(record.date), "d MMM yyyy"),
-        record.category,
+        sanitizeForPdf(record.category),
         sanitizeForPdf(record.description),
         record.amount.toLocaleString(),
-        record.vendor ?? "-",
-        record.remarks ?? "-",
+        record.vendor ? sanitizeForPdf(record.vendor) : "-",
+        record.remarks ? sanitizeForPdf(record.remarks) : "-",
       ]),
     });
   } else {

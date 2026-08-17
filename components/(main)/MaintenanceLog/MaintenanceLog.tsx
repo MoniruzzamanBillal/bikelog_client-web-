@@ -1,6 +1,7 @@
 "use client";
 
 import PrimaryButton from "@/components/shared/PrimaryButton/PrimaryButton";
+import { TablePagination } from "@/components/shared/table/TablePagination";
 import { useDelete, useFetchData } from "@/hooks/useApi";
 import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -15,7 +16,7 @@ export default function MaintenanceLog() {
   const params = useParams();
   const bikeId = params.bikeId as string;
 
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [editingLog, setEditingLog] = useState<TMaintenanceLog | null>(null);
   const limit = 20;
@@ -34,6 +35,8 @@ export default function MaintenanceLog() {
   ]);
 
   const logs = data?.data?.result ?? [];
+  const meta = data?.data?.meta ?? 0;
+  const totalPages = Math.ceil(meta / limit);
 
   const handleEdit = (log: TMaintenanceLog) => setEditingLog(log);
 
@@ -81,6 +84,17 @@ export default function MaintenanceLog() {
             />
           ))}
         </div>
+      )}
+
+      {!isLoading && totalPages > 1 && (
+        <TablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={meta}
+          itemsPerPage={limit}
+          onPageChange={setPage}
+          className="rounded-lg border border-border bg-card"
+        />
       )}
 
       <MaintenanceLogFormModal

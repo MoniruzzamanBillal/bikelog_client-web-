@@ -42,11 +42,9 @@ const BikeDetailPage = () => {
 
   const handleDelete = async () => {
     try {
-      const resut = await deleteBikeMutation({ url: `/bikes/${bikeId}` });
+      const result = await deleteBikeMutation({ url: `/bikes/${bikeId}` });
 
-      console.log("delete result = ", resut);
-
-      if (resut?.success) {
+      if (result?.success) {
         toast.success("Bike deleted successfully");
         router.replace("/dashboard");
       }
