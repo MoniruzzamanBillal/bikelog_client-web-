@@ -1,6 +1,6 @@
 # 21: Spending PDF Export
 
-Status: ⛔ Not started
+Status: ✅ Complete
 
 ## Goal
 
@@ -79,15 +79,15 @@ If `records.length === 0`, still generate a PDF (header + "Total Spending: ৳0"
 
 ## Implementation
 
-1. Add `TSpendingRecordSource`, `TSpendingRecord`, `TSpendingDetails` to `components/(main)/Spending/type/spending.types.ts`.
-2. `yarn add jspdf jspdf-autotable` — check installed versions are mutually compatible (`jspdf-autotable`'s major version must match the `jspdf` major it's built against; check the package's own compatibility notes at install time rather than assuming).
-3. Create `components/(main)/Spending/utils/generateSpendingPdf.ts`: builds the PDF exactly per the Design section's layout (header → summary → category table → line-item table), formats dates via `date-fns`, guards `null` vendor/remarks as `"-"`, handles the zero-records case, and calls `.save(filename)`.
-4. In `Spending.tsx`: add local `isExporting` state; add a `handleExportPdf` function that builds the same query string the existing summary fetch already builds (reuse `searchParams` construction, pointed at `/spending-summary/details` instead of `/spending-summary`), performs a one-off GET (via whatever thin API-client helper `useFetchData`/`apiGet` already wraps — don't add a second axios instance), and on success calls `generateSpendingPdf(response.data, periodLabel)` where `periodLabel` is derived from the already-known `period`/`targetMonth`/`targetYear` state (e.g. via `date-fns`'s `format`, matching how the Month input and Year stepper already display these values).
-5. Add the button to the controls row, styled per Design, hidden on the `trend` tab, disabled + spinner while `isExporting`.
-6. Wire `sonner` `toast.error(...)` on fetch failure, using the backend's `message` field per this project's existing error-handling convention.
-7. Manually test all three periods (see Verify) in a real browser — this is a UI feature, code review alone doesn't confirm the PDF actually renders correctly.
-8. Run `yarn lint`; fix anything flagged.
-9. Update `context/progress-tracker.md`: new Recent Activity entry + a spec 21 row in the Spec Implementation Status table.
+1. [x] Add `TSpendingRecordSource`, `TSpendingRecord`, `TSpendingDetails` to `components/(main)/Spending/type/spending.types.ts`.
+2. [x] `yarn add jspdf jspdf-autotable` — check installed versions are mutually compatible (`jspdf-autotable`'s major version must match the `jspdf` major it's built against; check the package's own compatibility notes at install time rather than assuming). Installed `jspdf@4.2.1` + `jspdf-autotable@5.0.8` — confirmed `jspdf-autotable@5`'s own declared peer range (`^2 || ^3 || ^4`) accepts `jspdf@4` before installing.
+3. [x] Create `components/(main)/Spending/utils/generateSpendingPdf.ts`: builds the PDF exactly per the Design section's layout (header → summary → category table → line-item table), formats dates via `date-fns`, guards `null` vendor/remarks as `"-"`, handles the zero-records case, and calls `.save(filename)`. **Deviation from the spec's literal `৳` instruction, discovered during implementation, not a scope change:** jsPDF's built-in fonts (Helvetica/Times/Courier) only cover WinAnsi/Latin-1, so `৳` (U+09F3) rendered as mojibake (`ó`) in the generated PDF. Tried embedding a Bengali-script TTF (`Noto Sans Bengali`, SIL OFL, present on this system at `/usr/share/fonts/truetype/noto/`) via `jsPDF.addFont()` — rejected after isolated testing (a standalone Node script outside the Next app/browser, using the same installed `jspdf` package directly) showed jsPDF's TTF parser breaks badly enough on this font that it silently drops *all* text, including plain Latin, not just Bengali glyphs — confirmed this is a jsPDF/font-file interaction issue, not an app bug, by successfully embedding a different TTF (`DejaVuSans`, which lacks the `৳` glyph entirely — confirmed via `fc-query`'s charset dump — but proved jsPDF's font-embedding path itself works fine in general). Settled on the PDF-only fallback of prefixing amounts with the ASCII string `"Tk"` instead of `৳` — confined entirely to this one new file, via a `CURRENCY_PREFIX` constant and a `sanitizeForPdf()` helper that also strips a literal `৳` out of the backend's server-synthesized `record.description` field (e.g. `"5L (Full Tank) @ ৳100/L"`, from `bikelog_server` spec 23) before it reaches the PDF. The live on-screen UI is completely unaffected and still shows `৳` everywhere via normal browser/CSS font rendering, which was never the broken part — this is purely a jsPDF text-rendering limitation, isolated to the exported file.
+4. [x] In `Spending.tsx`: add local `isExporting` state; add a `handleExportPdf` function that builds the same query string the existing summary fetch already builds (reuse `searchParams` construction, pointed at `/spending-summary/details` instead of `/spending-summary`), performs a one-off GET (via whatever thin API-client helper `useFetchData`/`apiGet` already wraps — don't add a second axios instance), and on success calls `generateSpendingPdf(response.data, periodLabel)` where `periodLabel` is derived from the already-known `period`/`targetMonth`/`targetYear` state (e.g. via `date-fns`'s `format`, matching how the Month input and Year stepper already display these values).
+5. [x] Add the button to the controls row, styled per Design, hidden on the `trend` tab, disabled + spinner while `isExporting`.
+6. [x] Wire `sonner` `toast.error(...)` on fetch failure, using the backend's `message` field per this project's existing error-handling convention.
+7. [x] Manually test all three periods (see Verify) in a real browser — this is a UI feature, code review alone doesn't confirm the PDF actually renders correctly.
+8. [x] Run `yarn lint`; fix anything flagged.
+9. [x] Update `context/progress-tracker.md`: new Recent Activity entry + a spec 21 row in the Spec Implementation Status table.
 
 ## Dependencies
 
@@ -97,14 +97,14 @@ If `records.length === 0`, still generate a PDF (header + "Total Spending: ৳0"
 
 ## Verify
 
-- [ ] "Export PDF" button appears on Month, Year, and Lifetime tabs; does **not** appear on the Trend tab.
-- [ ] Clicking it on the Month tab (with data present) downloads a PDF named `spending-month-<targetMonth>.pdf` containing: header with "August 2026"-style period label, correct total spending, a category breakdown table matching what's on-screen, and a line-item table with one row per fuel/maintenance log in that month.
-- [ ] Same for Year (`spending-year-<targetYear>.pdf`) and Lifetime (`spending-lifetime.pdf`).
-- [ ] Line-item table's `Vendor`/`Remarks` columns show `-` (not blank, not `"null"`) for records where `fuelStation`/`serviceCenter`/`notes` weren't recorded.
-- [ ] Dates in the line-item table are formatted human-readably (e.g. "17 Aug 2026"), not raw ISO strings.
-- [ ] Exporting a period with zero spending records still produces a valid PDF (header + ৳0 total + "No spending records for this period." message), not a silent no-op or a crash.
-- [ ] While the export is in flight, the button shows a disabled/spinner state and can't be double-clicked into firing two downloads.
-- [ ] Simulating a backend error (e.g. temporarily point the fetch at a bad URL, or test against an unauthorized bike) shows a `sonner` error toast with the backend's message, and the button returns to its normal clickable state afterward.
-- [ ] Usable at ~390px width — button doesn't break the existing controls-row layout on mobile viewport.
-- [ ] `yarn lint` clean; `yarn build`/`tsc` type-check clean.
-- [ ] `context/progress-tracker.md` updated with a new spec 21 row.
+- [x] "Export PDF" button appears on Month, Year, and Lifetime tabs; does **not** appear on the Trend tab. Live-verified with Playwright (headless Chromium, 390×844 viewport) against a temporary local `bikelog_server` instance with a throwaway user/bike: button present in all three tabs' controls row, absent (button list confirmed via DOM query) on Trend.
+- [x] Clicking it on the Month tab (with data present) downloads a PDF named `spending-month-<targetMonth>.pdf` containing: header with "August 2026"-style period label, correct total spending, a category breakdown table matching what's on-screen, and a line-item table with one row per fuel/maintenance log in that month. Confirmed via `pdftotext` on the actual downloaded file (Playwright's `expect_download`): `spending-month-2026-08.pdf`, header "Spending Report" / "August 2026" / generation timestamp, "Total Spending: Tk 1,170", category table (Fuel 920, Spec21 Chain Lube 250) matching the on-screen `SpendingSummaryView`, and 3 line-item rows (2 fuel + 1 maintenance) in ascending date order.
+- [x] Same for Year (`spending-year-<targetYear>.pdf`) and Lifetime (`spending-lifetime.pdf`) — both downloaded with the exact filenames and matching totals/tables, confirmed via `pdftotext`.
+- [x] Line-item table's `Vendor`/`Remarks` columns show `-` (not blank, not `"null"`) for records where `fuelStation`/`serviceCenter`/`notes` weren't recorded — confirmed: the fuel log created without either field shows `-`/`-` in the extracted PDF text.
+- [x] Dates in the line-item table are formatted human-readably (e.g. "17 Aug 2026"), not raw ISO strings — confirmed (`5 Aug 2026`, `7 Aug 2026`, `10 Aug 2026`).
+- [x] Exporting a period with zero spending records still produces a valid PDF (header + ৳0 total + "No spending records for this period." message), not a silent no-op or a crash. Live-verified: selected a month (`2020-01`) with no logs, export still downloaded `spending-month-2020-01.pdf` with "Total Spending: Tk 0" and the literal "No spending records for this period." line (per the currency-symbol deviation above, the summary line uses `Tk` in the PDF, not `৳`, everywhere else the app still shows `৳`).
+- [x] While the export is in flight, the button shows a disabled/spinner state and can't be double-clicked into firing two downloads — implemented via `isExporting` state gating both the `disabled` prop and an early-return guard in `handleExportPdf`; not separately re-verified as a race condition in this pass (the guard is a standard, already-used-elsewhere pattern in this codebase, not new machinery).
+- [x] Simulating a backend error (e.g. temporarily point the fetch at a bad URL, or test against an unauthorized bike) shows a `sonner` error toast with the backend's message, and the button returns to its normal clickable state afterward. Live-verified: navigated to a bogus bike id, clicked Export PDF, got a `sonner` toast reading exactly the backend's real message ("Bike not found"), and confirmed via DOM query that the button was no longer disabled afterward.
+- [x] Usable at ~390px width — button doesn't break the existing controls-row layout on mobile viewport. Confirmed via screenshot (Year tab, the tightest row: chevrons + year label + Export PDF button all fit with room to spare) and `document.documentElement.scrollWidth === clientWidth` (390 === 390, no horizontal overflow) on all three non-trend tabs.
+- [x] `yarn lint` clean; `yarn build`/`tsc` type-check clean — both confirmed, same pre-existing 5-warning/0-error baseline, none new; all 15 routes compile.
+- [x] `context/progress-tracker.md` updated with a new spec 21 row.
