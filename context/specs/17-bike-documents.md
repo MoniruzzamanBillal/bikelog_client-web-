@@ -1,6 +1,6 @@
 # 17: Bike Documents (Papers/IDs, mixed image+PDF, expiry tracking)
 
-Status: ⛔ Not started
+Status: ✅ Complete
 
 ## Goal
 
@@ -120,16 +120,16 @@ export type TBikeDocumentsApiResponse = {
 
 ## Implementation
 
-1. [ ] `components/(main)/BikeDocument/type/bike-document.types.ts`
-2. [ ] `components/(main)/BikeDocument/schema/bike-document.schema.ts` — zod, `title` required (min/max length matching `bikeIssueSchema`'s convention), `description` optional max length, `expiryDate` optional `z.date()` with no refine (unlike `bikeIssue`'s past-only `dateReported`).
-3. [ ] `components/shared/input/FileGalleryField.tsx` — new shared component.
-4. [ ] `components/(main)/BikeDocument/BikeDocumentFormModal.tsx`
-5. [ ] `components/(main)/BikeDocument/BikeDocumentCard.tsx` — includes the inline expiry-badge logic and `FileGalleryField` integration.
-6. [ ] `components/(main)/BikeDocument/BikeDocument.tsx`
-7. [ ] `app/(main)/bikes/[bikeId]/documents/page.tsx`
-8. [ ] `components/(main)/Bike/BikeDetailPage/BikeDetailPage.tsx` — add the "Documents" tile.
-9. [ ] (Optional, small, bundle in if convenient) `components/shared/input/ControlledDateSelect.tsx` — add an optional `placeholder` prop so `expiryDate` doesn't show the hardcoded "Select purchase date" text.
-10. [ ] Log the finished work in `context/progress-tracker.md`, same per-entry format as every prior spec.
+1. [x] `components/(main)/BikeDocument/type/bike-document.types.ts`
+2. [x] `components/(main)/BikeDocument/schema/bike-document.schema.ts` — zod, `title` required (min/max length matching `bikeIssueSchema`'s convention), `description` optional max length, `expiryDate` optional `z.date()` with no refine (unlike `bikeIssue`'s past-only `dateReported`).
+3. [x] `components/shared/input/FileGalleryField.tsx` — new shared component.
+4. [x] `components/(main)/BikeDocument/BikeDocumentFormModal.tsx`
+5. [x] `components/(main)/BikeDocument/BikeDocumentCard.tsx` — includes the inline expiry-badge logic and `FileGalleryField` integration.
+6. [x] `components/(main)/BikeDocument/BikeDocument.tsx`
+7. [x] `app/(main)/bikes/[bikeId]/documents/page.tsx`
+8. [x] `components/(main)/Bike/BikeDetailPage/BikeDetailPage.tsx` — add the "Documents" tile.
+9. [x] (Optional, small, bundle in if convenient) `components/shared/input/ControlledDateSelect.tsx` — add an optional `placeholder` prop so `expiryDate` doesn't show the hardcoded "Select purchase date" text.
+10. [x] Log the finished work in `context/progress-tracker.md`, same per-entry format as every prior spec.
 
 ## Dependencies
 
@@ -137,13 +137,13 @@ Backend spec 19 must be built and deployed/reachable first — this client has n
 
 ## Verify
 
-- [ ] `yarn build` / `yarn lint` clean, no new errors beyond the existing tolerated baseline.
-- [ ] Creating a document with only `title` succeeds; no expiry badge renders on its card.
-- [ ] Creating a document with an `expiryDate` in the past shows the red "Expired" badge; one within 30 days shows the amber "Expires in N days" badge; one further out shows the neutral formatted-date badge.
-- [ ] Uploading one image and one PDF to the same document in one action shows two distinct tiles — the image as a thumbnail, the PDF as a file-icon tile labeled with its original filename; clicking the PDF tile opens it in a new tab.
-- [ ] Removing a single file by its tile's `X` only removes that file from the gallery and (per backend contract) only that file's Cloudinary asset — the other file is untouched.
-- [ ] Selecting more than `10 - current count` files in one picker action only queues the allowed number and shows an info toast explaining why.
-- [ ] Editing a document (title/description/expiryDate) never touches its `files[]` — confirmed the edit modal has no file field and the PATCH payload never includes `files`.
-- [ ] Deleting a document removes it from the list (soft-deleted server-side).
-- [ ] The new "Documents" tile on the bike detail page navigates to `/bikes/:bikeId/documents` and renders correctly in the now-7-entry tile grid. Confirmed via `yarn build`'s route output and code review, not clicked through in an actual browser (no interactive browser tool in this environment, same standing limitation noted in every prior spec's Verify section).
-- [ ] Usable at ~375–430px width — follows the same mobile-first unprefixed-Tailwind convention as every other domain, no `sm:`/`md:` overrides introduced.
+- [x] `yarn build` / `yarn lint` clean, no new errors beyond the existing tolerated baseline. Confirmed: `yarn build` succeeds (all 16 routes compile, including `/bikes/[bikeId]/documents`); `yarn lint` shows only the same pre-existing 5-warning/0-error baseline, none new.
+- [x] Creating a document with only `title` succeeds; no expiry badge renders on its card. Live-verified against a temporary local `bikelog_server` instance with a throwaway user/bike: created "Registration Paper" with title only — no badge rendered, confirmed via screenshot.
+- [x] Creating a document with an `expiryDate` in the past shows the red "Expired" badge; one within 30 days shows the amber "Expires in N days" badge; one further out shows the neutral formatted-date badge. Live-verified all three: a document dated 10 days in the past showed a red "Expired" pill; one dated 19 days out showed an amber "Expires in 19 days" pill; one dated ~4 months out showed a neutral "Expires 25-Dec-2026" pill — all three colors and exact label text confirmed via screenshot.
+- [x] Uploading one image and one PDF to the same document in one action shows two distinct tiles — the image as a thumbnail, the PDF as a file-icon tile labeled with its original filename; clicking the PDF tile opens it in a new tab. Live-verified: uploaded a real 1×1 PNG + a real minimal PDF to "Registration Paper" in one request against real Cloudinary — resulting UI showed exactly one `next/image` thumbnail tile and one `FileText`-icon tile labeled "test-doc...⁠" (truncated `originalName`), confirmed via screenshot; the PDF tile is a real `<a href="..." target="_blank">` pointing at the actual Cloudinary raw-resource URL, confirmed via DOM query (opening in a real browser's new tab is standard `target="_blank"` behavior, not separately clickable in headless mode).
+- [x] Removing a single file by its tile's `X` only removes that file from the gallery and (per backend contract) only that file's Cloudinary asset — the other file is untouched. Live-verified: deleted the PDF tile via its `X` + confirm modal, then checked ground truth two ways — a direct `GET` of the document showed `files: [only the image]`, and a direct HTTP fetch of the deleted PDF's old Cloudinary URL returned `404` (asset actually destroyed, not just detached) while the image's own URL remained live and untouched.
+- [x] Selecting more than `10 - current count` files in one picker action only queues the allowed number and shows an info toast explaining why. Live-verified: with 1 file already present, selected 10 more in one picker action — got the exact toast "Only 9 more files can be added right now (max 10 total) — queued the first 9.", and the resulting tile count was exactly 10 (the cap), not 11.
+- [x] Editing a document (title/description/expiryDate) never touches its `files[]` — confirmed the edit modal has no file field and the PATCH payload never includes `files`. Confirmed by code review: `BikeDocumentFormModal.tsx`'s `basePayload` only ever contains `title`/`description`/`expiryDate`, and `TUpdateBikeDocumentPayload` has no `files` field at the type level.
+- [x] Deleting a document removes it from the list (soft-deleted server-side). Live-verified: deleted "Neutral Registration" via its trash icon + the real native `confirm()` dialog (intercepted and accepted, not bypassed) — it correctly disappeared from the list while the other 4 documents remained.
+- [x] The new "Documents" tile on the bike detail page navigates to `/bikes/:bikeId/documents` and renders correctly in the now-9-entry tile grid (this app has since grown 2 more tiles — AI Assistant, Manual — past this spec's original "7-entry" estimate; not a regression, just later specs landing first). Live-verified: confirmed the tile's real `href` attribute is exactly `/bikes/:bikeId/documents`, and confirmed the destination route itself renders the correct page content — both checked in a real headless-Chromium browser, not just code review as the spec's original draft anticipated (this environment has real browser-testing capability, unlike when the rest of this spec's checklist was originally drafted).
+- [x] Usable at ~375–430px width — follows the same mobile-first unprefixed-Tailwind convention as every other domain, no `sm:`/`md:` overrides introduced. Confirmed via `document.documentElement.scrollWidth === clientWidth` (390 === 390, no horizontal overflow) at every step of the live-verification pass above, plus visual confirmation via screenshots.
