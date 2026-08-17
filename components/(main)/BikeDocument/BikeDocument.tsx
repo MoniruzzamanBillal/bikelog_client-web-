@@ -1,5 +1,6 @@
 "use client";
 import PrimaryButton from "@/components/shared/PrimaryButton/PrimaryButton";
+import { TablePagination } from "@/components/shared/table/TablePagination";
 import { useDelete, useFetchData } from "@/hooks/useApi";
 import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -16,8 +17,7 @@ export default function BikeDocument() {
   const params = useParams();
   const bikeId = params.bikeId as string;
 
-  // no filter exists on this page to ever reset it, so this is a plain constant, not state
-  const page = 1;
+  const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [editingDocument, setEditingDocument] = useState<TBikeDocument | null>(
     null,
@@ -34,6 +34,8 @@ export default function BikeDocument() {
   ]);
 
   const documents = data?.data?.result ?? [];
+  const meta = data?.data?.meta ?? 0;
+  const totalPages = Math.ceil(meta / limit);
 
   const handleEdit = (document: TBikeDocument) => setEditingDocument(document);
 
@@ -77,6 +79,17 @@ export default function BikeDocument() {
             />
           ))}
         </div>
+      )}
+
+      {!isLoading && totalPages > 1 && (
+        <TablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={meta}
+          itemsPerPage={limit}
+          onPageChange={setPage}
+          className="rounded-lg border border-border bg-card"
+        />
       )}
 
       <BikeDocumentFormModal

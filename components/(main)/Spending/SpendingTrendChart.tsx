@@ -34,7 +34,7 @@ const formatMonthLabel = (label: React.ReactNode) =>
 export default function SpendingTrendChart({ bikeId }: { bikeId: string }) {
   const { data, isLoading } = useFetchData<TSpendingTrend>(
     ["spending", "trend", bikeId],
-    `/bikes/${bikeId}/spending-summary/trend?months=3`,
+    `/bikes/${bikeId}/spending-summary/trend?months=6`,
   );
 
   const trend = data?.data;
@@ -51,7 +51,7 @@ export default function SpendingTrendChart({ bikeId }: { bikeId: string }) {
   return (
     <div className="space-y-6">
       <div className="rounded-lg border border-border bg-card p-4">
-        <p className="mb-2 text-sm font-medium">Spending, last 3 months</p>
+        <p className="mb-2 text-sm font-medium">Spending, last 6 months</p>
         <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlySummary}>

@@ -16,5 +16,9 @@ Specs are numbered in the order they should be built — each one after 01 depen
 | 08 | [spending-summary.md](08-spending-summary.md) | ✅ Complete | Spending totals + category breakdown, tab-switched. |
 | 09 | [polish-and-deploy.md](09-polish-and-deploy.md) | ⛔ Not started | Mobile QA pass across every screen + Vercel deploy. Do last. |
 | 10 | [audit-fixes.md](10-audit-fixes.md) | ✅ Complete | Fix pass over specs 04-08: 9 critical/high bugs found by audit (delete stale-closure bugs, reminders-banner crash, fuel-log pagination/mileage-toast/mileage-tab field-name mismatches, stale oilType, reminders cache invalidation) plus doc sync. |
+| 20 | [20-trend-charts-6-month-window.md](20-trend-charts-6-month-window.md) | ✅ Complete | Widen Spending/Mileage trend charts (spec 13) from a hardcoded 3-month to a 6-month window — client for backend spec 22. |
+| 21 | [21-spending-pdf-export.md](21-spending-pdf-export.md) | ✅ Complete | Client-side PDF export (jsPDF) of a period's spending total, category breakdown, and full line-item ledger — client for backend spec 23. |
+
+_Rows 11–19 are real, already-`✅ Complete` specs (bike issues, bike accessories, trend charts, AI integration, image uploads/lightbox, bike documents, decimal-field fix — see `progress-tracker.md`'s own status table, which is the authoritative one) that were never backfilled into this index — a pre-existing doc-sync gap, not introduced by spec 20/21 and out of scope to backfill here per their own limited scope._
 
 Status values: `⛔ Not started`, `🔨 In progress`, `✅ Complete`. See `../progress-tracker.md` for the same table plus narrative detail on what's actually shipped.

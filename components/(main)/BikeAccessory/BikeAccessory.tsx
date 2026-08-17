@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TablePagination } from "@/components/shared/table/TablePagination";
 import { useDelete, useFetchData } from "@/hooks/useApi";
 import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -49,6 +50,8 @@ export default function BikeAccessory() {
   ]);
 
   const accessories = data?.data?.result ?? [];
+  const meta = data?.data?.meta ?? 0;
+  const totalPages = Math.ceil(meta / limit);
 
   const handleEdit = (accessory: TBikeAccessory) =>
     setEditingAccessory(accessory);
@@ -139,6 +142,17 @@ export default function BikeAccessory() {
             />
           ))}
         </div>
+      )}
+
+      {!isLoading && totalPages > 1 && (
+        <TablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={meta}
+          itemsPerPage={limit}
+          onPageChange={setPage}
+          className="rounded-lg border border-border bg-card"
+        />
       )}
 
       <BikeAccessoryFormModal
