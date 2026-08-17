@@ -23,7 +23,7 @@ const formatMonthLabel = (label: React.ReactNode) =>
 export default function MileageTrendTab({ bikeId }: { bikeId: string }) {
   const { data, isLoading } = useFetchData<TMileageTrend>(
     ["mileage", "trend", bikeId],
-    `/bikes/${bikeId}/mileage/trend?months=3`,
+    `/bikes/${bikeId}/mileage/trend?months=6`,
   );
 
   const trend = data?.data;
@@ -35,7 +35,7 @@ export default function MileageTrendTab({ bikeId }: { bikeId: string }) {
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
-      <p className="mb-2 text-sm font-medium">Distance, last 3 months</p>
+      <p className="mb-2 text-sm font-medium">Distance, last 6 months</p>
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={monthlySummary}>

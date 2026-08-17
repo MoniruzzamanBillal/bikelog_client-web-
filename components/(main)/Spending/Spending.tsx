@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useFetchData } from "@/hooks/useApi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 import AiSpendingInsightCard from "./AiSpendingInsightCard";
 import SpendingSummaryView from "./SpendingSummaryView";
 import SpendingTrendChart from "./SpendingTrendChart";
-import { useFetchData } from "@/hooks/useApi";
 import { TSpendingSummary } from "./type/spending.types";
 
 type TPeriod = "month" | "year" | "lifetime" | "trend";
@@ -28,10 +28,18 @@ export default function Spending() {
 
   const searchParams = new URLSearchParams();
   searchParams.set("period", period);
-  if (period === "month" && targetMonth) searchParams.set("targetMonth", targetMonth);
-  if (period === "year" && targetYear) searchParams.set("targetYear", targetYear);
+  if (period === "month" && targetMonth)
+    searchParams.set("targetMonth", targetMonth);
+  if (period === "year" && targetYear)
+    searchParams.set("targetYear", targetYear);
 
-  const queryKey = ["spending", bikeId, period, period === "month" ? targetMonth : "", period === "year" ? targetYear : ""];
+  const queryKey = [
+    "spending",
+    bikeId,
+    period,
+    period === "month" ? targetMonth : "",
+    period === "year" ? targetYear : "",
+  ];
 
   const { data, isLoading } = useFetchData<TSpendingSummary>(
     queryKey,

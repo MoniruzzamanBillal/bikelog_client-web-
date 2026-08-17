@@ -1,6 +1,6 @@
 # 20: Trend Charts — 6-Month Window
 
-Status: ⛔ Not started
+Status: ✅ Complete
 
 ## Goal
 
@@ -17,16 +17,16 @@ Both call sites hardcode the literal `3` in two places each — the fetch URL an
 
 Per spec 13's own Design notes, the 3-month window was a deliberate fixed value with "no UI selector for this pass" — this spec doesn't add a selector, it just moves the fixed value from 3 to 6, per the same reasoning (not yet asked for, don't add speculative complexity).
 
-`TSpendingTrend`/`TMileageTrend` (in each domain's `type/*.types.ts`) are already generic over `monthlySummary`'s array length — no type changes needed. The donut/pie chart in `SpendingTrendChart.tsx` already derives from `monthlySummary[monthlySummary.length - 1].categoryBreakdown` (the *latest* month), which is unaffected by the window widening beyond that "latest" entry now being 6 months in instead of 3.
+`TSpendingTrend`/`TMileageTrend` (in each domain's `type/*.types.ts`) are already generic over `monthlySummary`'s array length — no type changes needed. The donut/pie chart in `SpendingTrendChart.tsx` already derives from `monthlySummary[monthlySummary.length - 1].categoryBreakdown` (the _latest_ month), which is unaffected by the window widening beyond that "latest" entry now being 6 months in instead of 3.
 
 ## Design
 
 Four literal-value edits, no structural changes:
 
-| Path | Action | Notes |
-| --- | --- | --- |
+| Path                                                | Action | Notes                                                                               |
+| --------------------------------------------------- | ------ | ----------------------------------------------------------------------------------- |
 | `components/(main)/Spending/SpendingTrendChart.tsx` | Modify | `?months=3` → `?months=6` (line 37); label → `"Spending, last 6 months"` (line 54). |
-| `components/(main)/Mileage/MileageTrendTab.tsx` | Modify | `?months=3` → `?months=6` (line 26); label → `"Distance, last 6 months"` (line 38). |
+| `components/(main)/Mileage/MileageTrendTab.tsx`     | Modify | `?months=3` → `?months=6` (line 26); label → `"Distance, last 6 months"` (line 38). |
 
 **Chart legibility at 6 bars**: both `BarChart`s already use Recharts' `ResponsiveContainer width="100%"` (per spec 13's mobile-first convention), so the bar width auto-scales to fit however many bars are rendered — no layout code changes needed on that basis alone. The one open risk is the X-axis month labels (`"MMM"`-formatted, e.g. `"Aug"`) potentially crowding or overlapping at narrow (~390px) viewport width with 6 labels instead of 3. Don't preemptively add tick-angling or font-size overrides — verify visually first (see Verify below) and only adjust if an actual overlap shows up.
 
@@ -34,13 +34,13 @@ No changes to `type/spending.types.ts`, `type/mileage.types.ts`, `Spending.tsx`,
 
 ## Implementation
 
-1. [ ] `SpendingTrendChart.tsx:37` — change `?months=3` to `?months=6` in the `useFetchData` URL.
-2. [ ] `SpendingTrendChart.tsx:54` — change the label text to `"Spending, last 6 months"`.
-3. [ ] `MileageTrendTab.tsx:26` — change `?months=3` to `?months=6` in the `useFetchData` URL.
-4. [ ] `MileageTrendTab.tsx:38` — change the label text to `"Distance, last 6 months"`.
-5. [ ] Run `yarn build` / `yarn lint`.
-6. [ ] Manually load both the Spending "Trend" tab and Mileage "Trends" tab in a browser at a phone-width viewport (~390px, per this project's mobile-first convention) and confirm 6 bars render with readable, non-overlapping month labels. If labels crowd, prefer shrinking the axis tick font-size or rotating labels over removing bars — but only if the crowding is actually observed.
-7. [ ] Add a note to `context/progress-tracker.md` recording the window change from 3 to 6 months (don't rewrite spec 13's own frozen Design text describing "fixed at 3" — that's a historical record of what spec 13 shipped; this spec's own file plus the progress tracker are the record of the change).
+1. [x] `SpendingTrendChart.tsx:37` — change `?months=3` to `?months=6` in the `useFetchData` URL.
+2. [x] `SpendingTrendChart.tsx:54` — change the label text to `"Spending, last 6 months"`.
+3. [x] `MileageTrendTab.tsx:26` — change `?months=3` to `?months=6` in the `useFetchData` URL.
+4. [x] `MileageTrendTab.tsx:38` — change the label text to `"Distance, last 6 months"`.
+5. [x] Run `yarn build` / `yarn lint`.
+6. [x] Manually load both the Spending "Trend" tab and Mileage "Trends" tab in a browser at a phone-width viewport (~390px, per this project's mobile-first convention) and confirm 6 bars render with readable, non-overlapping month labels. If labels crowd, prefer shrinking the axis tick font-size or rotating labels over removing bars — but only if the crowding is actually observed.
+7. [x] Add a note to `context/progress-tracker.md` recording the window change from 3 to 6 months (don't rewrite spec 13's own frozen Design text describing "fixed at 3" — that's a historical record of what spec 13 shipped; this spec's own file plus the progress tracker are the record of the change).
 
 ## Dependencies
 
@@ -48,8 +48,8 @@ No changes to `type/spending.types.ts`, `type/mileage.types.ts`, `Spending.tsx`,
 
 ## Verify
 
-- [ ] Spending "Trend" tab renders 6 bars covering the current month and the prior 5, and the header reads "Spending, last 6 months".
-- [ ] Mileage "Trends" tab renders 6 bars, header reads "Distance, last 6 months".
-- [ ] The category-breakdown donut still reflects only the single most recent (now 6th) month's data — unaffected by the window widening, still exactly one `useFetchData` call per chart (no second network request introduced).
-- [ ] `yarn build` / `yarn lint` clean, no new warnings in either touched file.
-- [ ] Visual check at ~390px width: 6 bars and their month-abbreviation labels don't overlap or get clipped.
+- [x] Spending "Trend" tab renders 6 bars covering the current month and the prior 5, and the header reads "Spending, last 6 months". Live-verified with Playwright against a temporary local `bikelog_server` instance (a throwaway user/bike with fuel logs dated Mar–Aug 2026): the "Trend" tab rendered exactly 6 bars (Mar–Aug) with the correct header text, read directly from the live DOM.
+- [x] Mileage "Trends" tab renders 6 bars, header reads "Distance, last 6 months" — live-verified identically (6 bars Mar–Aug, correct header text, correct `totalDistanceKm` per bar matching the live API response).
+- [x] The category-breakdown donut still reflects only the single most recent (now 6th) month's data — unaffected by the window widening, still exactly one `useFetchData` call per chart (no second network request introduced) — confirmed by code (unchanged `monthlySummary[monthlySummary.length - 1]` derivation) and by the rendered "By category (Aug 2026)" label in the live screenshot.
+- [x] `yarn build` / `yarn lint` clean, no new warnings in either touched file — confirmed: `yarn build` succeeds (all 15 routes compile), `yarn lint` shows only the same 5 pre-existing warnings (React Compiler `useReactTable()`/RHF `watch()` incompatible-library notices, one unused `activeTab` prop), 0 errors, none new.
+- [x] Visual check at ~390px width: 6 bars and their month-abbreviation labels don't overlap or get clipped. Confirmed via a real headless-Chromium screenshot at a 390×844 viewport (Playwright) against the live app: both charts render 6 clearly separated bars with legible, non-overlapping "Mar"–"Aug" labels — no tick-angling or font-size changes were needed.
