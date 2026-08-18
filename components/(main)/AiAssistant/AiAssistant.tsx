@@ -1,20 +1,17 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { usePost } from "@/hooks/useApi";
+import { cn } from "@/lib/utils";
+import { Loader2, Send } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Send } from "lucide-react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
-import { usePost } from "@/hooks/useApi";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import { TBikeChatResponse, TChatMessage } from "./type/aiAssistant.types";
 
-// ! module scope so this isn't recreated every render — only the AI's own replies get
-// ! parsed as markdown (see the role check below), so these overrides only ever need to
-// ! fit inside the small text-sm/max-w-[80%] assistant bubble style
 const markdownComponents: Components = {
   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
   ul: ({ children }) => (
