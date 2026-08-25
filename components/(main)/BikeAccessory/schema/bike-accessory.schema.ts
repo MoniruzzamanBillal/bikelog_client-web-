@@ -19,10 +19,10 @@ export const bikeAccessorySchema = z.object({
     .string()
     .optional()
 
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+    .refine((val) => !val || (!isNaN(Number(val)) && Number(val) >= 0), {
       message: "Cost must be a valid number",
     })
-    .refine((val) => Number(val) <= 999999, {
+    .refine((val) => !val || Number(val) <= 999999, {
       message: "Cost cannot exceed 999,999",
     }),
 });

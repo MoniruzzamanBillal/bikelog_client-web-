@@ -11,6 +11,7 @@ import MaintenanceLogCard from "./MaintenanceLogCard";
 import MaintenanceLogFormModal from "./MaintenanceLogFormModal";
 import RemindersBanner from "./RemindersBanner";
 import { TMaintenanceLog } from "./type/maintenance-log.types";
+import { TMaintenanceType } from "../SettingsCatalog/type/maintenance-type.types";
 
 export default function MaintenanceLog() {
   const params = useParams();
@@ -33,6 +34,12 @@ export default function MaintenanceLog() {
     ["maintenanceLogs", bikeId],
     ["reminders", bikeId],
   ]);
+
+  const { data: mtData } = useFetchData<TMaintenanceType[]>(
+    ["maintenanceTypes"],
+    "/maintenance-types",
+  );
+  const maintenanceTypes = mtData?.data ?? [];
 
   const logs = data?.data?.result ?? [];
   const meta = data?.data?.meta ?? 0;
@@ -79,6 +86,7 @@ export default function MaintenanceLog() {
             <MaintenanceLogCard
               key={log._id}
               log={log}
+              maintenanceTypes={maintenanceTypes}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
@@ -97,11 +105,13 @@ export default function MaintenanceLog() {
         />
       )}
 
-      <MaintenanceLogFormModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        bikeId={bikeId}
-      />
+      {createOpen && (
+        <MaintenanceLogFormModal
+          open
+          onClose={() => setCreateOpen(false)}
+          bikeId={bikeId}
+        />
+      )}
 
       {editingLog && (
         <MaintenanceLogFormModal

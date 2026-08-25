@@ -10,8 +10,11 @@ export const apiPost = async (
   config?: AxiosRequestConfig,
 ) => (await axiosInstance.post(endpoint, payload, config)).data;
 
-export const apiPatch = async (endpoint: string, payload: object) =>
-  (await axiosInstance.patch(endpoint, payload)).data;
+export const apiPatch = async (
+  endpoint: string,
+  payload: object,
+  config?: AxiosRequestConfig,
+) => (await axiosInstance.patch(endpoint, payload, config)).data;
 
 export const apiPut = async (
   endpoint: string,

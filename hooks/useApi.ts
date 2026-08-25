@@ -50,7 +50,7 @@ export const usePatch = (invalidateQueriesKeys?: Array<string[]>) => {
       url: string;
       payload: Record<string, unknown> | FormData;
       config?: AxiosRequestConfig;
-    }) => apiPatch(params.url, params.payload),
+    }) => apiPatch(params.url, params.payload, params.config),
     onSuccess: () => {
       invalidateQueriesKeys?.forEach((key) =>
         queryClient.invalidateQueries({ queryKey: key }),

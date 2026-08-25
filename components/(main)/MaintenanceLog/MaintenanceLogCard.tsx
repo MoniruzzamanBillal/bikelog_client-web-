@@ -5,21 +5,35 @@ import { useDelete, usePut } from "@/hooks/useApi";
 import { SquarePen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { TMaintenanceLog } from "./type/maintenance-log.types";
+import { TMaintenanceType } from "../SettingsCatalog/type/maintenance-type.types";
 
 type TProps = {
   log: TMaintenanceLog;
+  maintenanceTypes: TMaintenanceType[];
   onEdit: (log: TMaintenanceLog) => void;
   onDelete: (log: TMaintenanceLog) => void;
 };
 
-function getTypeName(log: TMaintenanceLog): string {
+function getTypeName(
+  log: TMaintenanceLog,
+  maintenanceTypes: TMaintenanceType[],
+): string {
   if (typeof log.maintenanceType === "object" && log.maintenanceType?.name) {
     return log.maintenanceType.name;
+  }
+  if (typeof log.maintenanceType === "string") {
+    const match = maintenanceTypes.find((mt) => mt._id === log.maintenanceType);
+    if (match) return match.name;
   }
   return "Maintenance";
 }
 
-export default function MaintenanceLogCard({ log, onEdit, onDelete }: TProps) {
+export default function MaintenanceLogCard({
+  log,
+  maintenanceTypes,
+  onEdit,
+  onDelete,
+}: TProps) {
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
     ["maintenanceLogs", log.bike],
   ]);
@@ -66,7 +80,9 @@ export default function MaintenanceLogCard({ log, onEdit, onDelete }: TProps) {
             label="Service"
           />
           <div>
-            <p className="text-sm font-medium">{getTypeName(log)}</p>
+            <p className="text-sm font-medium">
+              {getTypeName(log, maintenanceTypes)}
+            </p>
             <p className="text-xs text-muted-foreground">
               {new Date(log.serviceDate).toLocaleDateString()} ·{" "}
               {log.odometerReading.toLocaleString()} km

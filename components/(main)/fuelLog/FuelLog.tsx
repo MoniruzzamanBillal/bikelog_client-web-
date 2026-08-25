@@ -84,11 +84,13 @@ const FuelLog = () => {
         showSerialNumber={true}
       />
 
-      <FuelLogFormModal
-        open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        bikeId={bikeId}
-      />
+      {isCreateModalOpen && (
+        <FuelLogFormModal
+          open
+          onClose={() => setIsCreateModalOpen(false)}
+          bikeId={bikeId}
+        />
+      )}
 
       {editingFuelLog && (
         <FuelLogFormModal
