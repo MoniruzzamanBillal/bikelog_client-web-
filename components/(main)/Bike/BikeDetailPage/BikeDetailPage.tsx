@@ -136,11 +136,13 @@ const BikeDetailPage = () => {
           ))}
       </div>
 
-      <BikeFormModal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        bike={bike}
-      />
+      {editOpen && (
+        <BikeFormModal
+          open
+          onClose={() => setEditOpen(false)}
+          bike={bike}
+        />
+      )}
 
       <BaseModal
         open={deleteOpen}

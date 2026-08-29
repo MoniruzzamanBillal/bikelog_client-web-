@@ -155,11 +155,13 @@ export default function BikeAccessory() {
         />
       )}
 
-      <BikeAccessoryFormModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        bikeId={bikeId}
-      />
+      {createOpen && (
+        <BikeAccessoryFormModal
+          open
+          onClose={() => setCreateOpen(false)}
+          bikeId={bikeId}
+        />
+      )}
 
       {editingAccessory && (
         <BikeAccessoryFormModal

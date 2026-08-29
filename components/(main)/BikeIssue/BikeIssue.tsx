@@ -147,11 +147,13 @@ export default function BikeIssue() {
         />
       )}
 
-      <BikeIssueFormModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        bikeId={bikeId}
-      />
+      {createOpen && (
+        <BikeIssueFormModal
+          open
+          onClose={() => setCreateOpen(false)}
+          bikeId={bikeId}
+        />
+      )}
 
       {editingIssue && (
         <BikeIssueFormModal

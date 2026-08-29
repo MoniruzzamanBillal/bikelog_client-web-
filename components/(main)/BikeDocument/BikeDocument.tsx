@@ -92,11 +92,13 @@ export default function BikeDocument() {
         />
       )}
 
-      <BikeDocumentFormModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        bikeId={bikeId}
-      />
+      {createOpen && (
+        <BikeDocumentFormModal
+          open
+          onClose={() => setCreateOpen(false)}
+          bikeId={bikeId}
+        />
+      )}
 
       {editingDocument && (
         <BikeDocumentFormModal
