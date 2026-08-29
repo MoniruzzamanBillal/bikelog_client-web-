@@ -13,6 +13,8 @@ export interface TBikeAccessory {
   createdAt: string;
   updatedAt: string;
   price?: number;
+  // ! server-computed only — stamped the instant status transitions into "purchased", never client-sent
+  purchaseDate?: string;
   productImage?: TCloudinaryImage;
 }
 
@@ -27,6 +29,7 @@ export interface TUpdateBikeAccessoryPayload {
   name?: string;
   urgency?: TAccessoryUrgency;
   status?: TAccessoryStatus;
+  price?: number;
 }
 
 export interface TBikeAccessoriesApiResponse {

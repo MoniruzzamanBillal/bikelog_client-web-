@@ -44,6 +44,9 @@ export default function BikeAccessoryFormModal({
   accessory,
 }: TBikeAccessoryFormModalProps) {
   const isEditMode = !!accessory;
+  // ! once purchased, status is a permanent, server-enforced lock (spec 25) — disable it
+  // ! client-side too so the user isn't surprised by a 400 on submit
+  const isStatusLocked = isEditMode && accessory?.status === "purchased";
 
   const { mutateAsync, isPending: isCreating } = usePost([
     ["bikeAccessories", bikeId],
@@ -59,10 +62,12 @@ export default function BikeAccessoryFormModal({
       name: accessory?.name ?? "",
       urgency: accessory?.urgency ?? "",
       status: accessory?.status ?? "pending",
+      price: accessory?.price?.toString() ?? "",
     },
   });
 
   const isPending = isCreating || isUpdating;
+  const watchedStatus = methods.watch("status");
 
   const onSubmit = async (data: TBikeAccessoryFormType) => {
     try {
@@ -122,14 +127,25 @@ export default function BikeAccessoryFormModal({
             isRequired
           />
 
-          <ControlledInput name="price" label="Price (৳)" type="number" />
+          <ControlledInput
+            name="price"
+            label="Price (৳)"
+            type="number"
+            isRequired={watchedStatus === "purchased"}
+          />
 
           <ControlledSelectField
             name="status"
             label="Status"
             options={STATUS_OPTIONS}
             placeholder="Select status"
+            disabled={isStatusLocked}
           />
+          {isStatusLocked && (
+            <p className="text-xs text-muted-foreground">
+              Status is locked once purchased.
+            </p>
+          )}
 
           <FormActionButtons isEditMode={isEditMode} isPending={isPending} />
         </form>

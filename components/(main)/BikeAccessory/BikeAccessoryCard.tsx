@@ -120,6 +120,12 @@ export default function BikeAccessoryCard({
                 </span>
               )}
             </div>
+            {accessory.status === "purchased" && accessory.purchaseDate && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Purchased{" "}
+                {new Date(accessory.purchaseDate).toLocaleDateString()}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 gap-1">
