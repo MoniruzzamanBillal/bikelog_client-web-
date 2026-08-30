@@ -21,6 +21,7 @@ interface ControlledSelectFieldProps {
   className?: string;
   label?: string;
   isRequired?: boolean;
+  disabled?: boolean;
 }
 
 const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
@@ -30,6 +31,7 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
   className,
   label,
   isRequired,
+  disabled,
 }) => {
   const { control } = useFormContext();
 
@@ -53,6 +55,7 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
               onValueChange={field.onChange}
               value={field.value ?? ""}
               key={field?.value}
+              disabled={disabled}
             >
               <SelectTrigger
                 className={cn(
