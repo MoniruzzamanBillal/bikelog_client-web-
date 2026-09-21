@@ -48,12 +48,7 @@ export default function BikeAccessoryCard({
 }: TProps) {
   const formatPrice = (price?: number) => {
     if (!price) return "N/A";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "BDT",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
+    return `৳${price.toLocaleString()}`;
   };
 
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([

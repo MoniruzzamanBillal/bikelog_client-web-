@@ -3,7 +3,7 @@
 import { apiGet } from "@/utils/api";
 import { TgenericResponse } from "@/lib/apiResponse";
 import { useFetchData } from "@/hooks/useApi";
-import { format, parse } from "date-fns";
+import { format, getDate, getDaysInMonth, isSameMonth, parse } from "date-fns";
 import { ChevronLeft, ChevronRight, Download, Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -32,6 +32,19 @@ function getPeriodLabel(
   }
   if (period === "year") return targetYear;
   return "Lifetime";
+}
+
+function getElapsedDaysInMonth(targetMonth: string): number {
+  const monthDate = parse(targetMonth, "yyyy-MM", new Date());
+  const now = new Date();
+
+  if (isSameMonth(monthDate, now)) {
+    return getDate(now);
+  }
+  if (monthDate > now) {
+    return 0;
+  }
+  return getDaysInMonth(monthDate);
 }
 
 export default function Spending() {
@@ -71,6 +84,11 @@ export default function Spending() {
   );
 
   const spending = data?.data;
+
+  const daysElapsed =
+    period === "month" ? getElapsedDaysInMonth(targetMonth) : 0;
+  const avgDailyExpense =
+    daysElapsed > 0 ? (spending?.totalSpending ?? 0) / daysElapsed : 0;
 
   const handleExportPdf = async () => {
     if (isExporting) return;
@@ -168,6 +186,9 @@ export default function Spending() {
           totalSpending={spending?.totalSpending ?? 0}
           categoryBreakdown={spending?.categoryBreakdown ?? []}
           isLoading={isLoading}
+          {...(period === "month" && daysElapsed > 0
+            ? { avgDailyExpense, daysElapsed }
+            : {})}
         />
       )}
     </div>

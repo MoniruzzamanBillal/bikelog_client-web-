@@ -10,3 +10,8 @@ export interface TCreateEngineOilTypePayload {
   name: string;
   suggestedIntervalKm: number;
 }
+
+export interface TUpdateEngineOilTypePayload {
+  name?: string;
+  suggestedIntervalKm?: number;
+}

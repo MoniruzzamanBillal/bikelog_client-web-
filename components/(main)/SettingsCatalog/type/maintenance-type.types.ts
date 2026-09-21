@@ -12,3 +12,9 @@ export interface TCreateMaintenanceTypePayload {
   defaultIntervalKm?: number;
   defaultIntervalDays?: number;
 }
+
+export interface TUpdateMaintenanceTypePayload {
+  name?: string;
+  defaultIntervalKm?: number | null;
+  defaultIntervalDays?: number | null;
+}

@@ -111,8 +111,12 @@ export default function MaintenanceLogCard({
 
       <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
         <p>Cost: ৳{log.cost.toLocaleString()}</p>
-        <p>Interval: {log.intervalKmUsed.toLocaleString()} km</p>
-        <p>Next due: {log.nextDueOdometer.toLocaleString()} km</p>
+        {log.intervalKmUsed != null && (
+          <p>Interval: {log.intervalKmUsed.toLocaleString()} km</p>
+        )}
+        {log.nextDueOdometer != null && (
+          <p>Next due: {log.nextDueOdometer.toLocaleString()} km</p>
+        )}
         {log.serviceCenter && <p>At: {log.serviceCenter}</p>}
       </div>
 

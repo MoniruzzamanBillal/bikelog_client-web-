@@ -6,12 +6,16 @@ type TProps = {
   totalSpending: number;
   categoryBreakdown: TCategoryBreakdown[];
   isLoading: boolean;
+  avgDailyExpense?: number;
+  daysElapsed?: number;
 };
 
 export default function SpendingSummaryView({
   totalSpending,
   categoryBreakdown,
   isLoading,
+  avgDailyExpense,
+  daysElapsed,
 }: TProps) {
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Loading...</p>;
@@ -25,6 +29,20 @@ export default function SpendingSummaryView({
           ৳{totalSpending.toLocaleString()}
         </p>
       </div>
+
+      {avgDailyExpense !== undefined &&
+        daysElapsed !== undefined &&
+        daysElapsed > 0 && (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-sm text-muted-foreground">Avg Daily Expense</p>
+            <p className="text-lg font-semibold">
+              ৳{avgDailyExpense.toFixed(2)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              over {daysElapsed} day{daysElapsed === 1 ? "" : "s"} this month
+            </p>
+          </div>
+        )}
 
       {categoryBreakdown.length > 0 ? (
         <div className="space-y-2">

@@ -85,7 +85,7 @@ export default function MaintenanceLogFormModal({
         typeof log.oilType === "object" && log.oilType
           ? log.oilType._id
           : ((log.oilType as string) ?? ""),
-      intervalKmUsed: log.intervalKmUsed.toString(),
+      intervalKmUsed: log.intervalKmUsed?.toString() ?? "",
       cost: log.cost.toString(),
       serviceDate: log.serviceDate ? new Date(log.serviceDate) : new Date(),
       nextDueDate: log.nextDueDate ? new Date(log.nextDueDate) : undefined,
@@ -119,7 +119,9 @@ export default function MaintenanceLogFormModal({
       const basePayload: TCreateMaintenanceLogPayload = {
         maintenanceType: data.maintenanceType,
         odometerReading: Number(data.odometerReading),
-        intervalKmUsed: Number(data.intervalKmUsed),
+        intervalKmUsed: data.intervalKmUsed
+          ? Number(data.intervalKmUsed)
+          : undefined,
         cost: Number(data.cost),
         oilType: data.oilType || undefined,
         serviceDate: data.serviceDate?.toISOString(),
@@ -197,10 +199,9 @@ export default function MaintenanceLogFormModal({
 
           <ControlledInput
             name="intervalKmUsed"
-            label="Service Interval (km)"
+            label="Service Interval (km) (optional)"
             type="number"
             step="0.01"
-            isRequired
           />
 
           <ControlledInput
