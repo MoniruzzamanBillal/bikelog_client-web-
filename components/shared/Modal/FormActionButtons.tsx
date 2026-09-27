@@ -18,12 +18,12 @@ export default function FormActionButtons({
   createText = "Add",
 }: FormActionButtonsProps) {
   return (
-    <div className="flex gap-3 mt-6 justify-end">
+    <div className="mt-6 flex justify-end gap-2">
       <DialogClose asChild>
         <Button
           type="button"
           variant="outline"
-          className="h-11 bg-surface border border-neutral-700 rounded-[8px]"
+          className="h-10"
         >
           Cancel
         </Button>

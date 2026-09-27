@@ -31,9 +31,9 @@ export default function ControlledTextArea({
       render={({ field, fieldState: { error } }) => (
         <div>
           {label && (
-            <label className="text-sm font-medium">
+            <label className="mb-1.5 block text-xs text-foreground/70">
               {label}
-              {isRequired && <span className="ml-1 text-red-500">*</span>}
+              {isRequired && <span className="ml-0.5 text-destructive">*</span>}
             </label>
           )}
 
@@ -42,10 +42,10 @@ export default function ControlledTextArea({
             rows={rows}
             placeholder={placeholder}
             value={field.value ?? ""}
-            className={cn(className, "mt-2")}
+            className={cn(className)}
           />
 
-          {error && <p className="text-sm text-red-500">{error.message}</p>}
+          {error && <p className="mt-1 text-xs text-destructive">{error.message}</p>}
         </div>
       )}
     />

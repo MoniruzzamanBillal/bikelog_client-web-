@@ -134,7 +134,7 @@ export default function FileGalleryField({
                   e.stopPropagation();
                   handleRemoveClick(file._id);
                 }}
-                className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
+                className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-destructive"
                 aria-label="Delete file"
               >
                 <X className="size-3 text-white" />

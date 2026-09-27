@@ -1,73 +1,73 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { usePathname } from "next/navigation";
-import PageBreadcrumb from "../Breadcrumb/PageBreadcrumb";
-import StaticPageBreadcrumb from "../Breadcrumb/StaticPageBreadcrumb";
-import PrimaryButton from "../PrimaryButton/PrimaryButton";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Fragment, ReactNode } from "react";
 
-type TpageProps = {
-  pageName?: string;
-  headerTitle?: string;
-  btnText?: string;
-  onClick?: () => void;
-  showAddButton?: boolean;
+export type TCrumb = { label: string; href?: string };
+
+type TPageHeaderProps = {
+  title: string;
+  crumbs?: TCrumb[];
+  description?: ReactNode;
+  actions?: ReactNode;
+  // the mobile shell header already shows the page title
+  showTitleOnMobile?: boolean;
+  className?: string;
 };
 
 export default function PageHeader({
-  btnText,
-  onClick,
-  headerTitle,
-  pageName,
-  showAddButton = true,
-}: TpageProps) {
-  const pathname = usePathname();
-
-  const pathSegments = pathname.split("/").filter((segment) => segment);
-
-  const formatLabel = (segment: string) => {
-    return segment
-      .split(/[-_]/)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
-
-  const breadcrumbs = [
-    { href: "/dashboard", label: "Dashboard" },
-    ...pathSegments.map((segment: string, index: number) => {
-      const href = `/${pathSegments.slice(0, index + 1).join("/")}`;
-      return { href, label: formatLabel(segment) };
-    }),
-  ];
-
-  const breadcrumbsArray = breadcrumbs.filter((_, index) => index !== 1);
-
-  // console.log("breadcrumbsArray = ", breadcrumbsArray);
-
+  title,
+  crumbs,
+  description,
+  actions,
+  showTitleOnMobile = false,
+  className,
+}: TPageHeaderProps) {
   return (
-    <div className=" flex justify-between items-center ">
-      {/* left section  */}
-      <div className="   ">
-        {headerTitle && (
-          <h1 className=" font-semibold text-2xl text-neutral-900 dark:text-neutral-100  mb-2 ">
-            {headerTitle}
-          </h1>
+    <div
+      className={cn(
+        "flex items-center justify-between gap-4 lg:items-end",
+        className,
+      )}
+    >
+      <div className="min-w-0">
+        {crumbs && crumbs.length > 0 && (
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-1.5 hidden flex-wrap gap-1.5 text-xs text-muted-foreground lg:flex"
+          >
+            {crumbs.map((crumb, i) => (
+              <Fragment key={`${crumb.label}-${i}`}>
+                {i > 0 && <span>/</span>}
+                {crumb.href ? (
+                  <Link href={crumb.href} className="hover:text-foreground">
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span className="text-foreground">{crumb.label}</span>
+                )}
+              </Fragment>
+            ))}
+          </nav>
         )}
-
-        {!pageName && <PageBreadcrumb breadcrumbs={breadcrumbsArray} />}
-
-        {pageName && <StaticPageBreadcrumb pageName={pageName} />}
+        <h1
+          className={cn(
+            "m-0 text-[28px] leading-tight font-medium tracking-[-0.02em]",
+            !showTitleOnMobile && "hidden lg:block",
+          )}
+        >
+          {title}
+        </h1>
+        {description && (
+          <div className="text-[13px] text-muted-foreground lg:mt-1">
+            {description}
+          </div>
+        )}
       </div>
 
-      {/* right button section  */}
-      {showAddButton && (
-        <PrimaryButton onClick={onClick}>
-          <span className="flex items-center justify-center text-neutral-50 size-5 ">
-            <Plus />
-          </span>
-
-          <span> {btnText ?? "Add"} </span>
-        </PrimaryButton>
+      {actions && (
+        <div className="flex shrink-0 items-center gap-2">{actions}</div>
       )}
     </div>
   );

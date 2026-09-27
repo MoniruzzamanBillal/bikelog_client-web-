@@ -21,6 +21,7 @@ import TableToolbar from "./TableToolbar";
 
 type TGenericTableProps<TData> = {
   isLoading?: boolean;
+  emptyState?: React.ReactNode;
 
   data: TData[];
   columns: ColumnDef<TData>[];
@@ -73,6 +74,7 @@ export default function GenericTableComponent<TData>({
   searchValue,
   onSearchChange,
   isLoading = false,
+  emptyState,
 
   // !
   totalItems = 0,
@@ -171,7 +173,7 @@ export default function GenericTableComponent<TData>({
   return (
     <>
       {showToolbar && (
-        <div className="mb-2   ">
+        <div className="mb-3">
           <TableToolbar
             activeTab={activeTab}
             tableFilterOption={tableFilterOption}
@@ -187,11 +189,12 @@ export default function GenericTableComponent<TData>({
         </div>
       )}
 
-      <div className=" ">
+      <div>
         <TableContent
           table={table}
           showSerialNumber={showSerialNumber}
           isLoading={isLoading}
+          emptyState={emptyState}
           // !
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}

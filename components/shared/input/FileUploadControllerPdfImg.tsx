@@ -85,7 +85,7 @@ export default function FileUploadControllerPdfImg({
                   <button
                     onClick={handleDelete}
                     type="button"
-                    className="absolute w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 rounded-full p-1 -right-2 -top-2 z-10"
+                    className="absolute w-6 h-6 flex items-center justify-center bg-destructive hover:bg-red-700 rounded-full p-1 -right-2 -top-2 z-10"
                   >
                     <X className="w-4 h-4 text-white" />
                   </button>
@@ -144,7 +144,7 @@ export default function FileUploadControllerPdfImg({
             </div>
 
             {fieldState.error && (
-              <p className="text-rose-500 text-xs mt-1 pl-2">
+              <p className="text-xs text-destructive mt-1">
                 {fieldState.error.message}
               </p>
             )}

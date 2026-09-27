@@ -1,13 +1,27 @@
 "use client";
 
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { flexRender, Table as TanStackTable } from "@tanstack/react-table";
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
+import { ReactNode } from "react";
 import { TablePagination } from "./TablePagination";
+
+// ! columns may set `meta: { align: "right" }` for numeric columns
+type TColumnMeta = { align?: "left" | "right" | "center" };
+
+const alignClass = (meta: unknown) => {
+  const align = (meta as TColumnMeta | undefined)?.align;
+  if (align === "right") return "text-right";
+  if (align === "center") return "text-center";
+  return "text-left";
+};
 
 type TableContentProps<TData> = {
   table: TanStackTable<TData>;
   showSerialNumber?: boolean;
   isLoading?: boolean;
+  emptyState?: ReactNode;
 
   // !
   totalItems: number;
@@ -17,10 +31,13 @@ type TableContentProps<TData> = {
   onPageChange: (page: number) => void;
 };
 
+const skeletonWidths = ["72%", "58%", "66%", "48%", "70%", "54%"];
+
 export default function TableContent<TData>({
   table,
   showSerialNumber = true,
   isLoading = false,
+  emptyState,
   // !
   totalItems,
   totalPages,
@@ -28,126 +45,116 @@ export default function TableContent<TData>({
   currentPage,
   itemsPerPage,
 }: TableContentProps<TData>) {
+  const rows = table.getRowModel().rows;
+  const isEmpty = !isLoading && rows.length === 0;
+
   return (
-    <div className="  border border-surface-border  bg-surface-primary rounded-[8px] overflow-hidden  ">
-      <div className=" w-full overflow-x-auto">
-        <table className="min-w-max w-full">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className=" bg-surface-secondary ">
-                {showSerialNumber && (
-                  <th className=" px-4 py-3 first:flex first:items-center last:flex last:justify-center last:rounded-r-2xl">
-                    <div>
-                      <div className="flex items-center justify-start  ">
-                        <span className=" font-semibold text-[0.875rem] leading-5.25 text-surface-text ">
-                          SL. No.
-                        </span>
-                      </div>
-                    </div>
-                  </th>
-                )}
+    <div className="overflow-hidden rounded-[10px] bg-card shadow-sm">
+      {!(isEmpty && emptyState) && (
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-max text-[13px] tabular-nums">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id} className="row-fade">
+                  {showSerialNumber && (
+                    <th className="h-10 w-9 pr-2 pl-[18px] text-left text-[11px] font-normal tracking-[0.08em] text-muted-foreground uppercase">
+                      #
+                    </th>
+                  )}
 
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className=" px-5 py-4 last:flex last:justify-center"
-                  >
-                    <div
-                      onClick={
-                        header.column.getCanSort()
-                          ? header.column.getToggleSortingHandler()
-                          : undefined
-                      }
-                      className={` font-semibold text-[0.875rem] leading-5.25 text-surface-text flex items-center justify-between 
-    ${header.column.getCanSort() ? "cursor-pointer select-none" : ""}
-  `}
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className={cn(
+                        "h-10 px-2 text-[11px] font-normal tracking-[0.08em] whitespace-nowrap text-muted-foreground uppercase first:pl-[18px] last:pr-3",
+                        alignClass(header.column.columnDef.meta),
                       )}
+                    >
+                      <div
+                        onClick={
+                          header.column.getCanSort()
+                            ? header.column.getToggleSortingHandler()
+                            : undefined
+                        }
+                        className={cn(
+                          "inline-flex items-center gap-1",
+                          header.column.getCanSort() &&
+                            "cursor-pointer select-none hover:text-foreground",
+                        )}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
 
-                      {header.column.getCanSort() && (
-                        <span>
-                          {{
-                            asc: <ChevronUp className=" size-5  " />,
-                            desc: <ChevronDown className=" size-5  " />,
+                        {header.column.getCanSort() &&
+                          ({
+                            asc: <ChevronUp className="size-3.5" />,
+                            desc: <ChevronDown className="size-3.5" />,
                           }[header.column.getIsSorted() as string] ?? (
-                            <ChevronsUpDown className=" size-5  " />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-
-          <tbody>
-            {isLoading && (
-              <tr>
-                <td colSpan={100} className="p-10 text-center text-lg">
-                  loading.....
-                </td>
-              </tr>
-            )}
-
-            {!isLoading && table.getRowModel().rows.length === 0 ? (
-              <tr>
-                <td colSpan={100} className="p-10 text-center text-lg">
-                  No Data Available
-                </td>
-              </tr>
-            ) : (
-              <>
-                {!isLoading &&
-                  table.getRowModel().rows.map((row, index: number) => (
-                    <tr
-                      key={row.id}
-                      className={`cursor-pointer border-b border-b-table-border  transition-colors last:border-0  h-20 `}
-                    >
-                      {showSerialNumber && (
-                        <td className="  py-4 px-5 font-medium text-[0.875rem] leading-5.25 text-surface-text ">
-                          {/* {String(
-                            table.getState().pagination.pageIndex *
-                              table.getState().pagination.pageSize +
-                              index +
-                              1,
-                          ).padStart(2, "0")} */}
-
-                          {String(
-                            (currentPage ?? 0) * (itemsPerPage ?? 10) +
-                              index +
-                              1,
-                          ).padStart(2, "0")}
-                        </td>
-                      )}
-
-                      {row.getVisibleCells().map((cell) => (
-                        <td
-                          key={cell.id}
-                          className="  py-4 px-5 font-medium text-[0.875rem] leading-5.25 text-surface-text "
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </td>
-                      ))}
-                    </tr>
+                            <ChevronsUpDown className="size-3.5" />
+                          ))}
+                      </div>
+                    </th>
                   ))}
-              </>
-            )}
-          </tbody>
-        </table>
+                </tr>
+              ))}
+            </thead>
 
-        {/*  */}
-      </div>
+            <tbody>
+              {isLoading &&
+                skeletonWidths.map((width, i) => (
+                  <tr key={i} className="row-fade h-12">
+                    <td colSpan={100} className="pl-[18px]">
+                      <Skeleton className="h-3" style={{ width }} />
+                    </td>
+                  </tr>
+                ))}
 
-      {/* pagination */}
+              {isEmpty && (
+                <tr>
+                  <td
+                    colSpan={100}
+                    className="px-[18px] py-10 text-center text-sm text-muted-foreground"
+                  >
+                    No data available
+                  </td>
+                </tr>
+              )}
 
-      {totalItems > 10 && (
+              {!isLoading &&
+                rows.map((row, index: number) => (
+                  <tr key={row.id} className="row-fade h-12">
+                    {showSerialNumber && (
+                      <td className="pr-2 pl-[18px] text-muted-foreground">
+                        {(currentPage ?? 0) * (itemsPerPage ?? 10) + index + 1}
+                      </td>
+                    )}
+
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className={cn(
+                          "px-2 whitespace-nowrap first:pl-[18px] last:pr-3",
+                          alignClass(cell.column.columnDef.meta),
+                        )}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {isEmpty && emptyState}
+
+      {totalItems > (itemsPerPage ?? 10) && (
         <TablePagination
           currentPage={(currentPage ?? 0) + 1}
           itemsPerPage={itemsPerPage ?? 10}
@@ -156,17 +163,6 @@ export default function TableContent<TData>({
           onPageChange={(page) => onPageChange(page - 1)}
         />
       )}
-
-      {/* {table?.getFilteredRowModel()?.rows?.length > 10 && (
-        <TablePagination
-          currentPage={table.getState().pagination.pageIndex + 1}
-          totalPages={table.getPageCount()}
-          totalItems={table.getFilteredRowModel().rows.length}
-          itemsPerPage={table.getState().pagination.pageSize}
-          onPageChange={(page) => table.setPageIndex(page - 1)}
-        />
-      )} */}
-      {/*  */}
     </div>
   );
 }

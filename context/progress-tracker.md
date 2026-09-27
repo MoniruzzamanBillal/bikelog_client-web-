@@ -49,6 +49,7 @@ The backend has two roles (`user`/`admin`) but no role-based authorization imple
 | [25-backend-app-parity-catchup.md](specs/25-backend-app-parity-catchup.md)                                 | ✅ Complete    | Sections A–E built and live-verified (reminders-banner bug fix, optional service interval, catalog inline edit, avg daily expense card, spec-24 bug fixes). Section F held per the spec's own recommendation (needs a UX decision); G–L need no client work. |
 | [25a-fix-interval-null-vs-undefined-guard.md](specs/25a-fix-interval-null-vs-undefined-guard.md)           | ✅ Complete    | Bug found live during spec 25's own verification — optional interval fields come back as explicit `null`, not omitted; `!== undefined` guards missed it. Fixed to `!= null`. |
 | [26-admin-error-log-dashboard.md](specs/26-admin-error-log-dashboard.md)                                   | ✅ Complete    | Admin role support: `app/(admin)/` gate (session + `userRole === "admin"`), Admin bottom-nav tab, `/admin` error log dashboard. Client for backend spec 24. Real-API admin run pending an admin account. |
+| [27-nocturne-redesign.md](specs/27-nocturne-redesign.md)                                                   | 🟡 In Progress | Full visual redesign to the Claude Design "Nocturne" export (`../redesign/`): tokens + Inter, sidebar/tab-bar shell, shared components, every screen. Web only, no API changes. |
 |                                                                                                            |
 
 ## Completed (already implemented)

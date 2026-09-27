@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { DialogClose } from "@/components/ui/dialog";
-import PrimaryButton from "../PrimaryButton/PrimaryButton";
 
 type TModalActionButtonsProps = {
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
   isLoading?: boolean;
+  variant?: "default" | "destructive";
 };
 
 export default function ModalActionButtons({
@@ -16,25 +16,27 @@ export default function ModalActionButtons({
   cancelText = "Cancel",
   onConfirm,
   isLoading = false,
+  variant = "default",
 }: TModalActionButtonsProps) {
   return (
-    <div className="flex gap-3 mt-8">
+    <div className="mt-6 flex gap-2">
       <DialogClose asChild className="flex-1">
         <Button
           variant="outline"
-          className="h-11 bg-surface border border-neutral-700 rounded-[8px]"
+          className="h-10"
         >
           {cancelText}
         </Button>
       </DialogClose>
 
-      <PrimaryButton
-        className="flex-1"
+      <Button
+        variant={variant}
+        className="h-10 flex-1"
         onClick={onConfirm}
         disabled={isLoading}
       >
         {confirmText}
-      </PrimaryButton>
+      </Button>
     </div>
   );
 }

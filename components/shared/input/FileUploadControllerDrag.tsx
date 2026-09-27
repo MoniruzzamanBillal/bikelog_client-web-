@@ -130,7 +130,7 @@ export default function FileUploadControllerDrag({
             {label && (
               <label className=" font-semibold text-surface-text  text-[0.875rem] leading-[21px]    ">
                 {label}
-                {isRequired && <span className="ml-1 text-red-500">*</span>}
+                {isRequired && <span className="ml-0.5 text-destructive">*</span>}
               </label>
             )}
 
@@ -142,7 +142,7 @@ export default function FileUploadControllerDrag({
               className={cn(
                 " w-full min-h-[150px] border border-dashed border-surface-border rounded-[8px]  flex items-center justify-center relative mt-2 ",
                 isDragging
-                  ? "border-red-400 bg-red-500/10 "
+                  ? "border-destructive bg-destructive/10 "
                   : "border-surface-border",
                 className,
               )}
@@ -155,7 +155,7 @@ export default function FileUploadControllerDrag({
                     type="button"
                     className="absolute w-6 h-6 flex items-center justify-center bg-red-50 rounded-full p-1 -right-2 -top-2 z-10 cursor-pointer "
                   >
-                    <X className="w-4 h-4 text-red-600 " />
+                    <X className="w-4 h-4 text-destructive " />
                   </button>
 
                   {/* IMAGE PREVIEW */}
@@ -193,11 +193,11 @@ export default function FileUploadControllerDrag({
                   {/* <Image width={36} height={36} src={uploadSvg} alt="Upload" /> */}
 
                   <div className=" bg-table-border rounded-full p-2  ">
-                    <FileUp className=" text-primary-500 " />
+                    <FileUp className=" text-primary " />
                   </div>
 
                   <p className=" mt-3 text-[0.875rem] leading-[21px] font-medium text-surface-text-muted ">
-                    <span className=" text-primary-500 ">Click to Upload</span>{" "}
+                    <span className=" text-primary ">Click to Upload</span>{" "}
                     or drag and drop
                   </p>
                   <p className=" mt-1 text-[0.875rem]  font-medium text-surface-text-muted ">
@@ -216,7 +216,7 @@ export default function FileUploadControllerDrag({
             </div>
 
             {fieldState.error && (
-              <p className="text-rose-500 text-xs mt-1 pl-2">
+              <p className="text-xs text-destructive mt-1">
                 {fieldState.error.message}
               </p>
             )}

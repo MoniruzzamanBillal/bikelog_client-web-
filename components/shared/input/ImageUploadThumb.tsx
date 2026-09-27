@@ -109,7 +109,7 @@ export default function ImageUploadThumb({
           <button
             type="button"
             onClick={handleDeleteClick}
-            className="flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
+            className="flex size-4 cursor-pointer items-center justify-center rounded-full bg-destructive"
             aria-label={`Delete ${label}`}
           >
             <X className="size-3 text-white" />

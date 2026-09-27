@@ -105,7 +105,7 @@ export default function ImageGalleryField({
                   e.stopPropagation();
                   handleRemoveClick(image._id);
                 }}
-                className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
+                className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-destructive"
                 aria-label="Delete image"
               >
                 <X className="size-3 text-white" />

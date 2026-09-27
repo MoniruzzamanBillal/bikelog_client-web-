@@ -97,7 +97,7 @@ export function FileUploadController({
                   <div className="w-full h-full relative group">
                     <button
                       onClick={handleDelete}
-                      className="absolute w-6 h-6 flex items-center justify-center rounded-full p-1 -right-2 -top-2 z-10 bg-red-600 cursor-pointer "
+                      className="absolute w-6 h-6 flex items-center justify-center rounded-full p-1 -right-2 -top-2 z-10 bg-destructive cursor-pointer "
                       aria-label="Delete image"
                       type="button"
                     >
@@ -121,13 +121,13 @@ export function FileUploadController({
                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 relative">
                     <button
                       onClick={handleDelete}
-                      className="absolute w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 rounded-full p-1 -right-2 -top-2"
+                      className="absolute w-6 h-6 flex items-center justify-center bg-destructive hover:bg-red-700 rounded-full p-1 -right-2 -top-2"
                       aria-label="Delete file"
                       type="button"
                     >
                       <X className="w-4 h-4 text-white" />
                     </button>
-                    <div className="text-rose-500 text-center">
+                    <div className="text-destructive text-center">
                       <label
                         htmlFor={`${name}-file`}
                         className="  cursor-pointer "
@@ -173,7 +173,7 @@ export function FileUploadController({
               )}
             </div>
             {fieldState.error && (
-              <p className="text-rose-500 text-xs mt-1 pl-2">
+              <p className="text-xs text-destructive mt-1">
                 {fieldState.error.message}
               </p>
             )}
