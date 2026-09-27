@@ -1,11 +1,13 @@
 "use client";
 
 import ImageUploadThumb from "@/components/shared/input/ImageUploadThumb";
+import StatusTag, { TStatusTone } from "@/components/shared/StatusTag/StatusTag";
+import TableActionMenu from "@/components/shared/table/TableActionMenu";
 import { useDelete, usePut } from "@/hooks/useApi";
-import { SquarePen, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import {
-  TAccessoryStatus,
   TAccessoryUrgency,
   TBikeAccessory,
 } from "./type/bike-accessory.types";
@@ -16,41 +18,18 @@ type TProps = {
   onDelete: (accessory: TBikeAccessory) => void;
 };
 
-const ACCESSORY_STATUS_BADGE: Record<TAccessoryStatus, string> = {
-  pending: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
-  purchased:
-    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-};
-
-const ACCESSORY_URGENCY_BADGE: Record<TAccessoryUrgency, string> = {
-  low: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
-  medium: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
-  immediate: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-};
-
-const STATUS_LABEL: Record<TAccessoryStatus, string> = {
-  pending: "Pending",
-  purchased: "Purchased",
-  cancelled: "Cancelled",
-};
-
-const URGENCY_LABEL: Record<TAccessoryUrgency, string> = {
-  immediate: "Immediate",
-  medium: "Medium",
-  low: "Low",
-};
+const URGENCY: Record<TAccessoryUrgency, { label: string; tone: TStatusTone }> =
+  {
+    immediate: { label: "Immediate", tone: "danger" },
+    medium: { label: "Medium", tone: "warning" },
+    low: { label: "Low", tone: "neutral" },
+  };
 
 export default function BikeAccessoryCard({
   accessory,
   onEdit,
   onDelete,
 }: TProps) {
-  const formatPrice = (price?: number) => {
-    if (!price) return "N/A";
-    return `৳${price.toLocaleString()}`;
-  };
-
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
     ["bikeAccessories", accessory.bike],
   ]);
@@ -85,62 +64,47 @@ export default function BikeAccessoryCard({
     }
   };
 
+  const urgency = URGENCY[accessory.urgency];
+
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex gap-3">
-          <ImageUploadThumb
-            imageUrl={accessory.productImage?.url}
-            onUpload={handleImageUpload}
-            onDelete={handleImageDelete}
-            uploading={isUploading || isDeleting}
-            label="Product"
+    <div
+      className={cn(
+        "panel flex gap-3 p-3",
+        accessory.status === "cancelled" && "opacity-60",
+      )}
+    >
+      <ImageUploadThumb
+        imageUrl={accessory.productImage?.url}
+        onUpload={handleImageUpload}
+        onDelete={handleImageDelete}
+        uploading={isUploading || isDeleting}
+        label="Product"
+        className="size-14"
+      />
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="min-w-0 truncate pt-1 text-[13.5px] font-medium">
+            {accessory.name}
+          </span>
+          <TableActionMenu
+            rowData={accessory}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
-          <div>
-            <p className="text-sm font-medium">{accessory.name}</p>
-            <div className="mt-1 flex gap-2">
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ACCESSORY_URGENCY_BADGE[accessory.urgency]}`}
-              >
-                {URGENCY_LABEL[accessory.urgency]}
-              </span>
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ACCESSORY_STATUS_BADGE[accessory.status]}`}
-              >
-                {STATUS_LABEL[accessory.status]}
-              </span>
-              {accessory.price && (
-                <span className="px-2 py-1 text-xs rounded-full font-medium bg-purple-100 text-purple-800">
-                  {formatPrice(accessory.price)}
-                </span>
-              )}
-            </div>
-            {accessory.status === "purchased" && accessory.purchaseDate && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                Purchased{" "}
-                {new Date(accessory.purchaseDate).toLocaleDateString()}
-              </p>
-            )}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <StatusTag tone={urgency.tone}>{urgency.label}</StatusTag>
+          <span className="text-[12.5px] tabular-nums">
+            {accessory.price
+              ? `৳${accessory.price.toLocaleString()}`
+              : <span className="text-muted-foreground">No price</span>}
+          </span>
+        </div>
+        {accessory.status === "purchased" && accessory.purchaseDate && (
+          <div className="text-[11.5px] text-muted-foreground">
+            Purchased {format(new Date(accessory.purchaseDate), "dd MMM yyyy")}
           </div>
-        </div>
-        <div className="flex shrink-0 gap-1">
-          <button
-            type="button"
-            onClick={() => onEdit(accessory)}
-            className="rounded p-1 text-muted-foreground hover:text-foreground"
-            title="Edit"
-          >
-            <SquarePen className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(accessory)}
-            className="rounded p-1 text-muted-foreground hover:text-red-600"
-            title="Delete"
-          >
-            <Trash2 className="size-4" />
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );

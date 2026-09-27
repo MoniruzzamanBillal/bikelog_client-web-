@@ -1,5 +1,6 @@
 "use client";
 
+import AuthLayout from "@/components/feature/auth/AuthLayout";
 import LoginForm from "@/components/feature/auth/LoginForm";
 import { getToken } from "@/lib/tokenManager";
 import { useRouter } from "next/navigation";
@@ -21,11 +22,11 @@ export default function LoginPage() {
   if (!checked) return null;
 
   return (
-    <div className="flex min-h-dvh items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-center text-xl font-semibold">Log in</h1>
-        <LoginForm />
-      </div>
-    </div>
+    <AuthLayout
+      heading="Welcome back"
+      lede="Log in to your garage."
+    >
+      <LoginForm />
+    </AuthLayout>
   );
 }

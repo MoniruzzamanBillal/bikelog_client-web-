@@ -3,7 +3,7 @@
 import ImageLightbox from "@/components/shared/ImageLightbox/ImageLightbox";
 import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
 import { cn } from "@/lib/utils";
-import { Image as ImageIcon, Loader2, Pencil, X } from "lucide-react";
+import { Image as ImageIcon, Loader2, Pencil, Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 
@@ -14,6 +14,8 @@ type TImageUploadThumbProps = {
   uploading: boolean;
   label?: string;
   className?: string;
+  // 32px table/card-row variant from the Nocturne design
+  compact?: boolean;
 };
 
 export default function ImageUploadThumb({
@@ -23,6 +25,7 @@ export default function ImageUploadThumb({
   uploading,
   label = "Image",
   className,
+  compact = false,
 }: TImageUploadThumbProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -63,8 +66,23 @@ export default function ImageUploadThumb({
   };
 
   return (
-    <div className={cn("relative size-16 shrink-0", className)}>
-      <div className="size-full overflow-hidden rounded-md border border-border bg-muted">
+    <div
+      className={cn(
+        "group relative shrink-0",
+        compact ? "size-8" : "size-16",
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          "size-full overflow-hidden rounded-md",
+          compact
+            ? imageUrl
+              ? "bg-accent"
+              : "shadow-[inset_0_0_0_1px_var(--border)] hover:bg-surface-hover"
+            : "border border-border bg-muted",
+        )}
+      >
         <button
           type="button"
           onClick={handleThumbClick}
@@ -77,9 +95,11 @@ export default function ImageUploadThumb({
               src={imageUrl}
               alt={label}
               fill
-              sizes="64px"
+              sizes={compact ? "32px" : "64px"}
               className="object-cover"
             />
+          ) : compact ? (
+            <Plus className="size-3.5 text-muted-foreground" />
           ) : (
             <div className="flex flex-col items-center gap-1 text-muted-foreground">
               <ImageIcon className="size-4" />
@@ -89,7 +109,7 @@ export default function ImageUploadThumb({
         </button>
 
         {uploading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+          <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/40">
             <Loader2 className="size-4 animate-spin text-white" />
           </div>
         )}
@@ -97,7 +117,15 @@ export default function ImageUploadThumb({
 
       {/* Positioned on the outer (non-clipping) wrapper so it isn't cut off by the inner thumbnail's overflow-hidden */}
       {imageUrl && !uploading && (
-        <div className="absolute -right-1 -top-1 flex gap-0.5">
+        <div
+          className={cn(
+            "absolute -top-1 -right-1 flex gap-0.5",
+            // compact rows stay clean on mouse devices — replace/delete appear
+            // on hover/focus; touch screens (no hover) always show them
+            compact &&
+              "transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100",
+          )}
+        >
           <button
             type="button"
             onClick={handleReplaceClick}

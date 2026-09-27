@@ -1,22 +1,28 @@
 "use client";
 
+import InsightCard from "@/components/shared/InsightCard/InsightCard";
 import { useFetchData } from "@/hooks/useApi";
 import { TMileageInsight } from "./type/mileage.types";
 
-export default function AiMileageInsightCard({ bikeId }: { bikeId: string }) {
-  const { data, isLoading } = useFetchData<TMileageInsight>(
+export default function AiMileageInsightCard({
+  bikeId,
+  className,
+}: {
+  bikeId: string;
+  className?: string;
+}) {
+  const { data, isLoading, isError } = useFetchData<TMileageInsight>(
     ["ai", "mileage-insight", bikeId],
     `/bikes/${bikeId}/ai/mileage-insight`,
   );
 
-  const insight = data?.data;
-
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <p className="text-sm text-muted-foreground">AI Insight</p>
-      <p className="mt-1 text-sm">
-        {isLoading ? "Thinking..." : (insight?.insight ?? "No insight available yet.")}
-      </p>
-    </div>
+    <InsightCard
+      kicker="AI mileage insight"
+      text={data?.data?.insight}
+      isLoading={isLoading}
+      isError={isError}
+      className={className}
+    />
   );
 }

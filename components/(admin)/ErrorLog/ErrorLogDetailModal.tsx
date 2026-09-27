@@ -1,9 +1,9 @@
 "use client";
 
 import BaseModal from "@/components/shared/Modal/BaseModal";
-import { cn } from "@/lib/utils";
+import StatusTag from "@/components/shared/StatusTag/StatusTag";
 import { format } from "date-fns";
-import { getStatusBadgeClass } from "./errorLogStatus";
+import { getStatusTone } from "./errorLogStatus";
 import { TErrorLog } from "./type/error-log.types";
 
 type TProps = {
@@ -20,17 +20,10 @@ const DetailRow = ({ label, value }: { label: string; value: string }) => (
 
 export default function ErrorLogDetailModal({ log, onClose }: TProps) {
   return (
-    <BaseModal open onClose={onClose} title="Error Details">
+    <BaseModal open onClose={onClose} title="Error details">
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-              getStatusBadgeClass(log.status),
-            )}
-          >
-            {log.status}
-          </span>
+          <StatusTag tone={getStatusTone(log.status)}>{log.status}</StatusTag>
           {log.errorName && (
             <span className="text-sm font-medium">{log.errorName}</span>
           )}

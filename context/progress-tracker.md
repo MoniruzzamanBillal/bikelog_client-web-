@@ -49,7 +49,7 @@ The backend has two roles (`user`/`admin`) but no role-based authorization imple
 | [25-backend-app-parity-catchup.md](specs/25-backend-app-parity-catchup.md)                                 | ✅ Complete    | Sections A–E built and live-verified (reminders-banner bug fix, optional service interval, catalog inline edit, avg daily expense card, spec-24 bug fixes). Section F held per the spec's own recommendation (needs a UX decision); G–L need no client work. |
 | [25a-fix-interval-null-vs-undefined-guard.md](specs/25a-fix-interval-null-vs-undefined-guard.md)           | ✅ Complete    | Bug found live during spec 25's own verification — optional interval fields come back as explicit `null`, not omitted; `!== undefined` guards missed it. Fixed to `!= null`. |
 | [26-admin-error-log-dashboard.md](specs/26-admin-error-log-dashboard.md)                                   | ✅ Complete    | Admin role support: `app/(admin)/` gate (session + `userRole === "admin"`), Admin bottom-nav tab, `/admin` error log dashboard. Client for backend spec 24. Real-API admin run pending an admin account. |
-| [27-nocturne-redesign.md](specs/27-nocturne-redesign.md)                                                   | 🟡 In Progress | Full visual redesign to the Claude Design "Nocturne" export (`../redesign/`): tokens + Inter, sidebar/tab-bar shell, shared components, every screen. Web only, no API changes. |
+| [27-nocturne-redesign.md](specs/27-nocturne-redesign.md)                                                   | ✅ Complete    | Full visual redesign to the Claude Design "Nocturne" export (`../redesign/`): tokens + Inter, sidebar/tab-bar shell, shared components, every screen. Web only, no API changes. |
 |                                                                                                            |
 
 ## Completed (already implemented)
@@ -61,6 +61,31 @@ The backend has two roles (`user`/`admin`) but no role-based authorization imple
 
 ## Recent Activity
 
+- **2026-09-27 (spec 27: Nocturne redesign)**: built per direct user instruction from the Claude Design export in `../redesign/`. The bundled HTML is unpacked to `../redesign/extracted/`. Web client only: `bikelog_app/` and `bikelog_server/` are untouched. No API contract changes.
+  - **Tokens + font**: `globals.css` now carries the design's "Part A" `:root` (light) and `.dark` values.
+    - New tokens: `--warning`, `--success`, `--destructive-foreground` and `--ground-gradient`.
+    - Elevation is `--elev-sm/md/lg/glow`, exposed as the Tailwind `shadow-sm/md/lg/glow` classes. They're named `elev-*` so the theme mapping isn't self-referential.
+    - New helpers: the `panel` utility, `.rule-fade`, `.row-fade` (fading table rows) and `.bg-ground`.
+    - Geist is replaced by Inter.
+  - **Shell**: `AppShell.tsx` is rebuilt.
+    - Desktop gets a 232px sidebar with a bike sub-nav (10 links) under `/bikes/[bikeId]`, catalog/admin links, and a theme toggle + logout.
+    - Mobile gets a 52px header (route-derived title/subtitle/back) and a 64px tab bar: Bikes/Catalog/Admin, or Overview/Fuel/Service/Spend/More inside a bike.
+    - The sidebar shows the JWT's `userEmail`; there's no name claim to show.
+  - **Shared**:
+    - Restyled: `ui/*` (button `default` is now the accent-outline primary; `solid` added), `shared/Modal/*`, `shared/input/*`, `shared/table/*`, and `PageHeader` (new props: `title/crumbs/description/actions`).
+    - `ModalActionButtons` gained `variant`. `TableActionMenu` gained `disabled` and `footnote`. `TableContent` gained `emptyState` and `meta.align`. `ImageUploadThumb` gained `compact`.
+    - New components: `StateCard`, `StatTile`, `StatusTag`, `SegmentedTabs`, `PeriodStepper`, `InsightCard`, and `SettingsCatalog/CatalogCard`.
+  - **Screens**: every route has been restyled, with Skeleton loading plus empty and error (retry) states.
+    - The bike hub now also reads mileage, lifetime, month spending, `fuel-logs?limit=5` and the AI mileage insight. It uses the sub-pages' exact query keys, so the caches are shared.
+    - The fuel-log row menu is disabled, with a footnote, for fills inside a closed mileage record. The ids come from `/mileage` `exactRecords[].fuelLogIds`, mirroring the server's own 400 lock.
+    - `window.confirm` deletes are replaced by `ConfirmDeleteModal` everywhere.
+    - Fuel/maintenance/accessory mutations now also invalidate the bike/mileage/spending caches, so the hub stats refresh.
+    - Login errors show inline (a banner) instead of a toast.
+  - **Verified**: `tsc`, `yarn lint` and `yarn build` are all clean. Lint shows 0 errors and 5 warnings, one fewer than before: `FuelLog.tsx`'s unused `isPending` is gone.
+    - Every route was screenshotted in Playwright at 375px and 1280px, in dark and light, against a **mocked** API. The client is hard-wired to the production `bikelog-server.vercel.app`, and no test data was written there.
+    - No horizontal overflow and no page errors.
+    - Exercised: add modal, locked row menu, delete confirm, mobile "More" menu, theme toggle, login 403 banner, and the session gate redirecting to `/login`.
+    - A click-through against the real API is still pending.
 - **2026-09-27 (spec 26: admin role + error log dashboard)**: built per direct user instruction. Admins are regular riders too, so every `app/(main)/` screen is unchanged for them.
   - `lib/userRole.ts` adds `isAdminUser()`, which reads `userRole` from the already-decoded JWT through `getDecodedToken()`.
   - `app/(admin)/layout.tsx` is the first file in the reserved group. It runs the same mount-only check as `(main)`, plus the role check (non-admin → `/dashboard`), then renders the shared `AppShell`.
@@ -149,6 +174,12 @@ The backend has two roles (`user`/`admin`) but no role-based authorization imple
 
 ## Known Gaps / Open Questions
 
+- **Spec 27 design elements deliberately not built** (the design showed data or actions the API doesn't have):
+  - The catalog row delete buttons: there are no delete routes for maintenance/engine-oil types.
+  - The admin "All statuses" filter: see the Prisma `Int` gap above.
+  - The user's display name in the sidebar: the JWT has no name claim.
+  - The manual upload's "PDF up to 20 MB" copy: the size limit isn't known client-side.
+- **Spec 27's fuel-log table still shows TanStack's client-side sort icons.** This is a pre-existing feature that the design doesn't show. It sorts only the current page.
 - **Auth cookie is not httpOnly.** `bikelog_server` returns the JWT in the JSON body and never sets cookies itself, so the client sets a plain (non-httpOnly) `cookies-next` cookie after login, via `lib/tokenManager.ts`. This is a deliberate, documented tradeoff (see `ai-workflow-rules.md`'s Protected Files section) — acceptable for a single-user personal tool, would need revisiting before this app ever had untrusted multi-tenant users.
 - **No refresh-token flow exists, by design** — `bikelog_server` has no refresh-token endpoint at all, so there's no refresh-queue/retry logic to build. An expired token just means the interceptor redirects to `/login` — re-login is the only path back.
 - **Session gate is a plain cookie check, not a `GET /auth/me` round-trip, by design** — `app/(main)/layout.tsx` only checks `getToken()` presence/expiry synchronously; it doesn't verify the token against the backend before rendering. A stale-but-not-yet-expired token would pass the gate and only fail on the first real API call (handled by the response interceptor's 401 branch). Accepted tradeoff for build speed — see `architecture.md`'s Auth & Access Model.

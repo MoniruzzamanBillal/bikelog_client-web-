@@ -1,16 +1,16 @@
 "use client";
 
+import PageHeader from "@/components/shared/PageHeader/PageHeader";
 import ErrorLogList from "../ErrorLog/ErrorLogList";
 
 const AdminDashboard = () => {
   return (
-    <div className="space-y-4 p-4">
-      <div>
-        <h1 className="text-lg font-semibold">Admin Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Server errors captured across all users.
-        </p>
-      </div>
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        title="Error logs"
+        crumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Admin" }]}
+        description="Admin only · read-only · 30-day retention"
+      />
 
       <ErrorLogList />
     </div>

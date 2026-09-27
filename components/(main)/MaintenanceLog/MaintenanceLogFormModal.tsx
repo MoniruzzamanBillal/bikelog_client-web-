@@ -219,8 +219,8 @@ export default function MaintenanceLogFormModal({
           />
 
           {/* <div className="space-y-1">
-            <label className="text-sm font-medium">
-              Service Date<span className="ml-1 text-red-500">*</span>
+            <label className="mb-1.5 block text-xs text-foreground/70">
+              Service Date<span className="ml-0.5 text-destructive">*</span>
             </label>
             <Controller
               name="serviceDate"
@@ -243,7 +243,7 @@ export default function MaintenanceLogFormModal({
           />
 
           {/* <div className="space-y-1">
-            <label className="text-sm font-medium">
+            <label className="mb-1.5 block text-xs text-foreground/70">
               Next Due Date (optional)
             </label>
             <Controller

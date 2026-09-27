@@ -1,6 +1,6 @@
 # 27: Nocturne Redesign (Claude Design → web client)
 
-Status: 🟡 In Progress. Started 2026-09-27 per direct user instruction.
+Status: ✅ Complete. Implemented 2026-09-27 per direct user instruction. See `progress-tracker.md` Recent Activity for what shipped and Known Gaps for what was left out.
 
 ## Goal
 

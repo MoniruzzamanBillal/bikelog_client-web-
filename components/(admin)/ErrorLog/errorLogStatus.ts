@@ -1,4 +1,9 @@
-export const getStatusBadgeClass = (status: number) =>
+import { TStatusTone } from "@/components/shared/StatusTag/StatusTag";
+
+// 5xx = server fault, 401/403 = auth, everything else (validation, 404, 409) neutral
+export const getStatusTone = (status: number): TStatusTone =>
   status >= 500
-    ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-    : "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200";
+    ? "danger"
+    : status === 401 || status === 403
+      ? "warning"
+      : "neutral";

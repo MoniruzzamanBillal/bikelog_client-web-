@@ -8,6 +8,7 @@ import { useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import ControlledInput from "@/components/shared/input/ControlledInput";
+import { Button } from "@/components/ui/button";
 import { usePost } from "@/hooks/useApi";
 import { registerSchema, TRegisterForm } from "./auth.schema";
 
@@ -32,14 +33,21 @@ export default function RegisterForm() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
-        <ControlledInput name="name" label="Name" placeholder="Your name" isRequired />
+      <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
+        <ControlledInput
+          name="name"
+          label="Name"
+          placeholder="Your name"
+          isRequired
+          className="h-11"
+        />
         <ControlledInput
           name="email"
           label="Email"
           type="email"
           placeholder="you@example.com"
           isRequired
+          className="h-11"
         />
         <ControlledInput
           name="password"
@@ -47,6 +55,7 @@ export default function RegisterForm() {
           type={showPassword ? "text" : "password"}
           placeholder="••••••••"
           isRequired
+          className="h-11"
           rightElement={
             <button
               type="button"
@@ -63,18 +72,18 @@ export default function RegisterForm() {
           }
         />
 
-        <button
+        <Button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          className="mt-1 h-11 w-full"
         >
-          {isPending ? "Registering..." : "Register"}
-        </button>
+          {isPending ? "Creating account…" : "Create account"}
+        </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-muted-foreground">
+      <p className="m-0 text-[13px] text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary underline">
+        <Link href="/login" className="text-primary hover:underline">
           Log in
         </Link>
       </p>

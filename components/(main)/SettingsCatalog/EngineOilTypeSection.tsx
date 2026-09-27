@@ -1,9 +1,11 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useFetchData, usePatch, usePost } from "@/hooks/useApi";
-import { Pencil } from "lucide-react";
+import { Check, Pencil, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import CatalogCard, { catalogInput } from "./CatalogCard";
 import { TEngineOilType } from "./type/engine-oil-type.types";
 
 export default function EngineOilTypeSection() {
@@ -19,6 +21,7 @@ export default function EngineOilTypeSection() {
   ]);
   const types = data?.data ?? [];
 
+  const [addOpen, setAddOpen] = useState(false);
   const [name, setName] = useState("");
   const [suggestedIntervalKm, setSuggestedIntervalKm] = useState("");
 
@@ -40,6 +43,7 @@ export default function EngineOilTypeSection() {
       toast.success("Engine oil type created");
       setName("");
       setSuggestedIntervalKm("");
+      setAddOpen(false);
     } catch (error) {
       const message = (error as { message?: string })?.message;
       toast.error(message ?? "Failed to create engine oil type");
@@ -77,108 +81,112 @@ export default function EngineOilTypeSection() {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-semibold">Engine Oil Types</h2>
-
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-3 rounded-lg border border-border bg-card p-4"
-      >
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name (e.g. Synthetic)"
-          required
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-        />
-        <input
-          type="number"
-          value={suggestedIntervalKm}
-          onChange={(e) => setSuggestedIntervalKm(e.target.value)}
-          placeholder="Suggested interval (km)"
-          required
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-        />
-        <button
-          type="submit"
-          disabled={isPending || !name.trim() || !suggestedIntervalKm}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          {isPending ? "Adding..." : "Add"}
-        </button>
-      </form>
-
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      ) : types.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No engine oil types yet.
-        </p>
-      ) : (
-        <ul className="space-y-2">
-          {types.map((t) =>
-            editingId === t._id ? (
-              <li
-                key={t._id}
-                className="space-y-3 rounded-lg border border-border bg-card p-4"
-              >
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Name"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                />
-                <input
-                  type="number"
-                  value={editIntervalKm}
-                  onChange={(e) => setEditIntervalKm(e.target.value)}
-                  placeholder="Suggested interval (km)"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                />
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSaveEdit}
-                    disabled={isUpdating || !editName.trim() || !editIntervalKm}
-                    className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-                  >
-                    {isUpdating ? "Saving..." : "Save Changes"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </li>
-            ) : (
-              <li
-                key={t._id}
-                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-sm"
-              >
-                <div>
-                  <span className="font-medium">{t.name}</span>
-                  <span className="ml-2 text-muted-foreground">
-                    · {t.suggestedIntervalKm} km
-                  </span>
-                </div>
+    <CatalogCard
+      title="Engine oil types"
+      subtitle="Suggested interval pre-fills the Engine Oil service form"
+      headers={[{ label: "Suggested km", short: "km" }]}
+      isLoading={isLoading}
+      isEmpty={types.length === 0}
+      emptyText="No engine oil types yet."
+      addOpen={addOpen}
+      onToggleAdd={() => setAddOpen((o) => !o)}
+      addForm={
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Name (e.g. Synthetic)"
+              required
+              className={catalogInput}
+            />
+            <input
+              type="number"
+              value={suggestedIntervalKm}
+              onChange={(e) => setSuggestedIntervalKm(e.target.value)}
+              placeholder="Suggested km"
+              required
+              className={catalogInput}
+            />
+          </div>
+          <Button
+            type="submit"
+            disabled={isPending || !name.trim() || !suggestedIntervalKm}
+            className="self-start"
+          >
+            {isPending ? "Adding…" : "Add oil type"}
+          </Button>
+        </form>
+      }
+    >
+      {types.map((t) =>
+        editingId === t._id ? (
+          <tr key={t._id} className="row-fade">
+            <td className="py-1.5 pr-1 pl-4">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Name"
+                className={catalogInput}
+              />
+            </td>
+            <td className="px-1 py-1.5">
+              <input
+                type="number"
+                value={editIntervalKm}
+                onChange={(e) => setEditIntervalKm(e.target.value)}
+                placeholder="km"
+                className={`${catalogInput} text-right`}
+              />
+            </td>
+            <td className="py-1.5 pr-2">
+              <div className="flex justify-end gap-0.5">
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  disabled={isUpdating || !editName.trim() || !editIntervalKm}
+                  className="grid size-[30px] place-items-center rounded-md text-success hover:bg-surface-hover disabled:opacity-45"
+                  title="Save"
+                  aria-label="Save"
+                >
+                  <Check className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="grid size-[30px] place-items-center rounded-md text-muted-foreground hover:bg-surface-hover"
+                  title="Cancel"
+                  aria-label="Cancel"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        ) : (
+          <tr key={t._id} className="row-fade h-11">
+            <td className="pl-4">{t.name}</td>
+            <td className="px-2 text-right text-muted-foreground">
+              {t.suggestedIntervalKm.toLocaleString()}
+            </td>
+            <td className="pr-2">
+              <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={() => startEdit(t)}
-                  className="rounded p-1 text-muted-foreground hover:text-foreground"
+                  className="grid size-[30px] place-items-center rounded-md text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                   title="Edit"
+                  aria-label={`Edit ${t.name}`}
                 >
-                  <Pencil className="size-4" />
+                  <Pencil className="size-3.5" />
                 </button>
-              </li>
-            ),
-          )}
-        </ul>
+              </div>
+            </td>
+          </tr>
+        ),
       )}
-    </div>
+    </CatalogCard>
   );
 }

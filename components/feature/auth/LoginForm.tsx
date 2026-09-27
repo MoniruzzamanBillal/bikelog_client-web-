@@ -1,10 +1,11 @@
 "use client";
 
 import ControlledInput from "@/components/shared/input/ControlledInput";
+import { Button } from "@/components/ui/button";
 import { usePost } from "@/hooks/useApi";
 import { setToken } from "@/lib/tokenManager";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -17,8 +18,10 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const methods = useForm<TLoginForm>({ resolver: zodResolver(loginSchema) });
   const { mutateAsync: loginMutation, isPending } = usePost();
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<TLoginForm> = async (data) => {
+    setServerError(null);
     try {
       const result = await loginMutation({
         url: "/auth/login",
@@ -31,19 +34,30 @@ export default function LoginForm() {
       }
     } catch (error) {
       const message = (error as { message?: string })?.message;
-      toast.error(message ?? "Something went wrong!!", { duration: 2000 });
+      setServerError(message ?? "Something went wrong!!");
     }
   };
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+      {serverError && (
+        <div
+          role="alert"
+          className="flex items-center gap-2.5 rounded-lg bg-destructive/8 px-3 py-2.5 text-[13px] shadow-[0_0_0_1px_color-mix(in_srgb,var(--destructive)_45%,transparent)]"
+        >
+          <AlertTriangle className="size-[15px] shrink-0 text-destructive" />
+          {serverError}
+        </div>
+      )}
+
+      <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
         <ControlledInput
           name="email"
           label="Email"
           type="email"
           placeholder="you@example.com"
           isRequired
+          className="h-11"
         />
         <ControlledInput
           name="password"
@@ -51,6 +65,7 @@ export default function LoginForm() {
           type={showPassword ? "text" : "password"}
           placeholder="••••••••"
           isRequired
+          className="h-11"
           rightElement={
             <button
               type="button"
@@ -67,19 +82,19 @@ export default function LoginForm() {
           }
         />
 
-        <button
+        <Button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground disabled:opacity-50 cursor-pointer "
+          className="mt-1 h-11 w-full"
         >
-          {isPending ? "Logging in..." : "Log in"}
-        </button>
+          {isPending ? "Logging in…" : "Log in"}
+        </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-primary underline">
-          Register
+      <p className="m-0 text-[13px] text-muted-foreground">
+        New to Bike Log?{" "}
+        <Link href="/register" className="text-primary hover:underline">
+          Create an account
         </Link>
       </p>
     </FormProvider>

@@ -1,17 +1,22 @@
 "use client";
 
+import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
+import PageHeader from "@/components/shared/PageHeader/PageHeader";
 import PrimaryButton from "@/components/shared/PrimaryButton/PrimaryButton";
+import StateCard from "@/components/shared/StateCard/StateCard";
 import { TablePagination } from "@/components/shared/table/TablePagination";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDelete, useFetchData } from "@/hooks/useApi";
-import { Plus } from "lucide-react";
+import { Plus, Wrench } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TBike } from "../Bike/type/bike.types";
+import { TMaintenanceType } from "../SettingsCatalog/type/maintenance-type.types";
 import MaintenanceLogCard from "./MaintenanceLogCard";
 import MaintenanceLogFormModal from "./MaintenanceLogFormModal";
 import RemindersBanner from "./RemindersBanner";
 import { TMaintenanceLog } from "./type/maintenance-log.types";
-import { TMaintenanceType } from "../SettingsCatalog/type/maintenance-type.types";
 
 export default function MaintenanceLog() {
   const params = useParams();
@@ -20,9 +25,10 @@ export default function MaintenanceLog() {
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [editingLog, setEditingLog] = useState<TMaintenanceLog | null>(null);
+  const [deletingLog, setDeletingLog] = useState<TMaintenanceLog | null>(null);
   const limit = 20;
 
-  const { data, isLoading } = useFetchData<{
+  const { data, isLoading, isError, error, refetch } = useFetchData<{
     result: TMaintenanceLog[];
     meta: number;
   }>(
@@ -30,9 +36,15 @@ export default function MaintenanceLog() {
     `/bikes/${bikeId}/maintenance-logs?page=${page}&limit=${limit}&sort=-serviceDate`,
   );
 
-  const { mutateAsync: deleteMutation } = useDelete([
+  const { data: bikeData } = useFetchData<TBike>(
+    ["bikes", bikeId],
+    `/bikes/${bikeId}`,
+  );
+
+  const { mutateAsync: deleteMutation, isPending: isDeleting } = useDelete([
     ["maintenanceLogs", bikeId],
     ["reminders", bikeId],
+    ["spending", bikeId],
   ]);
 
   const { data: mtData } = useFetchData<TMaintenanceType[]>(
@@ -45,13 +57,11 @@ export default function MaintenanceLog() {
   const meta = data?.data?.meta ?? 0;
   const totalPages = Math.ceil(meta / limit);
 
-  const handleEdit = (log: TMaintenanceLog) => setEditingLog(log);
-
-  const handleDelete = async (log: TMaintenanceLog) => {
-    if (!confirm("Delete this maintenance log?")) return;
+  const handleConfirmDelete = async () => {
+    if (!deletingLog) return;
     try {
       const result = await deleteMutation({
-        url: `/bikes/${bikeId}/maintenance-logs/${log._id}`,
+        url: `/bikes/${bikeId}/maintenance-logs/${deletingLog._id}`,
       });
       if (result?.success) {
         toast.success("Maintenance log deleted");
@@ -59,36 +69,76 @@ export default function MaintenanceLog() {
     } catch (error) {
       const message = (error as { message?: string })?.message;
       toast.error(message ?? "Failed to delete");
+    } finally {
+      setDeletingLog(null);
     }
   };
 
+  const addButton = (label: string) => (
+    <PrimaryButton onClick={() => setCreateOpen(true)}>
+      <Plus className="size-4" />
+      {label}
+    </PrimaryButton>
+  );
+
   return (
-    <div className="space-y-4 p-3.5 ">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Maintenance Logs</h1>
-        <PrimaryButton onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-1 size-4" />
-          Add
-        </PrimaryButton>
-      </div>
+    <div className="flex flex-col gap-3.5">
+      <PageHeader
+        title="Maintenance"
+        crumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          {
+            label: bikeData?.data?.nickname ?? "Bike",
+            href: `/bikes/${bikeId}`,
+          },
+          { label: "Maintenance Logs" },
+        ]}
+        description={
+          !isLoading && meta > 0
+            ? `${meta} service${meta === 1 ? "" : "s"} logged`
+            : ""
+        }
+        actions={
+          <>
+            <span className="lg:hidden">{addButton("Add")}</span>
+            <span className="hidden lg:inline-flex">
+              {addButton("Add maintenance log")}
+            </span>
+          </>
+        }
+      />
 
       <RemindersBanner bikeId={bikeId} />
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-[150px] rounded-[10px]" />
+          ))}
+        </div>
+      ) : isError ? (
+        <StateCard
+          variant="error"
+          title="Couldn’t load maintenance logs"
+          message={error?.message}
+          onRetry={() => refetch()}
+        />
       ) : logs.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No maintenance logs yet.
-        </p>
+        <StateCard
+          icon={Wrench}
+          title="No service history yet"
+          message="Log a service with an interval (km) or a next due date and Bike Log will remind you when it’s due."
+          action={addButton("Add maintenance log")}
+        />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
           {logs.map((log: TMaintenanceLog) => (
             <MaintenanceLogCard
               key={log._id}
               log={log}
               maintenanceTypes={maintenanceTypes}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
+              onEdit={setEditingLog}
+              onDelete={setDeletingLog}
             />
           ))}
         </div>
@@ -101,7 +151,7 @@ export default function MaintenanceLog() {
           totalItems={meta}
           itemsPerPage={limit}
           onPageChange={setPage}
-          className="rounded-lg border border-border bg-card"
+          className="panel border-t-0"
         />
       )}
 
@@ -121,6 +171,15 @@ export default function MaintenanceLog() {
           log={editingLog}
         />
       )}
+
+      <ConfirmDeleteModal
+        open={!!deletingLog}
+        onClose={() => setDeletingLog(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete maintenance log?"
+        description="This service record will be permanently removed and cannot be undone."
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

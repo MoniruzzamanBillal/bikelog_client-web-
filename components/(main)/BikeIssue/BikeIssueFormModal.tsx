@@ -111,7 +111,7 @@ export default function BikeIssueFormModal({
           <ControlledDateSelect name="dateReported" label="Date Reported" />
 
           {/* <div className="space-y-1">
-            <label className="text-sm font-medium">Date Reported</label>
+            <label className="mb-1.5 block text-xs text-foreground/70">Date Reported</label>
 
             <Controller
               name="dateReported"
@@ -127,7 +127,7 @@ export default function BikeIssueFormModal({
                   />
 
                   {error && (
-                    <p className="text-sm text-red-500">{error.message}</p>
+                    <p className="mt-1 text-xs text-destructive">{error.message}</p>
                   )}
                 </div>
               )}

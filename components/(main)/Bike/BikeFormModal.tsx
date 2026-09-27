@@ -109,8 +109,8 @@ export default function BikeFormModal({
           />
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">
-              Purchase Date<span className="ml-1 text-red-500">*</span>
+            <label className="mb-1.5 block text-xs text-foreground/70">
+              Purchase Date<span className="ml-0.5 text-destructive">*</span>
             </label>
             <Controller
               name="purchaseDate"
@@ -126,7 +126,7 @@ export default function BikeFormModal({
                   />
 
                   {error && (
-                    <p className="text-sm text-red-500">{error.message}</p>
+                    <p className="mt-1 text-xs text-destructive">{error.message}</p>
                   )}
                 </div>
               )}

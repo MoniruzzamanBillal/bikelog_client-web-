@@ -85,7 +85,7 @@ export default function FileGalleryField({
         const isDeleting = deletingId === file._id;
 
         return (
-          <div key={file._id} className="relative size-16 shrink-0">
+          <div key={file._id} className="relative size-14 shrink-0">
             {isImage ? (
               <button
                 type="button"
@@ -94,14 +94,14 @@ export default function FileGalleryField({
                     imageFiles.findIndex((img) => img._id === file._id),
                   )
                 }
-                className="size-full overflow-hidden rounded-md border border-border bg-muted"
+                className="size-full overflow-hidden rounded-lg bg-accent"
                 aria-label="View image"
               >
                 <Image
                   src={file.url}
                   alt={file.originalName}
                   fill
-                  sizes="64px"
+                  sizes="56px"
                   className="object-cover"
                 />
               </button>
@@ -110,10 +110,10 @@ export default function FileGalleryField({
                 href={file.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex size-full flex-col items-center justify-center gap-1 overflow-hidden rounded-md border border-border bg-muted p-1"
+                className="flex size-full flex-col items-center justify-center gap-1 overflow-hidden rounded-lg bg-muted p-1"
                 aria-label={`Open ${file.originalName}`}
               >
-                <FileText className="size-5 shrink-0 text-muted-foreground" />
+                <FileText className="size-5 shrink-0 text-primary" />
                 <span className="w-full truncate text-center text-[10px] text-muted-foreground">
                   {file.originalName}
                 </span>
@@ -121,7 +121,7 @@ export default function FileGalleryField({
             )}
 
             {isDeleting && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-sm">
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/50 backdrop-blur-sm">
                 <Loader2 className="size-5 animate-spin text-primary" />
               </div>
             )}
@@ -150,7 +150,7 @@ export default function FileGalleryField({
           onClick={() => !uploading && inputRef.current?.click()}
           disabled={uploading}
           className={cn(
-            "flex size-16 shrink-0 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground hover:border-primary",
+            "flex size-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors hover:bg-surface-hover hover:text-foreground",
             uploading && "opacity-50",
           )}
           aria-label="Add file"
@@ -158,7 +158,10 @@ export default function FileGalleryField({
           {uploading && !deletingId ? (
             <Loader2 className="size-5 animate-spin" />
           ) : (
-            <Plus className="size-5" />
+            <>
+              <Plus className="size-[15px]" />
+              Attach
+            </>
           )}
         </button>
       )}

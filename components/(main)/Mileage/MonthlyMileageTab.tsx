@@ -1,24 +1,30 @@
 "use client";
 
+import PeriodStepper from "@/components/shared/PeriodStepper/PeriodStepper";
+import StateCard from "@/components/shared/StateCard/StateCard";
+import StatTile from "@/components/shared/StatTile/StatTile";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useFetchData } from "@/hooks/useApi";
+import { addMonths, format, isSameMonth, parse } from "date-fns";
+import { CalendarDays, Gauge } from "lucide-react";
 import { useState } from "react";
 import { TMonthlyMileage } from "./type/mileage.types";
 
 function formatMonth(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  return `${y}-${m}`;
+  return format(date, "yyyy-MM");
 }
 
 export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
   const now = new Date();
   const [targetMonth, setTargetMonth] = useState(formatMonth(now));
+  const monthDate = parse(targetMonth, "yyyy-MM", new Date());
 
-  const { data, isLoading } = useFetchData<TMonthlyMileage>(
-    ["mileage", "monthly", bikeId, targetMonth],
-    `/bikes/${bikeId}/mileage/monthly?targetMonth=${targetMonth}`,
-    { enabled: !!targetMonth },
-  );
+  const { data, isLoading, isError, error, refetch } =
+    useFetchData<TMonthlyMileage>(
+      ["mileage", "monthly", bikeId, targetMonth],
+      `/bikes/${bikeId}/mileage/monthly?targetMonth=${targetMonth}`,
+      { enabled: !!targetMonth },
+    );
   const monthly = data?.data;
 
   const avg =
@@ -27,31 +33,70 @@ export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
       : "—";
 
   return (
-    <div className="space-y-4">
-      <input
-        type="month"
-        value={targetMonth}
-        onChange={(e) => setTargetMonth(e.target.value)}
-        className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+    <>
+      <PeriodStepper
+        boxed
+        onPrev={() => setTargetMonth(formatMonth(addMonths(monthDate, -1)))}
+        onNext={() => setTargetMonth(formatMonth(addMonths(monthDate, 1)))}
+        disableNext={isSameMonth(monthDate, now)}
+        label={
+          <label className="relative flex w-full cursor-pointer items-center gap-2">
+            <CalendarDays className="size-4 text-muted-foreground" />
+            {format(monthDate, "MMMM yyyy")}
+            {/* native month picker, visually hidden behind the label */}
+            <input
+              type="month"
+              value={targetMonth}
+              max={formatMonth(now)}
+              onChange={(e) => e.target.value && setTargetMonth(e.target.value)}
+              className="absolute inset-0 cursor-pointer opacity-0"
+              aria-label="Pick a month"
+            />
+          </label>
+        }
       />
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <div className="grid grid-cols-2 gap-2.5">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-[76px] rounded-[10px]" />
+          ))}
+        </div>
+      ) : isError ? (
+        <StateCard
+          variant="error"
+          title="Couldn’t load this month"
+          message={error?.message}
+          onRetry={() => refetch()}
+          className="max-w-none"
+        />
       ) : monthly?.fuelLogCount && monthly.fuelLogCount > 0 ? (
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-sm text-surface-text">Average Mileage</p>
-          <p className="text-2xl font-semibold">{avg} km/l</p>
-          <div className="mt-3 space-y-1 text-sm text-surface-text">
-            <p>Distance: {monthly.totalDistanceKm.toLocaleString()} km</p>
-            <p>Fuel: {monthly.totalLitersConsumed.toFixed(2)} L</p>
-            <p>Logs: {monthly.fuelLogCount}</p>
-          </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          <StatTile
+            label="Distance"
+            value={monthly.totalDistanceKm.toLocaleString()}
+            unit="km"
+          />
+          <StatTile
+            label="Fuel used"
+            value={monthly.totalLitersConsumed.toFixed(2)}
+            unit="L"
+          />
+          <StatTile label="Fill-ups" value={monthly.fuelLogCount} />
+          <StatTile
+            label="Average (derived)"
+            value={avg}
+            unit={avg === "—" ? undefined : "km/l"}
+          />
         </div>
       ) : (
-        <p className="text-sm text-surface-text">
-          No fuel logs for this month.
-        </p>
+        <StateCard
+          icon={Gauge}
+          title="No fuel logs this month"
+          message={`Nothing was logged in ${format(monthDate, "MMMM yyyy")}.`}
+          className="max-w-none"
+        />
       )}
-    </div>
+    </>
   );
 }
