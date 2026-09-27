@@ -1,17 +1,24 @@
 "use client";
 
 import { clearToken } from "@/lib/tokenManager";
-import { LayoutDashboard, LogOut, Settings } from "lucide-react";
+import { isAdminUser } from "@/lib/userRole";
+import { LayoutDashboard, LogOut, Settings, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ];
 
+const adminNavItem = { href: "/admin", label: "Admin", icon: ShieldCheck };
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  // ! safe to read the cookie here — both layouts only render AppShell after their post-mount session check
+  const [isAdmin] = useState(isAdminUser);
+  const visibleNavItems = isAdmin ? [...navItems, adminNavItem] : navItems;
 
   const handleLogout = () => {
     clearToken();
@@ -44,7 +51,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <main className="flex-1 overflow-y-auto pb-16">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-0 flex h-16 border-t border-border bg-background">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {visibleNavItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
             <Link

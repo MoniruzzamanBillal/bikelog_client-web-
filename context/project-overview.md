@@ -17,7 +17,7 @@ The original product plan (`../../bikelog_server/context/specs/bike-log-plan.md`
 
 ## Roles
 
-`bikelog_server` has two roles in its schema/JWT payload, `user` and `admin` (see `../../bikelog_server/context/`), but authorization is not role-gated anywhere in the backend yet — `userRole` is forward-compatible scaffolding, not an enforced permission system. This frontend's **v1 builds only the regular-user (`user`-role) experience** — no admin pages, no admin logic, nothing role-conditional. It's structured to leave room for an admin panel later without a rework: `app/(main)/` holds every v1 (regular-user) page, and `app/(admin)/` is a **reserved, not-yet-populated** route group for a future admin panel — see `architecture.md`'s System Boundaries. No files exist under `app/(admin)/` until that work actually starts.
+`bikelog_server` has two roles in its schema/JWT payload, `user` and `admin`. Admin-only endpoints (`/admin/error-logs`) are enforced by its `adminCheck` middleware. Every user, admins included, gets the full rider experience under `app/(main)/`. Admins also get `app/(admin)/`, which currently holds just the `/admin` error log dashboard (spec 26).
 
 ## Core User Flows
 
@@ -56,7 +56,7 @@ The original product plan (`../../bikelog_server/context/specs/bike-log-plan.md`
 
 **Deferred to a later version of this same web app (not abandoned):**
 
-- Admin panel / any `admin`-role functionality — `app/(admin)/` stays an empty, reserved route group in v1 (see "Roles" above).
+- Admin features beyond the error log dashboard (spec 26), such as user management. No backend endpoints exist for those.
 - Charts of any kind (mileage trend, spend trend) — plain totals/cards only, per the backend's "no charting library chosen yet" stance and the developer's explicit "no animation, minimal" instruction.
 - Any richer maintenance-type catalog than what's seeded (Engine Oil, Chain Lube, Tire Change, Brake Pads, General Service, Insurance, Registration/Tax, Other) — the UI supports adding more, but no extra product logic beyond the generic catalog form.
 
