@@ -24,7 +24,7 @@ export default function PageBreadcrumb({ breadcrumbs }: TpageProps) {
   return (
     <Breadcrumb>
       <BreadcrumbList className="flex items-center text-base  ">
-        {breadcrumbs.map((item, index) => (
+        {breadcrumbs?.map((item, index) => (
           <div key={index + 1} className=" flex items-center font-semibold">
             {index > 0 && (
               <BreadcrumbSeparator className="pr-3">
@@ -32,20 +32,20 @@ export default function PageBreadcrumb({ breadcrumbs }: TpageProps) {
               </BreadcrumbSeparator>
             )}
             <BreadcrumbItem>
-              {index === breadcrumbs.length - 1 ? (
+              {index === breadcrumbs?.length - 1 ? (
                 <BreadcrumbPage className="leading-7  text-neutral-700 dark:text-neutral-100 text-sm">
-                  {item.label}
+                  {item?.label}
                 </BreadcrumbPage>
               ) : (
                 <Link
                   href={{
-                    pathname: item.href,
+                    pathname: item?.href,
                   }}
                   passHref
                 >
                   <BreadcrumbLink>
                     <p className="text-sm text-red-500 hover:underline font-semibold">
-                      {item.label}
+                      {item?.label}
                     </p>
                   </BreadcrumbLink>
                 </Link>

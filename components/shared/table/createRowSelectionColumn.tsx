@@ -7,9 +7,9 @@ export const createRowSelectionColumn = <TData,>(): ColumnDef<TData> => ({
   header: (context: HeaderContext<TData, unknown>) => (
     <Checkbox
       className=" border-2 border-surface-border  rounded-[6px] flex justify-center items-center "
-      checked={context.table.getIsAllPageRowsSelected()}
+      checked={context?.table?.getIsAllPageRowsSelected()}
       onCheckedChange={(value) =>
-        context.table.toggleAllPageRowsSelected(!!value)
+        context?.table?.toggleAllPageRowsSelected(!!value)
       }
       aria-label="Select all"
     />
@@ -17,8 +17,8 @@ export const createRowSelectionColumn = <TData,>(): ColumnDef<TData> => ({
   cell: (context: CellContext<TData, unknown>) => (
     <Checkbox
       className=" border-2 border-surface-border  rounded-[6px] flex justify-center items-center  "
-      checked={context.row.getIsSelected()}
-      onCheckedChange={(value) => context.row.toggleSelected(!!value)}
+      checked={context?.row?.getIsSelected()}
+      onCheckedChange={(value) => context?.row?.toggleSelected(!!value)}
       aria-label="Select row"
     />
   ),

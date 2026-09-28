@@ -15,8 +15,8 @@ const useLifetime = (bikeId: string) =>
   );
 
 const getAvg = (l?: TLifetimeMileage) =>
-  l && l.totalLitersConsumed > 0
-    ? (l.totalDistanceKm / l.totalLitersConsumed).toFixed(2)
+  l && l?.totalLitersConsumed > 0
+    ? (l?.totalDistanceKm / l?.totalLitersConsumed)?.toFixed(2)
     : "—";
 
 export default function LifetimeMileageTab({ bikeId }: { bikeId: string }) {
@@ -45,7 +45,7 @@ export default function LifetimeMileageTab({ bikeId }: { bikeId: string }) {
     );
   }
 
-  if (!lifetime || lifetime.fuelLogCount === 0) {
+  if (!lifetime || lifetime?.fuelLogCount === 0) {
     return (
       <StateCard
         icon={Gauge}
@@ -62,15 +62,15 @@ export default function LifetimeMileageTab({ bikeId }: { bikeId: string }) {
     <div className="grid grid-cols-2 gap-2.5">
       <StatTile
         label="Total distance"
-        value={lifetime.totalDistanceKm.toLocaleString()}
+        value={lifetime?.totalDistanceKm?.toLocaleString()}
         unit="km"
       />
       <StatTile
         label="Fuel used"
-        value={lifetime.totalLitersConsumed.toFixed(2)}
+        value={lifetime?.totalLitersConsumed?.toFixed(2)}
         unit="L"
       />
-      <StatTile label="Fill-ups" value={lifetime.fuelLogCount} />
+      <StatTile label="Fill-ups" value={lifetime?.fuelLogCount} />
       <StatTile
         label="Average (derived)"
         value={avg}
@@ -94,11 +94,11 @@ export function LifetimeRail({
   const rows = [
     {
       label: "Distance",
-      value: `${(lifetime?.totalDistanceKm ?? 0).toLocaleString()} km`,
+      value: `${(lifetime?.totalDistanceKm ?? 0)?.toLocaleString()} km`,
     },
     {
       label: "Fuel used",
-      value: `${(lifetime?.totalLitersConsumed ?? 0).toFixed(2)} L`,
+      value: `${(lifetime?.totalLitersConsumed ?? 0)?.toFixed(2)} L`,
     },
     { label: "Fill-ups", value: `${lifetime?.fuelLogCount ?? 0}` },
     {
@@ -117,10 +117,10 @@ export function LifetimeRail({
       <div className="text-xs tracking-[0.08em] text-muted-foreground uppercase">
         Lifetime
       </div>
-      {rows.map((r) => (
-        <div key={r.label} className="flex justify-between">
-          <span className="text-muted-foreground">{r.label}</span>
-          {isLoading ? <Skeleton className="h-4 w-16" /> : <span>{r.value}</span>}
+      {rows?.map((r) => (
+        <div key={r?.label} className="flex justify-between">
+          <span className="text-muted-foreground">{r?.label}</span>
+          {isLoading ? <Skeleton className="h-4 w-16" /> : <span>{r?.value}</span>}
         </div>
       ))}
     </div>

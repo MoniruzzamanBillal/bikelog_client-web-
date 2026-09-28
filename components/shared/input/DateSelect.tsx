@@ -31,16 +31,16 @@ export default function DateSelect({
     if (!value) return placeholder ?? "Select Date";
 
     if (!isRange && value instanceof Date) {
-      return value.toLocaleDateString();
+      return value?.toLocaleDateString();
     }
 
     if (isRange && typeof value === "object" && "from" in value) {
-      if (value.from && value.to) {
-        return `${value.from.toLocaleDateString()} - ${value.to.toLocaleDateString()}`;
+      if (value?.from && value?.to) {
+        return `${value?.from?.toLocaleDateString()} - ${value?.to?.toLocaleDateString()}`;
       }
 
-      if (value.from) {
-        return value.from.toLocaleDateString();
+      if (value?.from) {
+        return value?.from?.toLocaleDateString();
       }
     }
 
@@ -51,7 +51,7 @@ export default function DateSelect({
     value instanceof Date
       ? value
       : typeof value === "object" && value?.from
-        ? value.from
+        ? value?.from
         : undefined;
 
   const handleSingleSelect = (date: Date | undefined) => {

@@ -12,7 +12,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (getToken()) {
-      router.replace("/dashboard");
+      router?.replace("/dashboard");
       return;
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only "already logged in" check must run post-hydration to avoid a server/client cookie-read mismatch

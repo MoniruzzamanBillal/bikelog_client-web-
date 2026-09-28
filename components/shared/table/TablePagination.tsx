@@ -43,19 +43,19 @@ export function TablePagination({
         i === totalPages ||
         (i >= currentPage - delta && i <= currentPage + delta)
       ) {
-        range.push(i);
+        range?.push(i);
       }
     }
 
-    range.forEach((i) => {
+    range?.forEach((i) => {
       if (l) {
         if (i - l === 2) {
-          rangeWithDots.push(l + 1);
+          rangeWithDots?.push(l + 1);
         } else if (i - l !== 1) {
-          rangeWithDots.push("...");
+          rangeWithDots?.push("...");
         }
       }
-      rangeWithDots.push(i);
+      rangeWithDots?.push(i);
       l = i;
     });
 
@@ -89,7 +89,7 @@ export function TablePagination({
           <ChevronLeft className="size-4" />
         </button>
 
-        {paginationRange.map((page, index) => {
+        {paginationRange?.map((page, index) => {
           if (page === "...") {
             return (
               <span

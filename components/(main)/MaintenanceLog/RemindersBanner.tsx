@@ -15,11 +15,11 @@ function getTypeName(
   maintenanceTypes: TMaintenanceType[],
 ): string {
   if (typeof maintenanceType === "object" && maintenanceType?.name) {
-    return maintenanceType.name;
+    return maintenanceType?.name;
   }
   if (typeof maintenanceType === "string") {
-    const match = maintenanceTypes.find((mt) => mt._id === maintenanceType);
-    if (match) return match.name;
+    const match = maintenanceTypes?.find((mt) => mt?._id === maintenanceType);
+    if (match) return match?.name;
   }
   return "Maintenance";
 }
@@ -28,19 +28,19 @@ const fmtDate = (d?: string) => (d ? format(new Date(d), "dd MMM yyyy") : "");
 
 // primary line: how far off (or past) the service is
 function getDistanceLine(r: TReminder, currentOdometer?: number): string {
-  const isOverdue = r.status === "overdue";
-  if (r.nextDueOdometer != null) {
+  const isOverdue = r?.status === "overdue";
+  if (r?.nextDueOdometer != null) {
     // ! server clamps kmRemaining to 0 once overdue — derive the real overshoot
     const km =
       isOverdue && currentOdometer != null
-        ? currentOdometer - r.nextDueOdometer
-        : (r.kmRemaining ?? 0);
+        ? currentOdometer - r?.nextDueOdometer
+        : (r?.kmRemaining ?? 0);
     return isOverdue
       ? `${Math.abs(km).toLocaleString()} km past due`
-      : `${km.toLocaleString()} km left`;
+      : `${km?.toLocaleString()} km left`;
   }
-  if (r.daysRemaining != null) {
-    const days = Math.abs(r.daysRemaining);
+  if (r?.daysRemaining != null) {
+    const days = Math.abs(r?.daysRemaining);
     return isOverdue ? `${days} days past due` : `${days} days left`;
   }
   return isOverdue ? "Overdue" : "Upcoming";
@@ -48,12 +48,12 @@ function getDistanceLine(r: TReminder, currentOdometer?: number): string {
 
 function getDueLine(r: TReminder): string {
   const due =
-    r.nextDueOdometer != null
-      ? `Due at ${r.nextDueOdometer.toLocaleString()} km`
-      : r.nextDueDate
-        ? `Due ${fmtDate(r.nextDueDate)}`
+    r?.nextDueOdometer != null
+      ? `Due at ${r?.nextDueOdometer?.toLocaleString()} km`
+      : r?.nextDueDate
+        ? `Due ${fmtDate(r?.nextDueDate)}`
         : "";
-  const last = r.lastServiceDate ? `last done ${fmtDate(r.lastServiceDate)}` : "";
+  const last = r?.lastServiceDate ? `last done ${fmtDate(r?.lastServiceDate)}` : "";
   return [due, last].filter(Boolean).join(" · ");
 }
 
@@ -85,7 +85,7 @@ export default function RemindersBanner({
   const currentOdometer = bikeData?.data?.currentOdometer;
 
   if (isLoading) return null;
-  if (reminders.length === 0) return null;
+  if (reminders?.length === 0) return null;
 
   return (
     <section className="flex flex-col gap-2">
@@ -102,12 +102,12 @@ export default function RemindersBanner({
       )}
 
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-3">
-        {reminders.map((r, i) => {
-          const isOverdue = r.status === "overdue";
+        {reminders?.map((r, i) => {
+          const isOverdue = r?.status === "overdue";
           const typeKey =
-            typeof r.maintenanceType === "string"
-              ? r.maintenanceType
-              : r.maintenanceType._id;
+            typeof r?.maintenanceType === "string"
+              ? r?.maintenanceType
+              : r?.maintenanceType?._id;
           const Icon = isOverdue ? AlertTriangle : Clock;
 
           return (
@@ -129,7 +129,7 @@ export default function RemindersBanner({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="truncate text-[13.5px] font-medium lg:text-sm">
-                    {getTypeName(r.maintenanceType, maintenanceTypes)}
+                    {getTypeName(r?.maintenanceType, maintenanceTypes)}
                   </span>
                   <StatusTag
                     tone={isOverdue ? "danger" : "warning"}

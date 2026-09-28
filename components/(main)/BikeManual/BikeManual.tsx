@@ -49,13 +49,13 @@ export default function BikeManual() {
   const manual = data?.data?.manual;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e?.target?.files?.[0];
     e.target.value = "";
     if (!file) return;
 
     try {
       const formData = new FormData();
-      formData.append("manual", file);
+      formData?.append("manual", file);
       await uploadManual({ url: `/bikes/${bikeId}/manual`, payload: formData });
       toast.success("Manual uploaded successfully");
     } catch (error) {
@@ -76,7 +76,7 @@ export default function BikeManual() {
   };
 
   const isBusy = isUploading || isDeleting;
-  const pickFile = () => !isBusy && inputRef.current?.click();
+  const pickFile = () => !isBusy && inputRef?.current?.click();
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -137,20 +137,20 @@ export default function BikeManual() {
                 <BookOpen className="size-5" />
               </div>
               <div className="min-w-0">
-                <div className="truncate font-medium">{manual.originalName}</div>
+                <div className="truncate font-medium">{manual?.originalName}</div>
                 <div className="mt-0.5 text-[12.5px] text-muted-foreground">
-                  Uploaded {format(new Date(manual.uploadedAt), "dd MMM yyyy")}
+                  Uploaded {format(new Date(manual?.uploadedAt), "dd MMM yyyy")}
                 </div>
                 <div className="mt-0.5 text-[12.5px] text-success">
-                  {manual.chunkCount} section
-                  {manual.chunkCount === 1 ? "" : "s"} indexed for AI chat
+                  {manual?.chunkCount} section
+                  {manual?.chunkCount === 1 ? "" : "s"} indexed for AI chat
                 </div>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" className="h-10" asChild>
-                <a href={manual.url} target="_blank" rel="noopener noreferrer">
+                <a href={manual?.url} target="_blank" rel="noopener noreferrer">
                   <ExternalLink />
                   View PDF
                 </a>

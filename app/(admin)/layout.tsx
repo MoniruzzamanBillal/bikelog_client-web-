@@ -17,11 +17,11 @@ export default function AdminLayout({
   useEffect(() => {
     const token = getToken();
     if (!token || isTokenExpired(token)) {
-      router.replace("/login");
+      router?.replace("/login");
       return;
     }
     if (!isAdminUser()) {
-      router.replace("/dashboard");
+      router?.replace("/dashboard");
       return;
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only session check must run post-hydration to avoid a server/client cookie-read mismatch

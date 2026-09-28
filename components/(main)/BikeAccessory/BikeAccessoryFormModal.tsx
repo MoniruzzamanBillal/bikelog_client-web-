@@ -67,14 +67,14 @@ export default function BikeAccessoryFormModal({
   });
 
   const isPending = isCreating || isUpdating;
-  const watchedStatus = methods.watch("status");
+  const watchedStatus = methods?.watch("status");
 
   const onSubmit = async (data: TBikeAccessoryFormType) => {
     try {
       const basePayload: TCreateBikeAccessoryPayload = {
-        name: data.name,
-        urgency: data.urgency as TCreateBikeAccessoryPayload["urgency"],
-        status: data.status as TCreateBikeAccessoryPayload["status"],
+        name: data?.name,
+        urgency: data?.urgency as TCreateBikeAccessoryPayload["urgency"],
+        status: data?.status as TCreateBikeAccessoryPayload["status"],
         ...(data?.price ? { price: Number(data?.price) } : {}),
       };
 
@@ -111,7 +111,7 @@ export default function BikeAccessoryFormModal({
       title={isEditMode ? "Edit Accessory" : "Add Accessory"}
     >
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
           <ControlledInput
             name="name"
             label="Name"

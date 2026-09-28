@@ -83,11 +83,11 @@ export default function MileageTrendTab({ bikeId }: { bikeId: string }) {
               maxBarSize={44}
             >
               {/* current month solid, earlier months softened */}
-              {monthlySummary.map((m, i) => (
+              {monthlySummary?.map((m, i) => (
                 <Cell
-                  key={m.targetMonth}
+                  key={m?.targetMonth}
                   fill="var(--chart-1)"
-                  fillOpacity={i === monthlySummary.length - 1 ? 1 : 0.55}
+                  fillOpacity={i === monthlySummary?.length - 1 ? 1 : 0.55}
                 />
               ))}
               <LabelList

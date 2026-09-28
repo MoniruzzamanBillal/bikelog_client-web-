@@ -29,8 +29,8 @@ export default function LoginForm() {
       });
       if (result?.token) {
         toast.success("Logged in successfully");
-        setToken(result.token);
-        setTimeout(() => router.replace("/dashboard"), 100);
+        setToken(result?.token);
+        setTimeout(() => router?.replace("/dashboard"), 100);
       }
     } catch (error) {
       const message = (error as { message?: string })?.message;
@@ -50,7 +50,7 @@ export default function LoginForm() {
         </div>
       )}
 
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
+      <form onSubmit={methods?.handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
         <ControlledInput
           name="email"
           label="Email"

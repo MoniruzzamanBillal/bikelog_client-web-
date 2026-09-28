@@ -33,8 +33,8 @@ const Dashboard = () => {
         crumbs={[{ label: "Dashboard" }]}
         description={
           <span className="lg:hidden">
-            {!isLoading && bikes.length > 0
-              ? `${bikes.length} bike${bikes.length === 1 ? "" : "s"}`
+            {!isLoading && bikes?.length > 0
+              ? `${bikes?.length} bike${bikes?.length === 1 ? "" : "s"}`
               : ""}
           </span>
         }
@@ -59,7 +59,7 @@ const Dashboard = () => {
           message={error?.message}
           onRetry={() => refetch()}
         />
-      ) : bikes.length === 0 ? (
+      ) : bikes?.length === 0 ? (
         <StateCard
           icon={Bike}
           title="No bikes yet"
@@ -68,8 +68,8 @@ const Dashboard = () => {
         />
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-4 xl:grid-cols-3">
-          {bikes.map((bike, i) => (
-            <BikeCard key={bike._id} bike={bike} highlight={i === 0} />
+          {bikes?.map((bike, i) => (
+            <BikeCard key={bike?._id} bike={bike} highlight={i === 0} />
           ))}
         </div>
       )}

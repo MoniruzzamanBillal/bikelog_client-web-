@@ -56,11 +56,11 @@ export default function SpendingTrendChart({
     );
 
   const monthlySummary = data?.data?.monthlySummary ?? [];
-  const latest = monthlySummary[monthlySummary.length - 1];
+  const latest = monthlySummary[monthlySummary?.length - 1];
   const latestBreakdown = [...(latest?.categoryBreakdown ?? [])].sort(
-    (a, b) => b.total - a.total,
+    (a, b) => b?.total - a?.total,
   );
-  const latestSum = latestBreakdown.reduce((a, c) => a + c.total, 0) || 1;
+  const latestSum = latestBreakdown?.reduce((a, c) => a + c?.total, 0) || 1;
 
   const bars = (height: string, withLabels: boolean) => (
     <div className={cn("w-full", height)}>
@@ -88,11 +88,11 @@ export default function SpendingTrendChart({
             radius={withLabels ? [4, 4, 0, 0] : [3, 3, 0, 0]}
             maxBarSize={44}
           >
-            {monthlySummary.map((m, i) => (
+            {monthlySummary?.map((m, i) => (
               <Cell
-                key={m.targetMonth}
+                key={m?.targetMonth}
                 fill="var(--chart-1)"
-                fillOpacity={i === monthlySummary.length - 1 ? 1 : 0.55}
+                fillOpacity={i === monthlySummary?.length - 1 ? 1 : 0.55}
               />
             ))}
             {withLabels && (
@@ -159,7 +159,7 @@ export default function SpendingTrendChart({
       </div>
 
       <div className="panel flex items-center gap-5 p-4">
-        {latestBreakdown.length > 0 ? (
+        {latestBreakdown?.length > 0 ? (
           <>
             <div className="size-[120px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
@@ -172,8 +172,8 @@ export default function SpendingTrendChart({
                     outerRadius={60}
                     stroke="none"
                   >
-                    {latestBreakdown.map((entry, index) => (
-                      <Cell key={entry.category} fill={categoryColor(index)} />
+                    {latestBreakdown?.map((entry, index) => (
+                      <Cell key={entry?.category} fill={categoryColor(index)} />
                     ))}
                   </Pie>
                   <Tooltip
@@ -187,15 +187,15 @@ export default function SpendingTrendChart({
               <div className="text-[13px] font-medium">
                 By category · {formatMonthLabel(latest?.targetMonth)}
               </div>
-              {latestBreakdown.map((c, i) => (
-                <div key={c.category} className="flex items-center gap-2">
+              {latestBreakdown?.map((c, i) => (
+                <div key={c?.category} className="flex items-center gap-2">
                   <span
                     className="size-2 shrink-0 rounded-[2px]"
                     style={{ background: categoryColor(i) }}
                   />
-                  <span className="flex-1 truncate">{c.category}</span>
+                  <span className="flex-1 truncate">{c?.category}</span>
                   <span className="text-muted-foreground tabular-nums">
-                    {((c.total / latestSum) * 100).toFixed(1)}%
+                    {((c?.total / latestSum) * 100)?.toFixed(1)}%
                   </span>
                 </div>
               ))}

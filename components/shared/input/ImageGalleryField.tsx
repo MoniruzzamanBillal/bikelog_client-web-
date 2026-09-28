@@ -34,19 +34,19 @@ export default function ImageGalleryField({
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    if (files.length === 0) return;
+    const files = Array.from(e?.target?.files ?? []);
+    if (files?.length === 0) return;
 
-    const remaining = Math.max(max - images.length, 0);
-    const selected = files.slice(0, remaining);
+    const remaining = Math.max(max - images?.length, 0);
+    const selected = files?.slice(0, remaining);
 
-    if (files.length > selected.length) {
+    if (files?.length > selected?.length) {
       toast.info(
-        `Only ${remaining} more image${remaining === 1 ? "" : "s"} can be added right now (max ${max} total) — queued the first ${selected.length}.`,
+        `Only ${remaining} more image${remaining === 1 ? "" : "s"} can be added right now (max ${max} total) — queued the first ${selected?.length}.`,
       );
     }
 
-    if (selected.length > 0) onAdd(selected);
+    if (selected?.length > 0) onAdd(selected);
     e.target.value = "";
   };
 
@@ -71,11 +71,11 @@ export default function ImageGalleryField({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {images.map((image, index) => {
-        const isDeleting = deletingId === image._id;
+      {images?.map((image, index) => {
+        const isDeleting = deletingId === image?._id;
 
         return (
-          <div key={image._id} className="relative size-14 shrink-0">
+          <div key={image?._id} className="relative size-14 shrink-0">
             <button
               type="button"
               onClick={() => setLightboxIndex(index)}
@@ -83,7 +83,7 @@ export default function ImageGalleryField({
               aria-label="View image"
             >
               <Image
-                src={image.url}
+                src={image?.url}
                 alt="Issue evidence"
                 fill
                 sizes="56px"
@@ -102,8 +102,8 @@ export default function ImageGalleryField({
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveClick(image._id);
+                  e?.stopPropagation();
+                  handleRemoveClick(image?._id);
                 }}
                 className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-destructive"
                 aria-label="Delete image"
@@ -115,10 +115,10 @@ export default function ImageGalleryField({
         );
       })}
 
-      {images.length < max && (
+      {images?.length < max && (
         <button
           type="button"
-          onClick={() => !uploading && inputRef.current?.click()}
+          onClick={() => !uploading && inputRef?.current?.click()}
           disabled={uploading}
           className={cn(
             "flex size-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors hover:bg-surface-hover hover:text-foreground",
@@ -131,7 +131,7 @@ export default function ImageGalleryField({
           ) : (
             <>
               <Plus className="size-[15px]" />
-              {max - images.length} left
+              {max - images?.length} left
             </>
           )}
         </button>
@@ -156,7 +156,7 @@ export default function ImageGalleryField({
       />
 
       <ImageLightbox
-        images={images.map((image) => ({ url: image.url }))}
+        images={images?.map((image) => ({ url: image?.url }))}
         initialIndex={lightboxIndex ?? 0}
         open={lightboxIndex !== null}
         onClose={() => setLightboxIndex(null)}

@@ -14,10 +14,10 @@ export const CATEGORY_COLORS = [
 ];
 
 export const categoryColor = (index: number) =>
-  CATEGORY_COLORS[Math.min(index, CATEGORY_COLORS.length - 1)];
+  CATEGORY_COLORS[Math.min(index, CATEGORY_COLORS?.length - 1)];
 
 export const formatTaka = (n: number) =>
-  `৳${n.toLocaleString(undefined, {
+  `৳${n?.toLocaleString(undefined, {
     minimumFractionDigits: n % 1 ? 2 : 0,
     maximumFractionDigits: 2,
   })}`;
@@ -68,9 +68,9 @@ export default function SpendingSummaryView({
     );
   }
 
-  const categories = [...categoryBreakdown].sort((a, b) => b.total - a.total);
+  const categories = [...categoryBreakdown].sort((a, b) => b?.total - a?.total);
 
-  if (totalSpending === 0 && categories.length === 0) {
+  if (totalSpending === 0 && categories?.length === 0) {
     return (
       <StateCard
         icon={Wallet}
@@ -82,7 +82,7 @@ export default function SpendingSummaryView({
   }
 
   const max = categories[0]?.total || 1;
-  const sum = categories.reduce((a, c) => a + c.total, 0) || 1;
+  const sum = categories?.reduce((a, c) => a + c?.total, 0) || 1;
 
   return (
     <>
@@ -100,7 +100,7 @@ export default function SpendingSummaryView({
           daysElapsed > 0 && (
             <div className="text-right tabular-nums">
               <div className="text-lg">
-                ৳{avgDailyExpense.toFixed(2)}
+                ৳{avgDailyExpense?.toFixed(2)}
                 <span className="text-xs text-muted-foreground"> / day</span>
               </div>
               <div className="text-xs text-muted-foreground">
@@ -115,31 +115,31 @@ export default function SpendingSummaryView({
       </div>
 
       <div className="panel flex flex-col py-1">
-        {categories.map((cat, i) => (
+        {categories?.map((cat, i) => (
           <div
-            key={cat.category}
+            key={cat?.category}
             className="grid grid-cols-[10px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-2.5"
           >
             <span
               className="size-2 rounded-[2px]"
               style={{ background: categoryColor(i) }}
             />
-            <span className="truncate text-[13.5px]">{cat.category}</span>
+            <span className="truncate text-[13.5px]">{cat?.category}</span>
             <span className="text-[13.5px] font-medium tabular-nums">
-              {formatTaka(cat.total)}
+              {formatTaka(cat?.total)}
             </span>
             <span />
             <div className="h-[3px] rounded-full bg-muted">
               <div
                 className="h-[3px] rounded-full"
                 style={{
-                  width: `${Math.round((cat.total / max) * 100)}%`,
+                  width: `${Math.round((cat?.total / max) * 100)}%`,
                   background: categoryColor(i),
                 }}
               />
             </div>
             <span className="text-right text-[11.5px] text-muted-foreground tabular-nums">
-              {((cat.total / sum) * 100).toFixed(1)}%
+              {((cat?.total / sum) * 100)?.toFixed(1)}%
             </span>
           </div>
         ))}

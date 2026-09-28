@@ -24,7 +24,7 @@ export default function RegisterForm() {
     try {
       await registerMutation({ url: "/auth/register", payload: data });
       toast.success("Registered successfully");
-      setTimeout(() => router.replace("/login"), 100);
+      setTimeout(() => router?.replace("/login"), 100);
     } catch (error) {
       const message = (error as { message?: string })?.message;
       toast.error(message ?? "Something went wrong!!", { duration: 2000 });
@@ -33,7 +33,7 @@ export default function RegisterForm() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
+      <form onSubmit={methods?.handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
         <ControlledInput
           name="name"
           label="Name"

@@ -39,7 +39,7 @@ export default function BikeFormModal({
       model: bike?.model ?? "",
       registrationNumber: bike?.registrationNumber ?? "",
       purchaseDate: bike?.purchaseDate
-        ? new Date(bike.purchaseDate)
+        ? new Date(bike?.purchaseDate)
         : undefined,
       fuelTankCapacityLiters: bike?.fuelTankCapacityLiters?.toString() ?? "",
       currentOdometer: "",
@@ -51,12 +51,12 @@ export default function BikeFormModal({
   const onSubmit = async (data: TBikeFormType) => {
     try {
       const basePayload: TCreateBikePayload = {
-        nickname: data.nickname,
-        brand: data.brand,
-        model: data.model,
-        registrationNumber: data.registrationNumber,
-        purchaseDate: data.purchaseDate as Date,
-        fuelTankCapacityLiters: Number(data.fuelTankCapacityLiters),
+        nickname: data?.nickname,
+        brand: data?.brand,
+        model: data?.model,
+        registrationNumber: data?.registrationNumber,
+        purchaseDate: data?.purchaseDate as Date,
+        fuelTankCapacityLiters: Number(data?.fuelTankCapacityLiters),
       };
 
       if (isEditMode) {
@@ -71,8 +71,8 @@ export default function BikeFormModal({
       } else {
         const payload = {
           ...basePayload,
-          ...(data.currentOdometer
-            ? { currentOdometer: Number(data.currentOdometer) }
+          ...(data?.currentOdometer
+            ? { currentOdometer: Number(data?.currentOdometer) }
             : {}),
         };
 
@@ -98,7 +98,7 @@ export default function BikeFormModal({
       title={isEditMode ? "Edit Bike" : "Add Bike"}
     >
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
           <ControlledInput name="nickname" label="Nickname" isRequired />
           <ControlledInput name="brand" label="Brand" isRequired />
           <ControlledInput name="model" label="Model" isRequired />
@@ -114,19 +114,19 @@ export default function BikeFormModal({
             </label>
             <Controller
               name="purchaseDate"
-              control={methods.control}
+              control={methods?.control}
               rules={{ required: true }}
               render={({ field, fieldState: { error } }) => (
                 <div className="space-y-1">
                   <DateSelect
-                    value={field.value}
-                    onChange={(date) => field.onChange(date)}
+                    value={field?.value}
+                    onChange={(date) => field?.onChange(date)}
                     mode="single"
                     placeholder="Select purchase date"
                   />
 
                   {error && (
-                    <p className="mt-1 text-xs text-destructive">{error.message}</p>
+                    <p className="mt-1 text-xs text-destructive">{error?.message}</p>
                   )}
                 </div>
               )}

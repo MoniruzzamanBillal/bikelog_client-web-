@@ -42,7 +42,7 @@ export default function TableFilter({
   const [open, setOpen] = useState(false);
 
   const [accordionValue, setAccordionValue] = useState<string>(
-    filters.length > 0 ? filters[0].key : "",
+    filters?.length > 0 ? filters[0]?.key : "",
   );
 
   // const handleValueChange = (
@@ -123,42 +123,42 @@ export default function TableFilter({
           value={accordionValue}
           onValueChange={setAccordionValue}
         >
-          {filters.map((group) => (
+          {filters?.map((group) => (
             <AccordionItem
-              key={group.key}
-              value={group.key}
+              key={group?.key}
+              value={group?.key}
               className="border border-table-border   rounded-[8px] overflow-hidden "
             >
               <AccordionTrigger className="bg-table-border text-neutral-100 py-2.5 px-3 font-medium text-[14px] rounded-none ">
-                {group.label}
+                {group?.label}
               </AccordionTrigger>
 
               <AccordionContent className="p-3 space-y-4 border-b  border-table-border  rounded-b-[8px]  ">
-                {group.options.map((option) => {
+                {group?.options?.map((option) => {
                   // const isChecked =
                   //   value[group.key]?.includes(option.value) ?? false;
 
-                  const isChecked = value[group.key] === option.value;
+                  const isChecked = value[group?.key] === option?.value;
 
                   return (
                     <div
-                      key={option.value}
+                      key={option?.value}
                       className="flex items-center gap-x-2  "
                     >
                       <Checkbox
                         className=" dark:border-neutral-400  dark:data-[state=checked]:bg-primary-500 dark:data-[state=checked]:border-neutral-300 dark:data-[state=checked]:text-neutral-100 "
-                        id={`${group.key}-${option.value}`}
+                        id={`${group?.key}-${option?.value}`}
                         checked={isChecked}
                         onCheckedChange={(checked) =>
-                          handleValueChange(group.key, option.value, !!checked)
+                          handleValueChange(group?.key, option?.value, !!checked)
                         }
                       />
 
                       <label
-                        htmlFor={`${group.key}-${option.value}`}
+                        htmlFor={`${group?.key}-${option?.value}`}
                         className="  text-[0.875rem] leading-5.25 font-medium cursor-pointer text-neutral-600 dark:text-neutral-200 "
                       >
-                        {option.label}
+                        {option?.label}
                       </label>
                     </div>
                   );

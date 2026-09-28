@@ -12,7 +12,7 @@ import { TYearlyMileage } from "./type/mileage.types";
 
 export default function YearlyMileageTab({ bikeId }: { bikeId: string }) {
   const now = new Date();
-  const [year, setYear] = useState(now.getFullYear().toString());
+  const [year, setYear] = useState(now?.getFullYear()?.toString());
 
   const { data, isLoading, isError, error, refetch } =
     useFetchData<TYearlyMileage>(
@@ -23,25 +23,25 @@ export default function YearlyMileageTab({ bikeId }: { bikeId: string }) {
   const summary = data?.data?.monthlySummary ?? [];
 
   // chart shows all 12 months; months with no fills plot as 0
-  const byMonth = new Map(summary.map((m) => [m.targetMonth, m]));
+  const byMonth = new Map(summary?.map((m) => [m?.targetMonth, m]));
   const chartData = Array.from({ length: 12 }, (_, i) => {
     const key = `${year}-${String(i + 1).padStart(2, "0")}`;
     return {
       month: format(new Date(Number(year), i), "MMM"),
-      totalDistanceKm: byMonth.get(key)?.totalDistanceKm ?? 0,
+      totalDistanceKm: byMonth?.get(key)?.totalDistanceKm ?? 0,
     };
   });
   const rows = summary
-    .filter((m) => m.fuelLogCount > 0)
-    .sort((a, b) => b.targetMonth.localeCompare(a.targetMonth));
+    ?.filter((m) => m?.fuelLogCount > 0)
+    ?.sort((a, b) => b?.targetMonth?.localeCompare(a?.targetMonth));
 
   return (
     <>
       <PeriodStepper
         label={year}
-        onPrev={() => setYear((y) => (Number(y) - 1).toString())}
-        onNext={() => setYear((y) => (Number(y) + 1).toString())}
-        disableNext={Number(year) >= now.getFullYear()}
+        onPrev={() => setYear((y) => (Number(y) - 1)?.toString())}
+        onNext={() => setYear((y) => (Number(y) + 1)?.toString())}
+        disableNext={Number(year) >= now?.getFullYear()}
       />
 
       {isLoading ? (
@@ -57,7 +57,7 @@ export default function YearlyMileageTab({ bikeId }: { bikeId: string }) {
           onRetry={() => refetch()}
           className="max-w-none"
         />
-      ) : rows.length === 0 ? (
+      ) : rows?.length === 0 ? (
         <StateCard
           icon={Gauge}
           title={`No fuel logs in ${year}`}
@@ -120,24 +120,24 @@ export default function YearlyMileageTab({ bikeId }: { bikeId: string }) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((m) => (
-                  <tr key={m.targetMonth} className="row-fade h-10">
+                {rows?.map((m) => (
+                  <tr key={m?.targetMonth} className="row-fade h-10">
                     <td className="px-2">
                       {format(
                         new Date(
                           Number(year),
-                          Number(m.targetMonth.split("-")[1]) - 1,
+                          Number(m?.targetMonth?.split("-")[1]) - 1,
                         ),
                         "MMMM",
                       )}
                     </td>
                     <td className="px-2 text-right">
-                      {m.totalDistanceKm.toLocaleString()} km
+                      {m?.totalDistanceKm?.toLocaleString()} km
                     </td>
                     <td className="px-2 text-right">
-                      {m.totalLitersConsumed.toFixed(2)} L
+                      {m?.totalLitersConsumed?.toFixed(2)} L
                     </td>
-                    <td className="px-2 text-right">{m.fuelLogCount}</td>
+                    <td className="px-2 text-right">{m?.fuelLogCount}</td>
                   </tr>
                 ))}
               </tbody>

@@ -45,8 +45,8 @@ export default function TableContent<TData>({
   currentPage,
   itemsPerPage,
 }: TableContentProps<TData>) {
-  const rows = table.getRowModel().rows;
-  const isEmpty = !isLoading && rows.length === 0;
+  const rows = table?.getRowModel()?.rows;
+  const isEmpty = !isLoading && rows?.length === 0;
 
   return (
     <div className="overflow-hidden rounded-[10px] bg-card shadow-sm">
@@ -54,44 +54,44 @@ export default function TableContent<TData>({
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-max text-[13px] tabular-nums">
             <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="row-fade">
+              {table?.getHeaderGroups()?.map((headerGroup) => (
+                <tr key={headerGroup?.id} className="row-fade">
                   {showSerialNumber && (
                     <th className="h-10 w-9 pr-2 pl-[18px] text-left text-[11px] font-normal tracking-[0.08em] text-muted-foreground uppercase">
                       #
                     </th>
                   )}
 
-                  {headerGroup.headers.map((header) => (
+                  {headerGroup?.headers?.map((header) => (
                     <th
-                      key={header.id}
+                      key={header?.id}
                       className={cn(
                         "h-10 px-2 text-[11px] font-normal tracking-[0.08em] whitespace-nowrap text-muted-foreground uppercase first:pl-[18px] last:pr-3",
-                        alignClass(header.column.columnDef.meta),
+                        alignClass(header?.column?.columnDef?.meta),
                       )}
                     >
                       <div
                         onClick={
-                          header.column.getCanSort()
-                            ? header.column.getToggleSortingHandler()
+                          header?.column?.getCanSort()
+                            ? header?.column?.getToggleSortingHandler()
                             : undefined
                         }
                         className={cn(
                           "inline-flex items-center gap-1",
-                          header.column.getCanSort() &&
+                          header?.column?.getCanSort() &&
                             "cursor-pointer select-none hover:text-foreground",
                         )}
                       >
                         {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
+                          header?.column?.columnDef?.header,
+                          header?.getContext(),
                         )}
 
-                        {header.column.getCanSort() &&
+                        {header?.column?.getCanSort() &&
                           ({
                             asc: <ChevronUp className="size-3.5" />,
                             desc: <ChevronDown className="size-3.5" />,
-                          }[header.column.getIsSorted() as string] ?? (
+                          }[header?.column?.getIsSorted() as string] ?? (
                             <ChevronsUpDown className="size-3.5" />
                           ))}
                       </div>
@@ -103,7 +103,7 @@ export default function TableContent<TData>({
 
             <tbody>
               {isLoading &&
-                skeletonWidths.map((width, i) => (
+                skeletonWidths?.map((width, i) => (
                   <tr key={i} className="row-fade h-12">
                     <td colSpan={100} className="pl-[18px]">
                       <Skeleton className="h-3" style={{ width }} />
@@ -123,25 +123,25 @@ export default function TableContent<TData>({
               )}
 
               {!isLoading &&
-                rows.map((row, index: number) => (
-                  <tr key={row.id} className="row-fade h-12">
+                rows?.map((row, index: number) => (
+                  <tr key={row?.id} className="row-fade h-12">
                     {showSerialNumber && (
                       <td className="pr-2 pl-[18px] text-muted-foreground">
                         {(currentPage ?? 0) * (itemsPerPage ?? 10) + index + 1}
                       </td>
                     )}
 
-                    {row.getVisibleCells().map((cell) => (
+                    {row?.getVisibleCells()?.map((cell) => (
                       <td
-                        key={cell.id}
+                        key={cell?.id}
                         className={cn(
                           "px-2 whitespace-nowrap first:pl-[18px] last:pr-3",
-                          alignClass(cell.column.columnDef.meta),
+                          alignClass(cell?.column?.columnDef?.meta),
                         )}
                       >
                         {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell?.column?.columnDef?.cell,
+                          cell?.getContext(),
                         )}
                       </td>
                     ))}

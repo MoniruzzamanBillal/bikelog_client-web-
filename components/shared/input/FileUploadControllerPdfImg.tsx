@@ -33,8 +33,8 @@ export default function FileUploadControllerPdfImg({
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
+      reader?.readAsDataURL(file);
+      reader.onload = () => resolve(reader?.result as string);
       reader.onerror = (error) => reject(error);
     });
   };
@@ -45,16 +45,16 @@ export default function FileUploadControllerPdfImg({
       control={control}
       defaultValue={null}
       render={({ field, fieldState }) => {
-        const file: File | null = field.value;
+        const file: File | null = field?.value;
 
         const isImage = previewUrl?.startsWith("data:image");
         const isPdf = previewUrl?.startsWith("data:application/pdf");
 
         const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-          const file = e.target.files?.[0];
+          const file = e?.target?.files?.[0];
           if (!file) return;
 
-          if (!SUPPORTED_FILE_TYPES_Pdf_img.includes(file.type)) {
+          if (!SUPPORTED_FILE_TYPES_Pdf_img?.includes(file?.type)) {
             alert("Allowed: PNG, JPG, WEBP, SVG, PDF");
             return;
           }
@@ -63,12 +63,12 @@ export default function FileUploadControllerPdfImg({
           const base64 = await convertToBase64(file);
 
           setPreviewUrl(base64);
-          field.onChange(file);
+          field?.onChange(file);
         };
 
         const handleDelete = () => {
           setPreviewUrl(null);
-          field.onChange(null);
+          field?.onChange(null);
         };
 
         return (
@@ -143,9 +143,9 @@ export default function FileUploadControllerPdfImg({
               )}
             </div>
 
-            {fieldState.error && (
+            {fieldState?.error && (
               <p className="text-xs text-destructive mt-1">
-                {fieldState.error.message}
+                {fieldState?.error?.message}
               </p>
             )}
           </div>

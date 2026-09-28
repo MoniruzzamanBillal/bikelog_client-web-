@@ -23,48 +23,48 @@ export default function ErrorLogDetailModal({ log, onClose }: TProps) {
     <BaseModal open onClose={onClose} title="Error details">
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <StatusTag tone={getStatusTone(log.status)}>{log.status}</StatusTag>
-          {log.errorName && (
-            <span className="text-sm font-medium">{log.errorName}</span>
+          <StatusTag tone={getStatusTone(log?.status)}>{log?.status}</StatusTag>
+          {log?.errorName && (
+            <span className="text-sm font-medium">{log?.errorName}</span>
           )}
         </div>
 
-        <DetailRow label="Message" value={log.message} />
-        <DetailRow label="Request" value={`${log.method} ${log.path}`} />
+        <DetailRow label="Message" value={log?.message} />
+        <DetailRow label="Request" value={`${log?.method} ${log?.path}`} />
         <DetailRow
           label="User"
           value={
-            log.userEmail
-              ? `${log.userEmail}${log.userId ? ` (${log.userId})` : ""}`
+            log?.userEmail
+              ? `${log?.userEmail}${log?.userId ? ` (${log?.userId})` : ""}`
               : "Anonymous"
           }
         />
         <DetailRow
           label="Time"
-          value={format(new Date(log.createdAt), "dd-MMM-yyyy, hh:mm:ss a")}
+          value={format(new Date(log?.createdAt), "dd-MMM-yyyy, hh:mm:ss a")}
         />
 
-        {log.errorSources && log.errorSources.length > 0 && (
+        {log?.errorSources && log?.errorSources?.length > 0 && (
           <div>
             <p className="text-xs text-muted-foreground">Error Sources</p>
             <ul className="mt-1 space-y-1">
-              {log.errorSources.map((source, index) => (
+              {log?.errorSources?.map((source, index) => (
                 <li key={index} className="break-all text-sm">
-                  {source.path !== "" && (
-                    <span className="font-mono text-xs">{source.path}: </span>
+                  {source?.path !== "" && (
+                    <span className="font-mono text-xs">{source?.path}: </span>
                   )}
-                  {source.message}
+                  {source?.message}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {log.stack && (
+        {log?.stack && (
           <div>
             <p className="text-xs text-muted-foreground">Stack Trace</p>
             <pre className="mt-1 max-h-64 overflow-auto rounded-md bg-muted p-3 font-mono text-xs whitespace-pre">
-              {log.stack}
+              {log?.stack}
             </pre>
           </div>
         )}

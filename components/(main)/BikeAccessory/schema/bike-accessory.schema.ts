@@ -30,8 +30,8 @@ export const bikeAccessorySchema = z
   // ! mirrors the backend's own rule (spec 25): price becomes required the moment
   // ! status is "purchased" — fail fast client-side instead of round-tripping a 400
   .superRefine((data, ctx) => {
-    if (data.status === "purchased" && !data.price) {
-      ctx.addIssue({
+    if (data?.status === "purchased" && !data?.price) {
+      ctx?.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["price"],
         message: "Price is required when marking an accessory as purchased",

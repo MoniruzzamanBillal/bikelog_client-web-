@@ -52,7 +52,7 @@ const markdownComponents: Components = {
   code: ({ className, children, ...props }) => {
     const text = String(children).replace(/\n$/, "");
     const isBlock =
-      /language-(\w+)/.test(className ?? "") || text.includes("\n");
+      /language-(\w+)/.test(className ?? "") || text?.includes("\n");
     if (!isBlock) {
       return (
         <code
@@ -78,7 +78,7 @@ const markdownComponents: Components = {
 
 export default function AiAssistant() {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
 
   const [messages, setMessages] = useState<TChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -105,11 +105,11 @@ export default function AiAssistant() {
   }
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    scrollRef?.current?.scrollTo({ top: scrollRef?.current?.scrollHeight });
   }, [messages, isPending]);
 
   const send = async (text: string) => {
-    const content = text.trim();
+    const content = text?.trim();
     if (!content || isPending) return;
 
     const userMessage: TChatMessage = { role: "user", content };
@@ -122,7 +122,7 @@ export default function AiAssistant() {
         url: `/bikes/${bikeId}/ai/chat`,
         payload: { messages: history },
       });
-      const reply = (response.data as TBikeChatResponse).reply;
+      const reply = (response?.data as TBikeChatResponse)?.reply;
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (error) {
       const message = (error as { message?: string })?.message;
@@ -131,13 +131,13 @@ export default function AiAssistant() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+    if (e?.key === "Enter" && !e?.shiftKey) {
+      e?.preventDefault();
       send(input);
     }
   };
 
-  const isEmpty = messages.length === 0 && !isPending;
+  const isEmpty = messages?.length === 0 && !isPending;
 
   return (
     // fills the shell's main area: mobile minus header/tab bar, desktop minus padding
@@ -170,7 +170,7 @@ export default function AiAssistant() {
                 {manual ? " — and its owner’s manual." : "."}
               </div>
               <div className="mt-1 flex flex-wrap gap-2">
-                {STARTER_PROMPTS.map((q) => (
+                {STARTER_PROMPTS?.map((q) => (
                   <button
                     key={q}
                     type="button"
@@ -183,13 +183,13 @@ export default function AiAssistant() {
               </div>
             </div>
           ) : (
-            messages.map((message, index) =>
-              message.role === "user" ? (
+            messages?.map((message, index) =>
+              message?.role === "user" ? (
                 <div
                   key={index}
                   className="max-w-[80%] self-end rounded-[12px_12px_4px_12px] bg-accent px-3.5 py-[9px] text-[13.5px] whitespace-pre-wrap text-accent-foreground"
                 >
-                  {message.content}
+                  {message?.content}
                 </div>
               ) : (
                 <div
@@ -200,7 +200,7 @@ export default function AiAssistant() {
                     remarkPlugins={[remarkGfm]}
                     components={markdownComponents}
                   >
-                    {message.content}
+                    {message?.content}
                   </ReactMarkdown>
                 </div>
               ),
@@ -223,7 +223,7 @@ export default function AiAssistant() {
         >
           <Textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => setInput(e?.target?.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message…"
             className="max-h-40 min-h-10 resize-none border-0 bg-transparent py-2.5 hover:border-0 focus-visible:ring-0"
@@ -234,7 +234,7 @@ export default function AiAssistant() {
             size="icon"
             className="size-10 shrink-0"
             onClick={() => send(input)}
-            disabled={isPending || !input.trim()}
+            disabled={isPending || !input?.trim()}
             aria-label="Send"
           >
             {isPending ? <Loader2 className="animate-spin" /> : <Send />}
@@ -255,10 +255,10 @@ export default function AiAssistant() {
             <>
               <div className="flex items-center gap-2 text-[13px]">
                 <BookOpen className="size-[15px] shrink-0 text-primary" />
-                <span className="truncate">{manual.originalName}</span>
+                <span className="truncate">{manual?.originalName}</span>
               </div>
               <div className="text-xs text-muted-foreground">
-                {manual.chunkCount} sections · plus this bike’s logs
+                {manual?.chunkCount} sections · plus this bike’s logs
               </div>
             </>
           ) : (
@@ -277,7 +277,7 @@ export default function AiAssistant() {
           <div className="mb-0.5 text-xs tracking-[0.08em] text-muted-foreground uppercase">
             Try asking
           </div>
-          {STARTER_PROMPTS.map((q) => (
+          {STARTER_PROMPTS?.map((q) => (
             <button
               key={q}
               type="button"

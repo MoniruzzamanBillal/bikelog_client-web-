@@ -29,8 +29,8 @@ export default function ControlledCheckbox({
           <div className="flex items-center space-x-2">
             <Checkbox
               id={name}
-              checked={!!field.value}
-              onCheckedChange={field.onChange}
+              checked={!!field?.value}
+              onCheckedChange={field?.onChange}
               disabled={disabled}
               className={className}
             />
@@ -46,7 +46,7 @@ export default function ControlledCheckbox({
             )}
           </div>
 
-          {error && <p className="text-xs text-destructive">{error.message}</p>}
+          {error && <p className="text-xs text-destructive">{error?.message}</p>}
         </div>
       )}
     />

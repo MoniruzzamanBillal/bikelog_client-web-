@@ -9,17 +9,17 @@ const instance = axios.create({
 instance.defaults.timeout = 60000;
 
 const isPublicAuthRoute = (url?: string) =>
-  !!url && (url.includes("/auth/login") || url.includes("/auth/register"));
+  !!url && (url?.includes("/auth/login") || url?.includes("/auth/register"));
 
-instance.interceptors.request.use(
+instance?.interceptors?.request?.use(
   function (config) {
-    if (!(config.data instanceof FormData)) {
+    if (!(config?.data instanceof FormData)) {
       config.headers["Content-Type"] = "application/json";
     } else {
       config.headers["Content-Type"] = "multipart/form-data";
     }
 
-    if (!isPublicAuthRoute(config.url)) {
+    if (!isPublicAuthRoute(config?.url)) {
       const token = getToken();
       if (!token || isTokenExpired(token)) {
         clearToken();
@@ -38,7 +38,7 @@ instance.interceptors.request.use(
   },
 );
 
-instance.interceptors.response.use(
+instance?.interceptors?.response?.use(
   function (response) {
     return response;
   },

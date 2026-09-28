@@ -51,7 +51,7 @@ export default function FuelLogFormModal({
       isFullTank: fuelLog?.isFullTank ?? false,
       pricePerLiter: fuelLog?.pricePerLiter?.toString() ?? "",
       fuelStation: fuelLog?.fuelStation ?? "",
-      date: fuelLog?.date ? new Date(fuelLog.date) : new Date(),
+      date: fuelLog?.date ? new Date(fuelLog?.date) : new Date(),
       notes: fuelLog?.notes ?? "",
     },
   });
@@ -61,13 +61,13 @@ export default function FuelLogFormModal({
   const onSubmit = async (data: TFuelLogFormType) => {
     try {
       const basePayload: TCreateFuelLogPayload = {
-        odometerReading: Number(data.odometerReading),
-        litersAdded: Number(data.litersAdded),
-        isFullTank: data.isFullTank,
-        pricePerLiter: Number(data.pricePerLiter),
-        fuelStation: data.fuelStation || undefined,
-        date: data.date?.toISOString(),
-        notes: data.notes || undefined,
+        odometerReading: Number(data?.odometerReading),
+        litersAdded: Number(data?.litersAdded),
+        isFullTank: data?.isFullTank,
+        pricePerLiter: Number(data?.pricePerLiter),
+        fuelStation: data?.fuelStation || undefined,
+        date: data?.date?.toISOString(),
+        notes: data?.notes || undefined,
       };
 
       if (isEditMode) {
@@ -89,9 +89,9 @@ export default function FuelLogFormModal({
           toast.success("Fuel log created successfully");
         }
 
-        if (response.data.mileageRecordClosed) {
+        if (response?.data?.mileageRecordClosed) {
           toast.success(
-            `Mileage: ${response.data.mileageRecordClosed.mileageKmPerLiter.toFixed(2)} km/l for this tank`,
+            `Mileage: ${response?.data?.mileageRecordClosed?.mileageKmPerLiter?.toFixed(2)} km/l for this tank`,
             { duration: 5000 },
           );
         }
@@ -110,7 +110,7 @@ export default function FuelLogFormModal({
       title={isEditMode ? "Edit Fuel Log" : "Add Fuel Log"}
     >
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
           <ControlledInput
             name="odometerReading"
             label="Odometer Reading (km)"

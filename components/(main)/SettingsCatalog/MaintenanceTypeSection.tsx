@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import CatalogCard, { catalogInput } from "./CatalogCard";
 import { TMaintenanceType } from "./type/maintenance-type.types";
 
-const dash = (v?: number | null) => (v == null ? "—" : v.toLocaleString());
+const dash = (v?: number | null) => (v == null ? "—" : v?.toLocaleString());
 
 export default function MaintenanceTypeSection() {
   const { data, isLoading } = useFetchData<TMaintenanceType[]>(
@@ -34,13 +34,13 @@ export default function MaintenanceTypeSection() {
   const [editIntervalDays, setEditIntervalDays] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
+    e?.preventDefault();
+    if (!name?.trim()) return;
     try {
       await createMutation({
         url: "/maintenance-types",
         payload: {
-          name: name.trim(),
+          name: name?.trim(),
           ...(defaultIntervalKm
             ? { defaultIntervalKm: Number(defaultIntervalKm) }
             : {}),
@@ -61,13 +61,13 @@ export default function MaintenanceTypeSection() {
   };
 
   const startEdit = (type: TMaintenanceType) => {
-    setEditingId(type._id);
-    setEditName(type.name);
+    setEditingId(type?._id);
+    setEditName(type?.name);
     setEditIntervalKm(
-      type.defaultIntervalKm != null ? String(type.defaultIntervalKm) : "",
+      type?.defaultIntervalKm != null ? String(type?.defaultIntervalKm) : "",
     );
     setEditIntervalDays(
-      type.defaultIntervalDays != null ? String(type.defaultIntervalDays) : "",
+      type?.defaultIntervalDays != null ? String(type?.defaultIntervalDays) : "",
     );
   };
 
@@ -79,16 +79,16 @@ export default function MaintenanceTypeSection() {
   };
 
   const handleSaveEdit = async () => {
-    if (!editName.trim() || !editingId) return;
+    if (!editName?.trim() || !editingId) return;
     try {
       await updateMutation({
         url: `/maintenance-types/${editingId}`,
         payload: {
-          name: editName.trim(),
-          defaultIntervalKm: editIntervalKm.trim()
+          name: editName?.trim(),
+          defaultIntervalKm: editIntervalKm?.trim()
             ? Number(editIntervalKm)
             : null,
-          defaultIntervalDays: editIntervalDays.trim()
+          defaultIntervalDays: editIntervalDays?.trim()
             ? Number(editIntervalDays)
             : null,
         } as unknown as Record<string, unknown>,
@@ -110,7 +110,7 @@ export default function MaintenanceTypeSection() {
         { label: "Interval days", short: "days" },
       ]}
       isLoading={isLoading}
-      isEmpty={types.length === 0}
+      isEmpty={types?.length === 0}
       emptyText="No maintenance types yet."
       addOpen={addOpen}
       onToggleAdd={() => setAddOpen((o) => !o)}
@@ -119,7 +119,7 @@ export default function MaintenanceTypeSection() {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setName(e?.target?.value)}
             placeholder="Name (e.g. Chain Lube)"
             required
             className={catalogInput}
@@ -128,21 +128,21 @@ export default function MaintenanceTypeSection() {
             <input
               type="number"
               value={defaultIntervalKm}
-              onChange={(e) => setDefaultIntervalKm(e.target.value)}
+              onChange={(e) => setDefaultIntervalKm(e?.target?.value)}
               placeholder="Interval km (optional)"
               className={catalogInput}
             />
             <input
               type="number"
               value={defaultIntervalDays}
-              onChange={(e) => setDefaultIntervalDays(e.target.value)}
+              onChange={(e) => setDefaultIntervalDays(e?.target?.value)}
               placeholder="Interval days (optional)"
               className={catalogInput}
             />
           </div>
           <Button
             type="submit"
-            disabled={isPending || !name.trim()}
+            disabled={isPending || !name?.trim()}
             className="self-start"
           >
             {isPending ? "Adding…" : "Add type"}
@@ -150,14 +150,14 @@ export default function MaintenanceTypeSection() {
         </form>
       }
     >
-      {types.map((t) =>
-        editingId === t._id ? (
-          <tr key={t._id} className="row-fade">
+      {types?.map((t) =>
+        editingId === t?._id ? (
+          <tr key={t?._id} className="row-fade">
             <td className="py-1.5 pr-1 pl-4">
               <input
                 type="text"
                 value={editName}
-                onChange={(e) => setEditName(e.target.value)}
+                onChange={(e) => setEditName(e?.target?.value)}
                 placeholder="Name"
                 className={catalogInput}
               />
@@ -166,7 +166,7 @@ export default function MaintenanceTypeSection() {
               <input
                 type="number"
                 value={editIntervalKm}
-                onChange={(e) => setEditIntervalKm(e.target.value)}
+                onChange={(e) => setEditIntervalKm(e?.target?.value)}
                 placeholder="km"
                 className={`${catalogInput} text-right`}
               />
@@ -175,7 +175,7 @@ export default function MaintenanceTypeSection() {
               <input
                 type="number"
                 value={editIntervalDays}
-                onChange={(e) => setEditIntervalDays(e.target.value)}
+                onChange={(e) => setEditIntervalDays(e?.target?.value)}
                 placeholder="days"
                 className={`${catalogInput} text-right`}
               />
@@ -185,7 +185,7 @@ export default function MaintenanceTypeSection() {
                 <button
                   type="button"
                   onClick={handleSaveEdit}
-                  disabled={isUpdating || !editName.trim()}
+                  disabled={isUpdating || !editName?.trim()}
                   className="grid size-[30px] place-items-center rounded-md text-success hover:bg-surface-hover disabled:opacity-45"
                   title="Save"
                   aria-label="Save"
@@ -205,13 +205,13 @@ export default function MaintenanceTypeSection() {
             </td>
           </tr>
         ) : (
-          <tr key={t._id} className="row-fade h-11">
-            <td className="pl-4">{t.name}</td>
+          <tr key={t?._id} className="row-fade h-11">
+            <td className="pl-4">{t?.name}</td>
             <td className="px-2 text-right text-muted-foreground">
-              {dash(t.defaultIntervalKm)}
+              {dash(t?.defaultIntervalKm)}
             </td>
             <td className="px-2 text-right text-muted-foreground">
-              {dash(t.defaultIntervalDays)}
+              {dash(t?.defaultIntervalDays)}
             </td>
             <td className="pr-2">
               <div className="flex justify-end">
@@ -220,7 +220,7 @@ export default function MaintenanceTypeSection() {
                   onClick={() => startEdit(t)}
                   className="grid size-[30px] place-items-center rounded-md text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                   title="Edit"
-                  aria-label={`Edit ${t.name}`}
+                  aria-label={`Edit ${t?.name}`}
                 >
                   <Pencil className="size-3.5" />
                 </button>

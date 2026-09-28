@@ -2,25 +2,25 @@ import { AxiosRequestConfig } from "axios";
 import { axiosInstance } from "./axiosInstance";
 
 export const apiGet = async (endpoint: string) =>
-  (await axiosInstance.get(endpoint)).data;
+  (await axiosInstance?.get(endpoint))?.data;
 
 export const apiPost = async (
   endpoint: string,
   payload: object,
   config?: AxiosRequestConfig,
-) => (await axiosInstance.post(endpoint, payload, config)).data;
+) => (await axiosInstance?.post(endpoint, payload, config))?.data;
 
 export const apiPatch = async (
   endpoint: string,
   payload: object,
   config?: AxiosRequestConfig,
-) => (await axiosInstance.patch(endpoint, payload, config)).data;
+) => (await axiosInstance?.patch(endpoint, payload, config))?.data;
 
 export const apiPut = async (
   endpoint: string,
   payload: object,
   config?: AxiosRequestConfig,
-) => (await axiosInstance.put(endpoint, payload, config)).data;
+) => (await axiosInstance?.put(endpoint, payload, config))?.data;
 
 export const apiDelete = async (endpoint: string) =>
-  (await axiosInstance.delete(endpoint)).data;
+  (await axiosInstance?.delete(endpoint))?.data;

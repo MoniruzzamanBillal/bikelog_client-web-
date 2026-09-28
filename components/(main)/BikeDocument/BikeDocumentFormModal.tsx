@@ -47,7 +47,7 @@ export default function BikeDocumentFormModal({
       title: document?.title ?? "",
       description: document?.description ?? "",
       expiryDate: document?.expiryDate
-        ? new Date(document.expiryDate)
+        ? new Date(document?.expiryDate)
         : undefined,
     },
   });
@@ -57,9 +57,9 @@ export default function BikeDocumentFormModal({
   const onSubmit = async (data: TBikeDocumentFormType) => {
     try {
       const basePayload: TCreateBikeDocumentPayload = {
-        title: data.title,
-        description: data.description || undefined,
-        expiryDate: data.expiryDate?.toISOString(),
+        title: data?.title,
+        description: data?.description || undefined,
+        expiryDate: data?.expiryDate?.toISOString(),
       };
 
       if (isEditMode) {
@@ -95,7 +95,7 @@ export default function BikeDocumentFormModal({
       title={isEditMode ? "Edit Document" : "Add Document"}
     >
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
           <ControlledInput
             name="title"
             label="Title"

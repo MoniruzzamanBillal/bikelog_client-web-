@@ -41,11 +41,11 @@ export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
 
   const records = [...(history?.exactRecords ?? [])].sort(
     (a, b) =>
-      new Date(b.periodEndDate).getTime() -
-      new Date(a.periodEndDate).getTime(),
+      new Date(b?.periodEndDate).getTime() -
+      new Date(a?.periodEndDate).getTime(),
   );
 
-  if (!history?.approximate && records.length === 0) {
+  if (!history?.approximate && records?.length === 0) {
     return (
       <StateCard
         icon={Gauge}
@@ -56,7 +56,7 @@ export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
     );
   }
 
-  const maxKmpl = Math.max(...records.map((r) => r.mileageKmPerLiter), 1);
+  const maxKmpl = Math.max(...records?.map((r) => r?.mileageKmPerLiter), 1);
 
   return (
     <>
@@ -65,21 +65,21 @@ export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
           <div>
             <div className="text-xs text-muted-foreground">Rolling average</div>
             <div className="text-[30px] font-medium tracking-[-0.02em] tabular-nums">
-              {history.approximate.mileageKmPerLiter.toFixed(2)}
+              {history?.approximate?.mileageKmPerLiter?.toFixed(2)}
               <span className="ml-1 text-sm font-normal tracking-normal text-muted-foreground">
                 km/l
               </span>
             </div>
           </div>
           <div className="text-right text-xs text-muted-foreground">
-            Based on last {history.approximate.basedOnFuelLogCount} fills
+            Based on last {history?.approximate?.basedOnFuelLogCount} fills
             <br />
             <span
               className={
-                history.approximate.isEstimate ? "text-warning" : "text-success"
+                history?.approximate?.isEstimate ? "text-warning" : "text-success"
               }
             >
-              {history.approximate.isEstimate
+              {history?.approximate?.isEstimate
                 ? "Estimate · partial fills"
                 : "Exact · full tanks"}
             </span>
@@ -91,39 +91,39 @@ export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
         Exact records
       </div>
 
-      {records.length === 0 ? (
+      {records?.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No exact records yet — log a full-tank fill to close a period.
         </p>
       ) : (
-        records.map((record) => (
+        records?.map((record) => (
           <div
-            key={record._id}
+            key={record?._id}
             className="panel grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 px-4 py-3 tabular-nums"
           >
             <div className="text-[12.5px] text-muted-foreground">
-              {format(new Date(record.periodStartDate), "dd MMM")} →{" "}
-              {format(new Date(record.periodEndDate), "dd MMM yyyy")}
+              {format(new Date(record?.periodStartDate), "dd MMM")} →{" "}
+              {format(new Date(record?.periodEndDate), "dd MMM yyyy")}
             </div>
             <div className="row-span-2 self-center text-[17px] font-medium">
-              {record.mileageKmPerLiter.toFixed(2)}
+              {record?.mileageKmPerLiter?.toFixed(2)}
               <span className="ml-0.5 text-xs font-normal text-muted-foreground">
                 km/l
               </span>
             </div>
             <div className="truncate text-[13px]">
-              {record.distanceKm.toLocaleString()} km ·{" "}
-              {record.litersConsumed.toFixed(2)} L{" "}
+              {record?.distanceKm?.toLocaleString()} km ·{" "}
+              {record?.litersConsumed?.toFixed(2)} L{" "}
               <span className="hidden text-muted-foreground sm:inline">
-                · {record.startOdometer.toLocaleString()} →{" "}
-                {record.endOdometer.toLocaleString()}
+                · {record?.startOdometer?.toLocaleString()} →{" "}
+                {record?.endOdometer?.toLocaleString()}
               </span>
             </div>
             <div className="col-span-2 mt-1 h-[3px] rounded-full bg-muted">
               <div
                 className={cn("h-[3px] rounded-full bg-chart-1")}
                 style={{
-                  width: `${Math.round((record.mileageKmPerLiter / maxKmpl) * 100)}%`,
+                  width: `${Math.round((record?.mileageKmPerLiter / maxKmpl) * 100)}%`,
                 }}
               />
             </div>

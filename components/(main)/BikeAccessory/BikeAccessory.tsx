@@ -39,7 +39,7 @@ const STATUS_GROUPS: { status: TAccessoryStatus; label: string }[] = [
 
 export default function BikeAccessory() {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
 
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<TStatusFilter>("all");
@@ -53,7 +53,7 @@ export default function BikeAccessory() {
 
   const { data, isLoading, isError, error, refetch } =
     useFetchData<TBikeAccessoriesApiResponse>(
-      ["bikeAccessories", bikeId, page.toString(), statusFilter, urgencyFilter],
+      ["bikeAccessories", bikeId, page?.toString(), statusFilter, urgencyFilter],
       `/bikes/${bikeId}/accessories?page=${page}&limit=${limit}${
         statusFilter !== "all" ? `&status=${statusFilter}` : ""
       }${urgencyFilter !== "all" ? `&urgency=${urgencyFilter}` : ""}`,
@@ -87,7 +87,7 @@ export default function BikeAccessory() {
     if (!deletingAccessory) return;
     try {
       const result = await deleteMutation({
-        url: `/bikes/${bikeId}/accessories/${deletingAccessory._id}`,
+        url: `/bikes/${bikeId}/accessories/${deletingAccessory?._id}`,
       });
       if (result?.success) {
         toast.success("Accessory deleted");
@@ -100,15 +100,15 @@ export default function BikeAccessory() {
     }
   };
 
-  const groups = STATUS_GROUPS.map((g) => ({
+  const groups = STATUS_GROUPS?.map((g) => ({
     ...g,
-    items: accessories.filter((a) => a.status === g.status),
-  })).filter((g) => g.items.length > 0);
+    items: accessories?.filter((a) => a?.status === g?.status),
+  }))?.filter((g) => g?.items?.length > 0);
 
   const subtitle =
     isLoading || meta === 0
       ? ""
-      : groups.map((g) => `${g.items.length} ${g.label.toLowerCase()}`).join(" · ");
+      : groups?.map((g) => `${g?.items?.length} ${g?.label?.toLowerCase()}`)?.join(" · ");
 
   const addButton = (label: string) => (
     <PrimaryButton onClick={() => setCreateOpen(true)}>
@@ -119,7 +119,7 @@ export default function BikeAccessory() {
 
   const renderCard = (accessory: TBikeAccessory) => (
     <BikeAccessoryCard
-      key={accessory._id}
+      key={accessory?._id}
       accessory={accessory}
       onEdit={setEditingAccessory}
       onDelete={setDeletingAccessory}
@@ -198,7 +198,7 @@ export default function BikeAccessory() {
           message={error?.message}
           onRetry={() => refetch()}
         />
-      ) : accessories.length === 0 ? (
+      ) : accessories?.length === 0 ? (
         <StateCard
           icon={ShoppingBag}
           title={
@@ -210,16 +210,16 @@ export default function BikeAccessory() {
           action={addButton("Add accessory")}
         />
       ) : (
-        groups.map((group) => (
-          <section key={group.status} className="flex flex-col gap-2">
+        groups?.map((group) => (
+          <section key={group?.status} className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-xs tracking-[0.08em] text-muted-foreground uppercase">
-              {group.label}
+              {group?.label}
               <span className="tracking-normal tabular-nums">
-                {group.items.length}
+                {group?.items?.length}
               </span>
             </div>
             <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 xl:grid-cols-3">
-              {group.items.map(renderCard)}
+              {group?.items?.map(renderCard)}
             </div>
           </section>
         ))

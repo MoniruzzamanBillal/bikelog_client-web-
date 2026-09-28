@@ -16,7 +16,7 @@ export default function MainLayout({
   useEffect(() => {
     const token = getToken();
     if (!token || isTokenExpired(token)) {
-      router.replace("/login");
+      router?.replace("/login");
       return;
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only session check must run post-hydration to avoid a server/client cookie-read mismatch

@@ -29,8 +29,8 @@ const periodOptions: { value: TPeriod; label: string }[] = [
 ];
 
 function formatMonth(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const y = d?.getFullYear();
+  const m = String(d?.getMonth() + 1).padStart(2, "0");
   return `${y}-${m}`;
 }
 
@@ -61,12 +61,12 @@ function getElapsedDaysInMonth(targetMonth: string): number {
 
 export default function Spending() {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
 
   const now = new Date();
   const [period, setPeriod] = useState<TPeriod>("month");
   const [targetMonth, setTargetMonth] = useState(formatMonth(now));
-  const [targetYear, setTargetYear] = useState(now.getFullYear().toString());
+  const [targetYear, setTargetYear] = useState(now?.getFullYear()?.toString());
   const [isExporting, setIsExporting] = useState(false);
 
   const { data: bikeData } = useFetchData<TBike>(
@@ -75,11 +75,11 @@ export default function Spending() {
   );
 
   const searchParams = new URLSearchParams();
-  searchParams.set("period", period);
+  searchParams?.set("period", period);
   if (period === "month" && targetMonth)
-    searchParams.set("targetMonth", targetMonth);
+    searchParams?.set("targetMonth", targetMonth);
   if (period === "year" && targetYear)
-    searchParams.set("targetYear", targetYear);
+    searchParams?.set("targetYear", targetYear);
 
   const queryKey = [
     "spending",
@@ -92,7 +92,7 @@ export default function Spending() {
   const { data, isLoading, isError, error, refetch } =
     useFetchData<TSpendingSummary>(
       queryKey,
-      `/bikes/${bikeId}/spending-summary?${searchParams.toString()}`,
+      `/bikes/${bikeId}/spending-summary?${searchParams?.toString()}`,
       {
         enabled:
           period === "lifetime" ||
@@ -113,10 +113,10 @@ export default function Spending() {
     setIsExporting(true);
     try {
       const response = (await apiGet(
-        `/bikes/${bikeId}/spending-summary/details?${searchParams.toString()}`,
+        `/bikes/${bikeId}/spending-summary/details?${searchParams?.toString()}`,
       )) as TgenericResponse<TSpendingDetails>;
       generateSpendingPdf(
-        response.data,
+        response?.data,
         getPeriodLabel(period, targetMonth, targetYear),
       );
     } catch (error) {
@@ -159,7 +159,7 @@ export default function Spending() {
             <input
               type="month"
               value={targetMonth}
-              onChange={(e) => e.target.value && setTargetMonth(e.target.value)}
+              onChange={(e) => e?.target?.value && setTargetMonth(e?.target?.value)}
               className="absolute inset-0 cursor-pointer opacity-0"
               aria-label="Pick a month"
             />
@@ -169,9 +169,9 @@ export default function Spending() {
         {period === "year" && (
           <PeriodStepper
             label={<span className="text-sm">{targetYear}</span>}
-            onPrev={() => setTargetYear((y) => (Number(y) - 1).toString())}
-            onNext={() => setTargetYear((y) => (Number(y) + 1).toString())}
-            disableNext={Number(targetYear) >= now.getFullYear()}
+            onPrev={() => setTargetYear((y) => (Number(y) - 1)?.toString())}
+            onNext={() => setTargetYear((y) => (Number(y) + 1)?.toString())}
+            disableNext={Number(targetYear) >= now?.getFullYear()}
             className="[&_button]:size-9"
           />
         )}

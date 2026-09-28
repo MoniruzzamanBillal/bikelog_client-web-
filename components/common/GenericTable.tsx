@@ -65,8 +65,8 @@ export default function GenericTable<TData>({
   });
 
   const pageNumbers = () => {
-    const pageCount = table.getPageCount();
-    const currentPage = table.getState().pagination.pageIndex;
+    const pageCount = table?.getPageCount();
+    const currentPage = table?.getState()?.pagination?.pageIndex;
 
     if (pageCount <= 5) {
       return Array.from({ length: pageCount }, (_, i) => i);
@@ -92,11 +92,11 @@ export default function GenericTable<TData>({
           placeholder={`Filter ${String(filterKey)}...`}
           value={
             (table
-              .getColumn(filterKey as string)
+              ?.getColumn(filterKey as string)
               ?.getFilterValue() as string) ?? ""
           }
           onChange={(e) =>
-            table.getColumn(filterKey as string)?.setFilterValue(e.target.value)
+            table?.getColumn(filterKey as string)?.setFilterValue(e?.target?.value)
           }
           className="max-w-sm border border-blue-300  "
         />
@@ -107,13 +107,13 @@ export default function GenericTable<TData>({
         <Table>
           <TableHeader>
             {table?.getHeaderGroups()?.map((hg) => (
-              <TableRow key={hg.id}>
-                {hg.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
+              <TableRow key={hg?.id}>
+                {hg?.headers?.map((header) => (
+                  <TableHead key={header?.id}>
+                    {header?.isPlaceholder
                       ? null
                       : flexRender(
-                          header?.column.columnDef.header,
+                          header?.column?.columnDef?.header,
                           header?.getContext(),
                         )}
                   </TableHead>
@@ -127,7 +127,7 @@ export default function GenericTable<TData>({
               // Loading Skeleton Rows
               Array.from({ length: 6 }).map((_, rowIndex) => (
                 <TableRow key={`skeleton-row-${rowIndex}`}>
-                  {columns.map((_, colIndex) => (
+                  {columns?.map((_, colIndex) => (
                     <TableCell key={`skeleton-cell-${rowIndex}-${colIndex}`}>
                       <div className="space-y-2 py-2 ">
                         <Skeleton className="h-5 bg-slate-300  " />
@@ -136,14 +136,14 @@ export default function GenericTable<TData>({
                   ))}
                 </TableRow>
               ))
-            ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+            ) : table?.getRowModel()?.rows?.length ? (
+              table?.getRowModel()?.rows?.map((row) => (
+                <TableRow key={row?.id}>
                   {row?.getVisibleCells()?.map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell?.id}>
                       {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell?.column?.columnDef?.cell,
+                        cell?.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -151,7 +151,7 @@ export default function GenericTable<TData>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
+                <TableCell colSpan={columns?.length} className="text-center">
                   No results found.
                 </TableCell>
               </TableRow>
@@ -162,28 +162,28 @@ export default function GenericTable<TData>({
 
       {/* Pagination */}
 
-      {!isLoading && data.length > 0 && (
+      {!isLoading && data?.length > 0 && (
         <div className="flex items-center justify-between px-2">
           {/* Selected rows info */}
           <div className="text-muted-foreground flex-1 text-sm">
-            {table.getFilteredSelectedRowModel().rows.length > 0 ? (
+            {table?.getFilteredSelectedRowModel()?.rows?.length > 0 ? (
               <>
-                {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                {table.getFilteredRowModel().rows.length} row(s) selected.
+                {table?.getFilteredSelectedRowModel()?.rows?.length} of{" "}
+                {table?.getFilteredRowModel()?.rows?.length} row(s) selected.
               </>
             ) : (
               <>
                 Showing{" "}
-                {table.getState().pagination.pageIndex *
-                  table.getState().pagination.pageSize +
+                {table?.getState()?.pagination?.pageIndex *
+                  table?.getState()?.pagination?.pageSize +
                   1}{" "}
                 to{" "}
                 {Math.min(
-                  (table.getState().pagination.pageIndex + 1) *
-                    table.getState().pagination.pageSize,
-                  table.getFilteredRowModel().rows.length,
+                  (table?.getState()?.pagination?.pageIndex + 1) *
+                    table?.getState()?.pagination?.pageSize,
+                  table?.getFilteredRowModel()?.rows?.length,
                 )}{" "}
-                of {table.getFilteredRowModel().rows.length} results
+                of {table?.getFilteredRowModel()?.rows?.length} results
               </>
             )}
           </div>
@@ -193,8 +193,8 @@ export default function GenericTable<TData>({
             <div className="flex items-center space-x-2">
               <p className="text-sm font-medium">Page</p>
               <span className="text-sm font-medium">
-                {table.getState().pagination.pageIndex + 1} of{" "}
-                {table.getPageCount()}
+                {table?.getState()?.pagination?.pageIndex + 1} of{" "}
+                {table?.getPageCount()}
               </span>
             </div>
 
@@ -204,24 +204,24 @@ export default function GenericTable<TData>({
               <Button
                 variant="outline"
                 className="h-8 w-8 p-0"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => table?.previousPage()}
+                disabled={!table?.getCanPreviousPage()}
               >
                 <span className="sr-only">Go to previous page</span>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
               {/* Page Numbers */}
-              {pageNumbers().map((pageIndex) => (
+              {pageNumbers()?.map((pageIndex) => (
                 <Button
                   key={pageIndex}
                   variant={
-                    pageIndex === table.getState().pagination.pageIndex
+                    pageIndex === table?.getState()?.pagination?.pageIndex
                       ? "default"
                       : "outline"
                   }
                   size="sm"
-                  onClick={() => table.setPageIndex(pageIndex)}
+                  onClick={() => table?.setPageIndex(pageIndex)}
                   className="h-8 w-8"
                 >
                   {pageIndex + 1}
@@ -229,22 +229,22 @@ export default function GenericTable<TData>({
               ))}
 
               {/* Ellipsis for many pages */}
-              {table.getPageCount() > 5 &&
-                table.getState().pagination.pageIndex <
-                  table.getPageCount() - 3 && (
+              {table?.getPageCount() > 5 &&
+                table?.getState()?.pagination?.pageIndex <
+                  table?.getPageCount() - 3 && (
                   <span className="px-1 text-sm">...</span>
                 )}
 
               {/* Last page if not shown */}
-              {table.getPageCount() > 5 &&
-                !pageNumbers().includes(table.getPageCount() - 1) && (
+              {table?.getPageCount() > 5 &&
+                !pageNumbers()?.includes(table?.getPageCount() - 1) && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                    onClick={() => table?.setPageIndex(table?.getPageCount() - 1)}
                     className="h-8 w-8"
                   >
-                    {table.getPageCount()}
+                    {table?.getPageCount()}
                   </Button>
                 )}
 
@@ -252,8 +252,8 @@ export default function GenericTable<TData>({
               <Button
                 variant="outline"
                 className="h-8 w-8 p-0"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={() => table?.nextPage()}
+                disabled={!table?.getCanNextPage()}
               >
                 <span className="sr-only">Go to next page</span>
                 <ChevronRight className="h-4 w-4" />

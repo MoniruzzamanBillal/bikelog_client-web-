@@ -50,18 +50,18 @@ export default function BikeDocumentCard({
   onDelete,
 }: TProps) {
   const { mutateAsync: addFiles, isPending: isAdding } = usePost([
-    ["bikeDocuments", document.bike],
+    ["bikeDocuments", document?.bike],
   ]);
   const { mutateAsync: removeFile, isPending: isRemoving } = useDelete([
-    ["bikeDocuments", document.bike],
+    ["bikeDocuments", document?.bike],
   ]);
 
   const handleAddFiles = async (files: File[]) => {
     try {
       const formData = new FormData();
-      files.forEach((file) => formData.append("files", file));
+      files?.forEach((file) => formData?.append("files", file));
       await addFiles({
-        url: `/bikes/${document.bike}/documents/${document._id}/files`,
+        url: `/bikes/${document?.bike}/documents/${document?._id}/files`,
         payload: formData,
       });
       toast.success("Files added");
@@ -74,7 +74,7 @@ export default function BikeDocumentCard({
   const handleRemoveFile = async (fileId: string) => {
     try {
       await removeFile({
-        url: `/bikes/${document.bike}/documents/${document._id}/files/${fileId}`,
+        url: `/bikes/${document?.bike}/documents/${document?._id}/files/${fileId}`,
       });
       toast.success("File deleted");
     } catch (error) {
@@ -88,12 +88,12 @@ export default function BikeDocumentCard({
       <div className="flex items-start gap-2.5">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium">{document.title}</span>
-            <ExpiryBadge expiryDate={document.expiryDate} />
+            <span className="font-medium">{document?.title}</span>
+            <ExpiryBadge expiryDate={document?.expiryDate} />
           </div>
-          {document.description && (
+          {document?.description && (
             <p className="m-0 mt-0.5 text-[12.5px] text-muted-foreground">
-              {document.description}
+              {document?.description}
             </p>
           )}
         </div>
@@ -120,7 +120,7 @@ export default function BikeDocumentCard({
       </div>
 
       <FileGalleryField
-        files={document.files ?? []}
+        files={document?.files ?? []}
         onAdd={handleAddFiles}
         onRemove={handleRemoveFile}
         uploading={isAdding || isRemoving}

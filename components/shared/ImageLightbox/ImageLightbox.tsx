@@ -35,9 +35,9 @@ export default function ImageLightbox({
     if (open) setCurrentIndex(initialIndex);
   }
 
-  const hasMultiple = images.length > 1;
+  const hasMultiple = images?.length > 1;
   const isFirst = currentIndex === 0;
-  const isLast = currentIndex === images.length - 1;
+  const isLast = currentIndex === images?.length - 1;
 
   const goPrev = () => {
     if (!isFirst) setCurrentIndex((i) => i - 1);
@@ -51,8 +51,8 @@ export default function ImageLightbox({
     if (!open) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") goPrev();
-      if (e.key === "ArrowRight") goNext();
+      if (e?.key === "ArrowLeft") goPrev();
+      if (e?.key === "ArrowRight") goNext();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -75,7 +75,7 @@ export default function ImageLightbox({
           >
             <div className="relative h-full w-full">
               <Image
-                src={currentImage.url}
+                src={currentImage?.url}
                 alt="Full-size view"
                 fill
                 sizes="100vw"
@@ -97,7 +97,7 @@ export default function ImageLightbox({
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e?.stopPropagation();
                     goPrev();
                   }}
                   disabled={isFirst}
@@ -109,7 +109,7 @@ export default function ImageLightbox({
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e?.stopPropagation();
                     goNext();
                   }}
                   disabled={isLast}
@@ -124,7 +124,7 @@ export default function ImageLightbox({
                     "absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs text-white",
                   )}
                 >
-                  {currentIndex + 1} / {images.length}
+                  {currentIndex + 1} / {images?.length}
                 </div>
               </>
             )}

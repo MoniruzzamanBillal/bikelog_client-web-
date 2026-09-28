@@ -15,7 +15,7 @@ export const imageSchema = z
       // Allow existing URL
       if (typeof value === "string") return true;
 
-      return SUPPORTED_FORMATS.includes(value.type);
+      return SUPPORTED_FORMATS?.includes(value?.type);
     },
     {
       message: "Only JPG, JPEG, PNG or SVG files are allowed",
@@ -26,7 +26,7 @@ export const imageSchema = z
       // Allow existing URL
       if (typeof value === "string") return true;
 
-      return value.size <= FILE_SIZE;
+      return value?.size <= FILE_SIZE;
     },
     {
       message: "File size must be less than 5MB",

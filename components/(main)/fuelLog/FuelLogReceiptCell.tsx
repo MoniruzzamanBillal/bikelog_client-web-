@@ -12,18 +12,18 @@ type TProps = {
 
 export default function FuelLogReceiptCell({ fuelLog, compact = true }: TProps) {
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
-    ["fuelLogs", fuelLog.bike],
+    ["fuelLogs", fuelLog?.bike],
   ]);
   const { mutateAsync: deleteImage, isPending: isDeleting } = useDelete([
-    ["fuelLogs", fuelLog.bike],
+    ["fuelLogs", fuelLog?.bike],
   ]);
 
   const handleUpload = async (file: File) => {
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData?.append("image", file);
       await uploadImage({
-        url: `/bikes/${fuelLog.bike}/fuel-logs/${fuelLog._id}/image`,
+        url: `/bikes/${fuelLog?.bike}/fuel-logs/${fuelLog?._id}/image`,
         payload: formData,
       });
       toast.success("Receipt image uploaded");
@@ -36,7 +36,7 @@ export default function FuelLogReceiptCell({ fuelLog, compact = true }: TProps) 
   const handleDelete = async () => {
     try {
       await deleteImage({
-        url: `/bikes/${fuelLog.bike}/fuel-logs/${fuelLog._id}/image`,
+        url: `/bikes/${fuelLog?.bike}/fuel-logs/${fuelLog?._id}/image`,
       });
       toast.success("Receipt image deleted");
     } catch (error) {
@@ -47,7 +47,7 @@ export default function FuelLogReceiptCell({ fuelLog, compact = true }: TProps) 
 
   return (
     <ImageUploadThumb
-      imageUrl={fuelLog.receiptImage?.url}
+      imageUrl={fuelLog?.receiptImage?.url}
       onUpload={handleUpload}
       onDelete={handleDelete}
       uploading={isUploading || isDeleting}

@@ -79,16 +79,16 @@ const bikeSectionHref = (bikeId: string, segment: string) =>
 
 const useRouteInfo = () => {
   const pathname = usePathname();
-  const segments = pathname.split("/").filter(Boolean);
+  const segments = pathname?.split("/")?.filter(Boolean);
   const bikeId = segments[0] === "bikes" ? segments[1] : undefined;
   const section = bikeId
-    ? bikeSections.find((s) => s.segment === (segments[2] ?? ""))
+    ? bikeSections?.find((s) => s?.segment === (segments[2] ?? ""))
     : undefined;
 
   let activeKey = "dashboard";
-  if (section) activeKey = section.key;
-  else if (pathname.startsWith("/settings/catalog")) activeKey = "catalog";
-  else if (pathname.startsWith("/admin")) activeKey = "admin";
+  if (section) activeKey = section?.key;
+  else if (pathname?.startsWith("/settings/catalog")) activeKey = "catalog";
+  else if (pathname?.startsWith("/admin")) activeKey = "admin";
 
   return { bikeId, section, activeKey };
 };
@@ -133,10 +133,10 @@ const SidebarLink = ({
   active: boolean;
   compact?: boolean;
 }) => {
-  const Icon = item.icon;
+  const Icon = item?.icon;
   return (
     <Link
-      href={item.href}
+      href={item?.href}
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex items-center gap-2.5 rounded-lg px-2.5 transition-colors",
@@ -147,7 +147,7 @@ const SidebarLink = ({
       )}
     >
       <Icon className={compact ? "size-[15px]" : "size-4"} />
-      <span>{item.label}</span>
+      <span>{item?.label}</span>
     </Link>
   );
 };
@@ -169,15 +169,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     clearToken();
-    router.replace("/login");
+    router?.replace("/login");
   };
 
   const bikeItems: TNavItem[] = bikeId
-    ? bikeSections.map((s) => ({
-        key: s.key,
-        href: bikeSectionHref(bikeId, s.segment),
-        label: s.label,
-        icon: s.icon,
+    ? bikeSections?.map((s) => ({
+        key: s?.key,
+        href: bikeSectionHref(bikeId, s?.segment),
+        label: s?.label,
+        icon: s?.icon,
       }))
     : [];
 
@@ -203,12 +203,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   let mobileSubtitle: string | undefined;
   let backHref: string | undefined;
   if (bikeId) {
-    if (!section || section.key === "overview") {
+    if (!section || section?.key === "overview") {
       mobileTitle = bike?.nickname ?? "Bike";
-      mobileSubtitle = bike ? `${bike.brand} ${bike.model}` : undefined;
+      mobileSubtitle = bike ? `${bike?.brand} ${bike?.model}` : undefined;
       backHref = "/dashboard";
     } else {
-      mobileTitle = section.label;
+      mobileTitle = section?.label;
       mobileSubtitle = bike?.nickname;
       backHref = `/bikes/${bikeId}`;
     }
@@ -221,20 +221,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // ── mobile tab bar ──
   const mobileTabs: TNavItem[] = bikeId
     ? bikeSections
-        .filter((s) => mobileBikeTabKeys.includes(s.key))
-        .map((s) => ({
-          key: s.key,
-          href: bikeSectionHref(bikeId, s.segment),
-          label: s.short ?? s.label,
-          icon: s.icon,
+        ?.filter((s) => mobileBikeTabKeys?.includes(s?.key))
+        ?.map((s) => ({
+          key: s?.key,
+          href: bikeSectionHref(bikeId, s?.segment),
+          label: s?.short ?? s?.label,
+          icon: s?.icon,
         }))
     : [
         { key: "dashboard", href: "/dashboard", label: "Bikes", icon: LayoutDashboard },
         { key: "catalog", href: "/settings/catalog", label: "Catalog", icon: Settings },
         ...(isAdmin ? [adminItem] : []),
       ];
-  const moreItems = bikeItems.filter((i) => !mobileBikeTabKeys.includes(i.key));
-  const moreActive = moreItems.some((i) => i.key === activeKey);
+  const moreItems = bikeItems?.filter((i) => !mobileBikeTabKeys?.includes(i?.key));
+  const moreActive = moreItems?.some((i) => i?.key === activeKey);
 
   return (
     <div className="flex min-h-dvh bg-background bg-ground text-foreground">
@@ -269,16 +269,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   {bike?.nickname ?? "…"}
                 </div>
                 <div className="text-[11px] text-muted-foreground tabular-nums">
-                  {bike ? `${bike.currentOdometer.toLocaleString()} km` : " "}
+                  {bike ? `${bike?.currentOdometer?.toLocaleString()} km` : " "}
                 </div>
               </div>
               <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
             </Link>
-            {bikeItems.map((item) => (
+            {bikeItems?.map((item) => (
               <SidebarLink
-                key={item.key}
+                key={item?.key}
                 item={item}
-                active={activeKey === item.key}
+                active={activeKey === item?.key}
                 compact
               />
             ))}
@@ -288,11 +288,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex-1" />
 
         <nav className="flex flex-col gap-0.5">
-          {footItems.map((item) => (
+          {footItems?.map((item) => (
             <SidebarLink
-              key={item.key}
+              key={item?.key}
               item={item}
-              active={activeKey === item.key}
+              active={activeKey === item?.key}
               compact
             />
           ))}
@@ -373,7 +373,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* ── mobile tab bar ── */}
         <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 border-t border-border bg-background/95 pb-1.5 backdrop-blur lg:hidden">
-          {mobileTabs.map(({ key, href, label, icon: Icon }) => {
+          {mobileTabs?.map(({ key, href, label, icon: Icon }) => {
             const active = activeKey === key;
             return (
               <Link
@@ -413,7 +413,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 More
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="end" className="mb-2 min-w-52">
-                {moreItems.map(({ key, href, label, icon: Icon }) => (
+                {moreItems?.map(({ key, href, label, icon: Icon }) => (
                   <DropdownMenuItem key={key} asChild>
                     <Link
                       href={href}

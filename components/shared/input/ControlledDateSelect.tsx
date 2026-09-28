@@ -34,13 +34,13 @@ const ControlledDateSelect = ({
           )}
 
           <DateSelect
-            value={field.value}
-            onChange={(date) => field.onChange(date)}
+            value={field?.value}
+            onChange={(date) => field?.onChange(date)}
             mode="single"
             placeholder={placeholder}
           />
 
-          {error && <p className="text-xs text-destructive">{error.message}</p>}
+          {error && <p className="text-xs text-destructive">{error?.message}</p>}
         </div>
       )}
     />
