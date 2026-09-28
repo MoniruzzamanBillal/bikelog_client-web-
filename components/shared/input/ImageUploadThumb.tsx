@@ -32,7 +32,7 @@ export default function ImageUploadThumb({
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e?.target?.files?.[0];
     if (file) onUpload(file);
     e.target.value = "";
   };
@@ -46,17 +46,17 @@ export default function ImageUploadThumb({
     if (imageUrl) {
       setLightboxOpen(true);
     } else {
-      inputRef.current?.click();
+      inputRef?.current?.click();
     }
   };
 
   const handleReplaceClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!uploading) inputRef.current?.click();
+    e?.stopPropagation();
+    if (!uploading) inputRef?.current?.click();
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e?.stopPropagation();
     setConfirmOpen(true);
   };
 
@@ -158,8 +158,8 @@ export default function ImageUploadThumb({
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={`Delete ${label.toLowerCase()}?`}
-        description={`This will permanently remove this ${label.toLowerCase()} and cannot be undone.`}
+        title={`Delete ${label?.toLowerCase()}?`}
+        description={`This will permanently remove this ${label?.toLowerCase()} and cannot be undone.`}
       />
 
       {imageUrl && (

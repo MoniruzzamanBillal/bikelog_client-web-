@@ -96,41 +96,41 @@ export default function GenericTableComponent<TData>({
 
     const rowSelectCol = createRowSelectionColumn<TData>();
 
-    return columns.map((col, index) => {
+    return columns?.map((col, index) => {
       if (index !== 0) return col;
 
       return {
         ...col,
-        id: col.id || `col-${index}`,
+        id: col?.id || `col-${index}`,
         header: (context: HeaderContext<TData, unknown>) => {
           const checkbox =
-            typeof rowSelectCol.header === "function"
-              ? rowSelectCol.header(context)
-              : rowSelectCol.header;
+            typeof rowSelectCol?.header === "function"
+              ? rowSelectCol?.header(context)
+              : rowSelectCol?.header;
 
           return (
             <div className="flex items-center gap-2">
               {checkbox}
-              {typeof col.header === "function"
+              {typeof col?.header === "function"
                 ? (
-                    col.header as (
+                    col?.header as (
                       context: HeaderContext<TData, unknown>,
                     ) => React.ReactNode
                   )(context)
-                : col.header}
+                : col?.header}
             </div>
           );
         },
         cell: (context: CellContext<TData, unknown>) => {
           const checkbox =
-            typeof rowSelectCol.cell === "function"
-              ? rowSelectCol.cell(context)
-              : rowSelectCol.cell;
+            typeof rowSelectCol?.cell === "function"
+              ? rowSelectCol?.cell(context)
+              : rowSelectCol?.cell;
 
           return (
             <div className="flex items-center gap-2">
               {checkbox}
-              {context.renderValue() as React.ReactNode}
+              {context?.renderValue() as React.ReactNode}
             </div>
           );
         },

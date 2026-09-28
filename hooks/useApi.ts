@@ -33,10 +33,10 @@ export const usePost = (invalidateQueriesKeys?: Array<string[]>) => {
       url: string;
       payload: Record<string, unknown> | FormData;
       config?: AxiosRequestConfig;
-    }) => apiPost(params.url, params.payload, params.config),
+    }) => apiPost(params?.url, params?.payload, params?.config),
     onSuccess: () => {
       invalidateQueriesKeys?.forEach((key) =>
-        queryClient.invalidateQueries({ queryKey: key }),
+        queryClient?.invalidateQueries({ queryKey: key }),
       );
     },
   });
@@ -50,10 +50,10 @@ export const usePatch = (invalidateQueriesKeys?: Array<string[]>) => {
       url: string;
       payload: Record<string, unknown> | FormData;
       config?: AxiosRequestConfig;
-    }) => apiPatch(params.url, params.payload, params.config),
+    }) => apiPatch(params?.url, params?.payload, params?.config),
     onSuccess: () => {
       invalidateQueriesKeys?.forEach((key) =>
-        queryClient.invalidateQueries({ queryKey: key }),
+        queryClient?.invalidateQueries({ queryKey: key }),
       );
     },
   });
@@ -67,10 +67,10 @@ export const usePut = (invalidateQueriesKeys?: Array<string[]>) => {
       url: string;
       payload: Record<string, unknown> | FormData;
       config?: AxiosRequestConfig;
-    }) => apiPut(params.url, params.payload, params.config),
+    }) => apiPut(params?.url, params?.payload, params?.config),
     onSuccess: () => {
       invalidateQueriesKeys?.forEach((key) =>
-        queryClient.invalidateQueries({ queryKey: key }),
+        queryClient?.invalidateQueries({ queryKey: key }),
       );
     },
   });
@@ -80,10 +80,10 @@ export const useDelete = (invalidateQueriesKeys?: Array<string[]>) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { url: string }) => apiDelete(params.url),
+    mutationFn: (params: { url: string }) => apiDelete(params?.url),
     onSuccess: () => {
       invalidateQueriesKeys?.forEach((key) =>
-        queryClient.invalidateQueries({ queryKey: key }),
+        queryClient?.invalidateQueries({ queryKey: key }),
       );
     },
   });

@@ -28,8 +28,8 @@ export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
   const monthly = data?.data;
 
   const avg =
-    monthly?.totalLitersConsumed && monthly.totalLitersConsumed > 0
-      ? (monthly.totalDistanceKm / monthly.totalLitersConsumed).toFixed(2)
+    monthly?.totalLitersConsumed && monthly?.totalLitersConsumed > 0
+      ? (monthly?.totalDistanceKm / monthly?.totalLitersConsumed)?.toFixed(2)
       : "—";
 
   return (
@@ -48,7 +48,7 @@ export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
               type="month"
               value={targetMonth}
               max={formatMonth(now)}
-              onChange={(e) => e.target.value && setTargetMonth(e.target.value)}
+              onChange={(e) => e?.target?.value && setTargetMonth(e?.target?.value)}
               className="absolute inset-0 cursor-pointer opacity-0"
               aria-label="Pick a month"
             />
@@ -70,19 +70,19 @@ export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
           onRetry={() => refetch()}
           className="max-w-none"
         />
-      ) : monthly?.fuelLogCount && monthly.fuelLogCount > 0 ? (
+      ) : monthly?.fuelLogCount && monthly?.fuelLogCount > 0 ? (
         <div className="grid grid-cols-2 gap-2.5">
           <StatTile
             label="Distance"
-            value={monthly.totalDistanceKm.toLocaleString()}
+            value={monthly?.totalDistanceKm?.toLocaleString()}
             unit="km"
           />
           <StatTile
             label="Fuel used"
-            value={monthly.totalLitersConsumed.toFixed(2)}
+            value={monthly?.totalLitersConsumed?.toFixed(2)}
             unit="L"
           />
-          <StatTile label="Fill-ups" value={monthly.fuelLogCount} />
+          <StatTile label="Fill-ups" value={monthly?.fuelLogCount} />
           <StatTile
             label="Average (derived)"
             value={avg}

@@ -22,14 +22,14 @@ import FuelLogReceiptCell from "./FuelLogReceiptCell";
 import { TFuelLog, TFuelLogsApiResponse } from "./type/fuel-log.types";
 
 const money = (n: number) =>
-  n.toLocaleString(undefined, {
+  n?.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 
 const FuelLog = () => {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
 
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -46,7 +46,7 @@ const FuelLog = () => {
     error,
     refetch,
   } = useFetchData<TFuelLogsApiResponse>(
-    ["fuelLogs", bikeId, page.toString()],
+    ["fuelLogs", bikeId, page?.toString()],
     `/bikes/${bikeId}/fuel-logs?page=${page}&limit=${limit}&sort=-date`,
   );
   // same keys as the hub / mileage page — cached
@@ -70,9 +70,9 @@ const FuelLog = () => {
   const lockNotes = useMemo(() => {
     const map = new Map<string, string>();
     for (const record of historyData?.data?.exactRecords ?? []) {
-      const range = `${format(new Date(record.periodStartDate), "d MMM")} → ${format(new Date(record.periodEndDate), "d MMM")}`;
-      for (const id of record.fuelLogIds) {
-        map.set(
+      const range = `${format(new Date(record?.periodStartDate), "d MMM")} → ${format(new Date(record?.periodEndDate), "d MMM")}`;
+      for (const id of record?.fuelLogIds) {
+        map?.set(
           id,
           `Locked — this fill is part of a closed mileage period (${range}).`,
         );
@@ -81,13 +81,13 @@ const FuelLog = () => {
     return map;
   }, [historyData]);
 
-  const getLockNote = (fuelLog: TFuelLog) => lockNotes.get(fuelLog._id);
+  const getLockNote = (fuelLog: TFuelLog) => lockNotes?.get(fuelLog?._id);
 
   const handleConfirmDelete = async () => {
     if (!deletingFuelLog) return;
     try {
       const result = await deleteMutation({
-        url: `/bikes/${bikeId}/fuel-logs/${deletingFuelLog._id}`,
+        url: `/bikes/${bikeId}/fuel-logs/${deletingFuelLog?._id}`,
       });
       if (result?.success) {
         toast.success("Fuel log deleted successfully");
@@ -181,18 +181,18 @@ const FuelLog = () => {
               [1, 2, 3, 4, 5].map((i) => (
                 <Skeleton key={i} className="h-[84px] rounded-[10px]" />
               ))
-            ) : result.length === 0 ? (
+            ) : result?.length === 0 ? (
               <div className="panel">{emptyState}</div>
             ) : (
               <>
-                {result.map((log) => {
+                {result?.map((log) => {
                   const lockNote = getLockNote(log);
                   return (
-                    <div key={log._id} className="panel flex gap-3 py-3 pr-3 pl-3.5">
+                    <div key={log?._id} className="panel flex gap-3 py-3 pr-3 pl-3.5">
                       <div className="flex min-w-0 flex-1 flex-col gap-1">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>{format(new Date(log.date), "dd MMM yyyy")}</span>
-                          {log.isFullTank ? (
+                          <span>{format(new Date(log?.date), "dd MMM yyyy")}</span>
+                          {log?.isFullTank ? (
                             <StatusTag tone="success">Full</StatusTag>
                           ) : (
                             <StatusTag>Partial</StatusTag>
@@ -200,16 +200,16 @@ const FuelLog = () => {
                         </div>
                         <div className="flex items-baseline gap-2.5 tabular-nums">
                           <span className="text-lg font-medium">
-                            ৳{money(log.totalCost)}
+                            ৳{money(log?.totalCost)}
                           </span>
                           <span className="truncate text-[13px] text-muted-foreground">
-                            {log.litersAdded.toFixed(2)} L · ৳
-                            {money(log.pricePerLiter)}/L
+                            {log?.litersAdded?.toFixed(2)} L · ৳
+                            {money(log?.pricePerLiter)}/L
                           </span>
                         </div>
                         <div className="truncate text-xs text-muted-foreground tabular-nums">
-                          {log.odometerReading.toLocaleString()} km
-                          {log.fuelStation ? ` · ${log.fuelStation}` : ""}
+                          {log?.odometerReading?.toLocaleString()} km
+                          {log?.fuelStation ? ` · ${log?.fuelStation}` : ""}
                         </div>
                       </div>
                       <div className="flex flex-col items-end justify-between">

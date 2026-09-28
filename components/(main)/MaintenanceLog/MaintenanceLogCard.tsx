@@ -20,12 +20,12 @@ function getTypeName(
   log: TMaintenanceLog,
   maintenanceTypes: TMaintenanceType[],
 ): string {
-  if (typeof log.maintenanceType === "object" && log.maintenanceType?.name) {
-    return log.maintenanceType.name;
+  if (typeof log?.maintenanceType === "object" && log?.maintenanceType?.name) {
+    return log?.maintenanceType?.name;
   }
-  if (typeof log.maintenanceType === "string") {
-    const match = maintenanceTypes.find((mt) => mt._id === log.maintenanceType);
-    if (match) return match.name;
+  if (typeof log?.maintenanceType === "string") {
+    const match = maintenanceTypes?.find((mt) => mt?._id === log?.maintenanceType);
+    if (match) return match?.name;
   }
   return "Maintenance";
 }
@@ -40,18 +40,18 @@ export default function MaintenanceLogCard({
   onDelete,
 }: TProps) {
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
-    ["maintenanceLogs", log.bike],
+    ["maintenanceLogs", log?.bike],
   ]);
   const { mutateAsync: deleteImage, isPending: isDeleting } = useDelete([
-    ["maintenanceLogs", log.bike],
+    ["maintenanceLogs", log?.bike],
   ]);
 
   const handleImageUpload = async (file: File) => {
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData?.append("image", file);
       await uploadImage({
-        url: `/bikes/${log.bike}/maintenance-logs/${log._id}/image`,
+        url: `/bikes/${log?.bike}/maintenance-logs/${log?._id}/image`,
         payload: formData,
       });
       toast.success("Service image uploaded");
@@ -64,7 +64,7 @@ export default function MaintenanceLogCard({
   const handleImageDelete = async () => {
     try {
       await deleteImage({
-        url: `/bikes/${log.bike}/maintenance-logs/${log._id}/image`,
+        url: `/bikes/${log?.bike}/maintenance-logs/${log?._id}/image`,
       });
       toast.success("Service image deleted");
     } catch (error) {
@@ -74,25 +74,25 @@ export default function MaintenanceLogCard({
   };
 
   const oilName =
-    typeof log.oilType === "object" && log.oilType?.name
-      ? log.oilType.name
+    typeof log?.oilType === "object" && log?.oilType?.name
+      ? log?.oilType?.name
       : undefined;
 
   const nextDue =
-    log.nextDueOdometer != null
-      ? `${log.nextDueOdometer.toLocaleString()} km`
-      : log.nextDueDate
-        ? format(new Date(log.nextDueDate), "dd MMM yyyy")
+    log?.nextDueOdometer != null
+      ? `${log?.nextDueOdometer?.toLocaleString()} km`
+      : log?.nextDueDate
+        ? format(new Date(log?.nextDueDate), "dd MMM yyyy")
         : "—";
 
   const hasMeta =
-    !!log.serviceCenter || (log.partsReplaced?.length ?? 0) > 0;
+    !!log?.serviceCenter || (log?.partsReplaced?.length ?? 0) > 0;
 
   return (
     <div className="panel flex flex-col gap-2.5 p-3.5">
       <div className="flex items-start gap-3">
         <ImageUploadThumb
-          imageUrl={log.serviceImage?.url}
+          imageUrl={log?.serviceImage?.url}
           onUpload={handleImageUpload}
           onDelete={handleImageDelete}
           uploading={isUploading || isDeleting}
@@ -107,8 +107,8 @@ export default function MaintenanceLogCard({
             {oilName && <StatusTag tone="accent">{oilName}</StatusTag>}
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground tabular-nums">
-            {format(new Date(log.serviceDate), "dd MMM yyyy")} ·{" "}
-            {log.odometerReading.toLocaleString()} km
+            {format(new Date(log?.serviceDate), "dd MMM yyyy")} ·{" "}
+            {log?.odometerReading?.toLocaleString()} km
           </div>
         </div>
         <div className="flex gap-0.5">
@@ -137,14 +137,14 @@ export default function MaintenanceLogCard({
         <div>
           <div className="text-muted-foreground">Cost</div>
           <div className="text-[13.5px] font-medium">
-            ৳{log.cost.toLocaleString()}
+            ৳{log?.cost?.toLocaleString()}
           </div>
         </div>
         <div>
           <div className="text-muted-foreground">Interval</div>
           <div className="text-[13.5px]">
-            {log.intervalKmUsed != null
-              ? `${log.intervalKmUsed.toLocaleString()} km`
+            {log?.intervalKmUsed != null
+              ? `${log?.intervalKmUsed?.toLocaleString()} km`
               : "—"}
           </div>
         </div>
@@ -156,16 +156,16 @@ export default function MaintenanceLogCard({
 
       {hasMeta && (
         <div className="hidden flex-wrap items-center gap-1.5 text-xs text-muted-foreground lg:flex">
-          {log.serviceCenter && <span>{log.serviceCenter}</span>}
-          {log.partsReplaced?.map((part) => (
+          {log?.serviceCenter && <span>{log?.serviceCenter}</span>}
+          {log?.partsReplaced?.map((part) => (
             <StatusTag key={part}>{part}</StatusTag>
           ))}
         </div>
       )}
 
-      {log.notes && (
+      {log?.notes && (
         <p className="m-0 hidden text-[12.5px] text-pretty text-muted-foreground lg:block">
-          {log.notes}
+          {log?.notes}
         </p>
       )}
     </div>

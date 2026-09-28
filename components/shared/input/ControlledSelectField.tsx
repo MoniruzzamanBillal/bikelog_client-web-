@@ -35,7 +35,7 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
 }) => {
   const { control } = useFormContext();
 
-  const isEmpty = !options || options.length === 0;
+  const isEmpty = !options || options?.length === 0;
 
   return (
     <div className="relative w-full">
@@ -52,8 +52,8 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
             )}
 
             <Select
-              onValueChange={field.onChange}
-              value={field.value ?? ""}
+              onValueChange={field?.onChange}
+              value={field?.value ?? ""}
               key={field?.value}
               disabled={disabled}
             >
@@ -72,9 +72,9 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
                     No options available
                   </div>
                 ) : (
-                  options.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
+                  options?.map((opt) => (
+                    <SelectItem key={opt?.value} value={opt?.value}>
+                      {opt?.label}
                     </SelectItem>
                   ))
                 )}
@@ -88,7 +88,7 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
             </Select>
             {error && error && (
               <div className="text-xs text-destructive mt-1">
-                {error.message}
+                {error?.message}
               </div>
             )}
           </div>

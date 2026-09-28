@@ -31,18 +31,18 @@ export default function BikeAccessoryCard({
   onDelete,
 }: TProps) {
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
-    ["bikeAccessories", accessory.bike],
+    ["bikeAccessories", accessory?.bike],
   ]);
   const { mutateAsync: deleteImage, isPending: isDeleting } = useDelete([
-    ["bikeAccessories", accessory.bike],
+    ["bikeAccessories", accessory?.bike],
   ]);
 
   const handleImageUpload = async (file: File) => {
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData?.append("image", file);
       await uploadImage({
-        url: `/bikes/${accessory.bike}/accessories/${accessory._id}/image`,
+        url: `/bikes/${accessory?.bike}/accessories/${accessory?._id}/image`,
         payload: formData,
       });
       toast.success("Product image uploaded");
@@ -55,7 +55,7 @@ export default function BikeAccessoryCard({
   const handleImageDelete = async () => {
     try {
       await deleteImage({
-        url: `/bikes/${accessory.bike}/accessories/${accessory._id}/image`,
+        url: `/bikes/${accessory?.bike}/accessories/${accessory?._id}/image`,
       });
       toast.success("Product image deleted");
     } catch (error) {
@@ -64,17 +64,17 @@ export default function BikeAccessoryCard({
     }
   };
 
-  const urgency = URGENCY[accessory.urgency];
+  const urgency = URGENCY[accessory?.urgency];
 
   return (
     <div
       className={cn(
         "panel flex gap-3 p-3",
-        accessory.status === "cancelled" && "opacity-60",
+        accessory?.status === "cancelled" && "opacity-60",
       )}
     >
       <ImageUploadThumb
-        imageUrl={accessory.productImage?.url}
+        imageUrl={accessory?.productImage?.url}
         onUpload={handleImageUpload}
         onDelete={handleImageDelete}
         uploading={isUploading || isDeleting}
@@ -84,7 +84,7 @@ export default function BikeAccessoryCard({
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-1.5">
           <span className="min-w-0 truncate pt-1 text-[13.5px] font-medium">
-            {accessory.name}
+            {accessory?.name}
           </span>
           <TableActionMenu
             rowData={accessory}
@@ -93,16 +93,16 @@ export default function BikeAccessoryCard({
           />
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          <StatusTag tone={urgency.tone}>{urgency.label}</StatusTag>
+          <StatusTag tone={urgency?.tone}>{urgency?.label}</StatusTag>
           <span className="text-[12.5px] tabular-nums">
-            {accessory.price
-              ? `৳${accessory.price.toLocaleString()}`
+            {accessory?.price
+              ? `৳${accessory?.price?.toLocaleString()}`
               : <span className="text-muted-foreground">No price</span>}
           </span>
         </div>
-        {accessory.status === "purchased" && accessory.purchaseDate && (
+        {accessory?.status === "purchased" && accessory?.purchaseDate && (
           <div className="text-[11.5px] text-muted-foreground">
-            Purchased {format(new Date(accessory.purchaseDate), "dd MMM yyyy")}
+            Purchased {format(new Date(accessory?.purchaseDate), "dd MMM yyyy")}
           </div>
         )}
       </div>

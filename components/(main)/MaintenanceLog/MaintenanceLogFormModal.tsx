@@ -63,35 +63,35 @@ export default function MaintenanceLogFormModal({
     },
   });
 
-  const watchedType = methods.watch("maintenanceType");
-  const selectedMt = maintenanceTypes.find((mt) => mt._id === watchedType);
+  const watchedType = methods?.watch("maintenanceType");
+  const selectedMt = maintenanceTypes?.find((mt) => mt?._id === watchedType);
   const isEngineOil = selectedMt?.name === "Engine Oil";
 
   useEffect(() => {
     if (!isEngineOil) {
-      methods.setValue("oilType", "");
+      methods?.setValue("oilType", "");
     }
   }, [isEngineOil, methods]);
 
   useEffect(() => {
     if (!log) return;
-    methods.reset({
+    methods?.reset({
       maintenanceType:
-        typeof log.maintenanceType === "object"
-          ? log.maintenanceType._id
-          : log.maintenanceType,
-      odometerReading: log.odometerReading.toString(),
+        typeof log?.maintenanceType === "object"
+          ? log?.maintenanceType?._id
+          : log?.maintenanceType,
+      odometerReading: log?.odometerReading?.toString(),
       oilType:
-        typeof log.oilType === "object" && log.oilType
-          ? log.oilType._id
-          : ((log.oilType as string) ?? ""),
-      intervalKmUsed: log.intervalKmUsed?.toString() ?? "",
-      cost: log.cost.toString(),
-      serviceDate: log.serviceDate ? new Date(log.serviceDate) : new Date(),
-      nextDueDate: log.nextDueDate ? new Date(log.nextDueDate) : undefined,
-      serviceCenter: log.serviceCenter ?? "",
-      partsReplaced: log.partsReplaced?.join(", ") ?? "",
-      notes: log.notes ?? "",
+        typeof log?.oilType === "object" && log?.oilType
+          ? log?.oilType?._id
+          : ((log?.oilType as string) ?? ""),
+      intervalKmUsed: log?.intervalKmUsed?.toString() ?? "",
+      cost: log?.cost?.toString(),
+      serviceDate: log?.serviceDate ? new Date(log?.serviceDate) : new Date(),
+      nextDueDate: log?.nextDueDate ? new Date(log?.nextDueDate) : undefined,
+      serviceCenter: log?.serviceCenter ?? "",
+      partsReplaced: log?.partsReplaced?.join(", ") ?? "",
+      notes: log?.notes ?? "",
     });
   }, [log, methods]);
 
@@ -109,26 +109,26 @@ export default function MaintenanceLogFormModal({
 
   const onSubmit = async (data: TMaintenanceLogFormType) => {
     try {
-      const parts: string[] = data.partsReplaced
-        ? data.partsReplaced
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
+      const parts: string[] = data?.partsReplaced
+        ? data?.partsReplaced
+            ?.split(",")
+            ?.map((s) => s?.trim())
+            ?.filter(Boolean)
         : [];
 
       const basePayload: TCreateMaintenanceLogPayload = {
-        maintenanceType: data.maintenanceType,
-        odometerReading: Number(data.odometerReading),
-        intervalKmUsed: data.intervalKmUsed
-          ? Number(data.intervalKmUsed)
+        maintenanceType: data?.maintenanceType,
+        odometerReading: Number(data?.odometerReading),
+        intervalKmUsed: data?.intervalKmUsed
+          ? Number(data?.intervalKmUsed)
           : undefined,
-        cost: Number(data.cost),
-        oilType: data.oilType || undefined,
-        serviceDate: data.serviceDate?.toISOString(),
-        nextDueDate: data.nextDueDate?.toISOString(),
-        serviceCenter: data.serviceCenter || undefined,
-        partsReplaced: parts.length > 0 ? parts : undefined,
-        notes: data.notes || undefined,
+        cost: Number(data?.cost),
+        oilType: data?.oilType || undefined,
+        serviceDate: data?.serviceDate?.toISOString(),
+        nextDueDate: data?.nextDueDate?.toISOString(),
+        serviceCenter: data?.serviceCenter || undefined,
+        partsReplaced: parts?.length > 0 ? parts : undefined,
+        notes: data?.notes || undefined,
       };
 
       if (isEditMode) {
@@ -155,13 +155,13 @@ export default function MaintenanceLogFormModal({
     }
   };
 
-  const mtOptions = maintenanceTypes.map((mt) => ({
-    label: mt.name,
-    value: mt._id,
+  const mtOptions = maintenanceTypes?.map((mt) => ({
+    label: mt?.name,
+    value: mt?._id,
   }));
-  const oilOptions = oilTypes.map((ot) => ({
-    label: `${ot.name} (${ot.suggestedIntervalKm} km)`,
-    value: ot._id,
+  const oilOptions = oilTypes?.map((ot) => ({
+    label: `${ot?.name} (${ot?.suggestedIntervalKm} km)`,
+    value: ot?._id,
   }));
 
   return (
@@ -171,7 +171,7 @@ export default function MaintenanceLogFormModal({
       title={isEditMode ? "Edit Maintenance" : "Add Maintenance"}
     >
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
           <ControlledSelectField
             name="maintenanceType"
             label="Maintenance Type"

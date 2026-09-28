@@ -30,13 +30,13 @@ export default function EngineOilTypeSection() {
   const [editIntervalKm, setEditIntervalKm] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !suggestedIntervalKm) return;
+    e?.preventDefault();
+    if (!name?.trim() || !suggestedIntervalKm) return;
     try {
       await createMutation({
         url: "/engine-oil-types",
         payload: {
-          name: name.trim(),
+          name: name?.trim(),
           suggestedIntervalKm: Number(suggestedIntervalKm),
         } as unknown as Record<string, unknown>,
       });
@@ -51,9 +51,9 @@ export default function EngineOilTypeSection() {
   };
 
   const startEdit = (type: TEngineOilType) => {
-    setEditingId(type._id);
-    setEditName(type.name);
-    setEditIntervalKm(String(type.suggestedIntervalKm));
+    setEditingId(type?._id);
+    setEditName(type?.name);
+    setEditIntervalKm(String(type?.suggestedIntervalKm));
   };
 
   const cancelEdit = () => {
@@ -63,12 +63,12 @@ export default function EngineOilTypeSection() {
   };
 
   const handleSaveEdit = async () => {
-    if (!editName.trim() || !editIntervalKm || !editingId) return;
+    if (!editName?.trim() || !editIntervalKm || !editingId) return;
     try {
       await updateMutation({
         url: `/engine-oil-types/${editingId}`,
         payload: {
-          name: editName.trim(),
+          name: editName?.trim(),
           suggestedIntervalKm: Number(editIntervalKm),
         } as unknown as Record<string, unknown>,
       });
@@ -86,7 +86,7 @@ export default function EngineOilTypeSection() {
       subtitle="Suggested interval pre-fills the Engine Oil service form"
       headers={[{ label: "Suggested km", short: "km" }]}
       isLoading={isLoading}
-      isEmpty={types.length === 0}
+      isEmpty={types?.length === 0}
       emptyText="No engine oil types yet."
       addOpen={addOpen}
       onToggleAdd={() => setAddOpen((o) => !o)}
@@ -96,7 +96,7 @@ export default function EngineOilTypeSection() {
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e?.target?.value)}
               placeholder="Name (e.g. Synthetic)"
               required
               className={catalogInput}
@@ -104,7 +104,7 @@ export default function EngineOilTypeSection() {
             <input
               type="number"
               value={suggestedIntervalKm}
-              onChange={(e) => setSuggestedIntervalKm(e.target.value)}
+              onChange={(e) => setSuggestedIntervalKm(e?.target?.value)}
               placeholder="Suggested km"
               required
               className={catalogInput}
@@ -112,7 +112,7 @@ export default function EngineOilTypeSection() {
           </div>
           <Button
             type="submit"
-            disabled={isPending || !name.trim() || !suggestedIntervalKm}
+            disabled={isPending || !name?.trim() || !suggestedIntervalKm}
             className="self-start"
           >
             {isPending ? "Adding…" : "Add oil type"}
@@ -120,14 +120,14 @@ export default function EngineOilTypeSection() {
         </form>
       }
     >
-      {types.map((t) =>
-        editingId === t._id ? (
-          <tr key={t._id} className="row-fade">
+      {types?.map((t) =>
+        editingId === t?._id ? (
+          <tr key={t?._id} className="row-fade">
             <td className="py-1.5 pr-1 pl-4">
               <input
                 type="text"
                 value={editName}
-                onChange={(e) => setEditName(e.target.value)}
+                onChange={(e) => setEditName(e?.target?.value)}
                 placeholder="Name"
                 className={catalogInput}
               />
@@ -136,7 +136,7 @@ export default function EngineOilTypeSection() {
               <input
                 type="number"
                 value={editIntervalKm}
-                onChange={(e) => setEditIntervalKm(e.target.value)}
+                onChange={(e) => setEditIntervalKm(e?.target?.value)}
                 placeholder="km"
                 className={`${catalogInput} text-right`}
               />
@@ -146,7 +146,7 @@ export default function EngineOilTypeSection() {
                 <button
                   type="button"
                   onClick={handleSaveEdit}
-                  disabled={isUpdating || !editName.trim() || !editIntervalKm}
+                  disabled={isUpdating || !editName?.trim() || !editIntervalKm}
                   className="grid size-[30px] place-items-center rounded-md text-success hover:bg-surface-hover disabled:opacity-45"
                   title="Save"
                   aria-label="Save"
@@ -166,10 +166,10 @@ export default function EngineOilTypeSection() {
             </td>
           </tr>
         ) : (
-          <tr key={t._id} className="row-fade h-11">
-            <td className="pl-4">{t.name}</td>
+          <tr key={t?._id} className="row-fade h-11">
+            <td className="pl-4">{t?.name}</td>
             <td className="px-2 text-right text-muted-foreground">
-              {t.suggestedIntervalKm.toLocaleString()}
+              {t?.suggestedIntervalKm?.toLocaleString()}
             </td>
             <td className="pr-2">
               <div className="flex justify-end">
@@ -178,7 +178,7 @@ export default function EngineOilTypeSection() {
                   onClick={() => startEdit(t)}
                   className="grid size-[30px] place-items-center rounded-md text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                   title="Edit"
-                  aria-label={`Edit ${t.name}`}
+                  aria-label={`Edit ${t?.name}`}
                 >
                   <Pencil className="size-3.5" />
                 </button>

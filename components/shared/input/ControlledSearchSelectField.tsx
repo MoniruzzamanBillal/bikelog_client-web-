@@ -74,8 +74,8 @@ const ControlledSearchSelectField = ({
                     className,
                   )}
                 >
-                  {field.value
-                    ? options.find((opt) => opt.value === field.value)?.label
+                  {field?.value
+                    ? options?.find((opt) => opt?.value === field?.value)?.label
                     : placeholder}
 
                   <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -91,22 +91,22 @@ const ControlledSearchSelectField = ({
                   <CommandList>
                     <CommandEmpty>No option found.</CommandEmpty>
                     <CommandGroup>
-                      {options.map((opt) => (
+                      {options?.map((opt) => (
                         <CommandItem
-                          key={opt.value}
-                          value={opt.value}
+                          key={opt?.value}
+                          value={opt?.value}
                           onSelect={(currentValue) => {
-                            field.onChange(
-                              currentValue === field.value ? "" : currentValue,
+                            field?.onChange(
+                              currentValue === field?.value ? "" : currentValue,
                             );
                             setOpen(false);
                           }}
                         >
-                          {opt.label}
+                          {opt?.label}
                           <CheckIcon
                             className={cn(
                               "ml-auto h-4 w-4",
-                              field.value === opt.value
+                              field?.value === opt?.value
                                 ? "opacity-100"
                                 : "opacity-0",
                             )}
@@ -121,7 +121,7 @@ const ControlledSearchSelectField = ({
 
             {error && (
               <div className="text-xs text-destructive mt-1">
-                {error.message}
+                {error?.message}
               </div>
             )}
           </div>

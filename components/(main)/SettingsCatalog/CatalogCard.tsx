@@ -60,13 +60,13 @@ export default function CatalogCard({
               <th className="h-9 px-2 pl-4 text-left text-[11px] font-normal tracking-[0.08em] text-muted-foreground uppercase">
                 Name
               </th>
-              {headers.map((h) => (
+              {headers?.map((h) => (
                 <th
-                  key={h.label}
+                  key={h?.label}
                   className="h-9 px-2 text-right text-[11px] font-normal tracking-[0.08em] whitespace-nowrap text-muted-foreground uppercase"
                 >
-                  <span className="hidden sm:inline">{h.label}</span>
-                  <span className="sm:hidden">{h.short ?? h.label}</span>
+                  <span className="hidden sm:inline">{h?.label}</span>
+                  <span className="sm:hidden">{h?.short ?? h?.label}</span>
                 </th>
               ))}
               <th className="w-12" />
@@ -76,7 +76,7 @@ export default function CatalogCard({
             {isLoading ? (
               [1, 2, 3].map((i) => (
                 <tr key={i} className="row-fade h-11">
-                  <td colSpan={headers.length + 2} className="pl-4">
+                  <td colSpan={headers?.length + 2} className="pl-4">
                     <Skeleton className="h-3 w-1/2" />
                   </td>
                 </tr>
@@ -84,7 +84,7 @@ export default function CatalogCard({
             ) : isEmpty ? (
               <tr>
                 <td
-                  colSpan={headers.length + 2}
+                  colSpan={headers?.length + 2}
                   className="px-4 py-6 text-sm text-muted-foreground"
                 >
                   {emptyText}

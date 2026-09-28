@@ -28,15 +28,15 @@ export default function SegmentedTabs<T extends string>({
         className,
       )}
     >
-      {options.map((opt, i) => {
-        const active = opt.value === value;
+      {options?.map((opt, i) => {
+        const active = opt?.value === value;
         return (
           <button
-            key={opt.value}
+            key={opt?.value}
             type="button"
             role="tab"
             aria-selected={active}
-            onClick={() => onChange(opt.value)}
+            onClick={() => onChange(opt?.value)}
             className={cn(
               "shrink-0 px-3 py-[7px] text-[13px] whitespace-nowrap transition-colors",
               fill && "flex-1",
@@ -46,7 +46,7 @@ export default function SegmentedTabs<T extends string>({
                 : "text-foreground/85 hover:bg-foreground/7",
             )}
           >
-            {opt.label}
+            {opt?.label}
           </button>
         );
       })}

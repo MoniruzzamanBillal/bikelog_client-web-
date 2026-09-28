@@ -41,11 +41,11 @@ export default function ControlledTextArea({
             {...field}
             rows={rows}
             placeholder={placeholder}
-            value={field.value ?? ""}
+            value={field?.value ?? ""}
             className={cn(className)}
           />
 
-          {error && <p className="mt-1 text-xs text-destructive">{error.message}</p>}
+          {error && <p className="mt-1 text-xs text-destructive">{error?.message}</p>}
         </div>
       )}
     />

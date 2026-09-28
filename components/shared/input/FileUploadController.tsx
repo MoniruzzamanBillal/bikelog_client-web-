@@ -39,12 +39,12 @@ export function FileUploadController({
       control={control}
       defaultValue={null}
       render={({ field, fieldState }) => {
-        const fileValue = field.value || null;
+        const fileValue = field?.value || null;
 
         // Check if it's an image
         const isImage =
           fileValue instanceof File
-            ? fileValue.type.startsWith("image/")
+            ? fileValue?.type?.startsWith("image/")
             : typeof fileValue === "string"
               ? /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(fileValue)
               : !touched && initialUrl
@@ -63,24 +63,24 @@ export function FileUploadController({
 
         // file change handler
         const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          const file = e.target.files?.[0];
+          const file = e?.target?.files?.[0];
           if (file) {
             // Validate file type
-            if (!SUPPORTED_IMAGE_FORMATS.includes(file.type)) {
+            if (!SUPPORTED_IMAGE_FORMATS?.includes(file?.type)) {
               alert(
                 "Please select a valid image file (PNG, JPEG, JPG, WEBP, SVG)",
               );
               return;
             }
             setTouched(true);
-            field.onChange(file);
+            field?.onChange(file);
           }
         };
 
         // delete file
         const handleDelete = () => {
           setTouched(true);
-          field.onChange(null);
+          field?.onChange(null);
         };
 
         return (
@@ -172,9 +172,9 @@ export function FileUploadController({
                 </label>
               )}
             </div>
-            {fieldState.error && (
+            {fieldState?.error && (
               <p className="text-xs text-destructive mt-1">
-                {fieldState.error.message}
+                {fieldState?.error?.message}
               </p>
             )}
           </div>

@@ -25,7 +25,7 @@ const tabs: { value: TTab; label: string }[] = [
 
 export default function Mileage() {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
   const [activeTab, setActiveTab] = useState<TTab>("history");
 
   const { data: bikeData } = useFetchData<TBike>(

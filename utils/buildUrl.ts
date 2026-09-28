@@ -18,7 +18,7 @@ export function buildUrl(
     ),
   );
 
-  const qs = queryString.toString();
+  const qs = queryString?.toString();
 
   return qs ? `${baseUrl}?${qs}` : baseUrl;
 }

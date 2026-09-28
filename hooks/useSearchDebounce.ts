@@ -6,7 +6,7 @@ export const useSearchDebounce = (delay: number = 500) => {
   const debouncedSearch = useDebounce(search, delay);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
+    setSearch(e?.target?.value);
   };
 
   return {

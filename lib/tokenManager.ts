@@ -14,7 +14,7 @@ export const clearToken = () => deleteCookie(ACCESS_TOKEN_KEY, { path: "/" });
 export const isTokenExpired = (token: string): boolean => {
   const decoded = jwt.decode(token) as JwtPayload;
   if (!decoded?.exp) return true;
-  return decoded.exp < Math.floor(Date.now() / 1000) + 60; // 60s buffer
+  return decoded?.exp < Math.floor(Date.now() / 1000) + 60; // 60s buffer
 };
 
 export const getDecodedToken = <

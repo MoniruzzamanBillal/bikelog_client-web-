@@ -37,13 +37,13 @@ const ControlledMultiSelectField: React.FC<ControlledMultiSelectFieldProps> = ({
             <CreatableSelect
               isMulti
               options={options}
-              value={options.filter(
-                (opt) => field.value?.includes(opt.value),
+              value={options?.filter(
+                (opt) => field?.value?.includes(opt?.value),
                 // field.value?.includes(Number(opt.value))
               )}
               placeholder={placeholder || "Select options"}
               onChange={(selected) => {
-                field.onChange(selected.map((opt) => opt.value));
+                field?.onChange(selected?.map((opt) => opt?.value));
                 // field.onChange(selected.map((opt) => Number(opt.value)));
               }}
               onCreateOption={(inputValue) => {
@@ -51,7 +51,7 @@ const ControlledMultiSelectField: React.FC<ControlledMultiSelectFieldProps> = ({
                   label: inputValue,
                   value: String(Date.now()),
                 };
-                field.onChange([...field.value, Number(newOption.value)]);
+                field?.onChange([...field?.value, Number(newOption?.value)]);
               }}
             />
           </div>

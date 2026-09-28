@@ -20,15 +20,15 @@ import {
 
 // soonest expiry first; documents without an expiry date go last
 const byExpiry = (a: TBikeDocument, b: TBikeDocument) => {
-  if (!a.expiryDate && !b.expiryDate) return 0;
-  if (!a.expiryDate) return 1;
-  if (!b.expiryDate) return -1;
-  return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+  if (!a?.expiryDate && !b?.expiryDate) return 0;
+  if (!a?.expiryDate) return 1;
+  if (!b?.expiryDate) return -1;
+  return new Date(a?.expiryDate).getTime() - new Date(b?.expiryDate).getTime();
 };
 
 export default function BikeDocument() {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
 
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
@@ -41,7 +41,7 @@ export default function BikeDocument() {
 
   const { data, isLoading, isError, error, refetch } =
     useFetchData<TBikeDocumentsApiResponse>(
-      ["bikeDocuments", bikeId, page.toString()],
+      ["bikeDocuments", bikeId, page?.toString()],
       `/bikes/${bikeId}/documents?page=${page}&limit=${limit}`,
     );
 
@@ -62,7 +62,7 @@ export default function BikeDocument() {
     if (!deletingDocument) return;
     try {
       const result = await deleteMutation({
-        url: `/bikes/${bikeId}/documents/${deletingDocument._id}`,
+        url: `/bikes/${bikeId}/documents/${deletingDocument?._id}`,
       });
       if (result?.success) {
         toast.success("Document deleted");
@@ -94,7 +94,7 @@ export default function BikeDocument() {
           },
           { label: "Documents" },
         ]}
-        description={documents.length > 0 ? "Soonest expiry first" : ""}
+        description={documents?.length > 0 ? "Soonest expiry first" : ""}
         actions={
           <>
             <span className="lg:hidden">{addButton("Add")}</span>
@@ -118,7 +118,7 @@ export default function BikeDocument() {
           message={error?.message}
           onRetry={() => refetch()}
         />
-      ) : documents.length === 0 ? (
+      ) : documents?.length === 0 ? (
         <StateCard
           icon={FileText}
           title="No documents yet"
@@ -127,9 +127,9 @@ export default function BikeDocument() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-          {documents.map((document) => (
+          {documents?.map((document) => (
             <BikeDocumentCard
-              key={document._id}
+              key={document?._id}
               document={document}
               onEdit={setEditingDocument}
               onDelete={setDeletingDocument}

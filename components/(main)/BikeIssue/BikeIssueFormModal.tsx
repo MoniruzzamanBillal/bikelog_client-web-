@@ -45,7 +45,7 @@ export default function BikeIssueFormModal({
       title: issue?.title ?? "",
       description: issue?.description ?? "",
       dateReported: issue?.dateReported
-        ? new Date(issue.dateReported)
+        ? new Date(issue?.dateReported)
         : new Date(),
     },
   });
@@ -55,9 +55,9 @@ export default function BikeIssueFormModal({
   const onSubmit = async (data: TBikeIssueFormType) => {
     try {
       const basePayload: TCreateBikeIssuePayload = {
-        title: data.title,
-        description: data.description || undefined,
-        dateReported: data.dateReported?.toISOString(),
+        title: data?.title,
+        description: data?.description || undefined,
+        dateReported: data?.dateReported?.toISOString(),
       };
 
       if (isEditMode) {
@@ -93,7 +93,7 @@ export default function BikeIssueFormModal({
       title={isEditMode ? "Edit Issue" : "Report Issue"}
     >
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
           <ControlledInput
             name="title"
             label="Title"

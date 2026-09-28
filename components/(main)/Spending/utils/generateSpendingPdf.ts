@@ -4,8 +4,8 @@ import { autoTable } from "jspdf-autotable";
 import { TSpendingDetails } from "../type/spending.types";
 
 function buildFilename(details: TSpendingDetails): string {
-  if (details.period === "month") return `spending-month-${details.targetMonth}.pdf`;
-  if (details.period === "year") return `spending-year-${details.targetYear}.pdf`;
+  if (details?.period === "month") return `spending-month-${details?.targetMonth}.pdf`;
+  if (details?.period === "year") return `spending-year-${details?.targetYear}.pdf`;
   return "spending-lifetime.pdf";
 }
 
@@ -21,7 +21,7 @@ const CURRENCY_PREFIX = "Tk";
 // ! @ ৳100/L") and can itself contain a literal ৳ — same font limitation as above, so it's
 // ! sanitized here at render time only, never mutating the API response the rest of the app
 // ! (e.g. a future on-screen line-item list) might still want the real ৳ from.
-const sanitizeForPdf = (text: string): string => text.replace(/৳/g, `${CURRENCY_PREFIX} `);
+const sanitizeForPdf = (text: string): string => text?.replace(/৳/g, `${CURRENCY_PREFIX} `);
 
 export function generateSpendingPdf(
   details: TSpendingDetails,
@@ -29,57 +29,57 @@ export function generateSpendingPdf(
 ): void {
   const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text("Spending Report", 14, 18);
+  doc?.setFontSize(18);
+  doc?.text("Spending Report", 14, 18);
 
-  doc.setFontSize(11);
-  doc.setTextColor(100);
-  doc.text(periodLabel, 14, 26);
-  doc.text(`Generated ${format(new Date(), "d MMM yyyy, h:mm a")}`, 14, 32);
+  doc?.setFontSize(11);
+  doc?.setTextColor(100);
+  doc?.text(periodLabel, 14, 26);
+  doc?.text(`Generated ${format(new Date(), "d MMM yyyy, h:mm a")}`, 14, 32);
 
-  doc.setFontSize(13);
-  doc.setTextColor(0);
-  doc.text(
-    `Total Spending: ${CURRENCY_PREFIX} ${details.totalSpending.toLocaleString()}`,
+  doc?.setFontSize(13);
+  doc?.setTextColor(0);
+  doc?.text(
+    `Total Spending: ${CURRENCY_PREFIX} ${details?.totalSpending?.toLocaleString()}`,
     14,
     44,
   );
 
   let cursorY = 50;
 
-  if (details.categoryBreakdown.length > 0) {
+  if (details?.categoryBreakdown?.length > 0) {
     autoTable(doc, {
       startY: cursorY,
       head: [["Category", `Total (${CURRENCY_PREFIX})`]],
-      body: details.categoryBreakdown.map((cat) => [
-        sanitizeForPdf(cat.category),
-        cat.total.toLocaleString(),
+      body: details?.categoryBreakdown?.map((cat) => [
+        sanitizeForPdf(cat?.category),
+        cat?.total?.toLocaleString(),
       ]),
     });
     cursorY = (doc as unknown as { lastAutoTable: { finalY: number } })
-      .lastAutoTable.finalY + 8;
+      ?.lastAutoTable?.finalY + 8;
   }
 
-  if (details.records.length > 0) {
+  if (details?.records?.length > 0) {
     autoTable(doc, {
       startY: cursorY,
       head: [
         ["Date", "Category", "Description", `Amount (${CURRENCY_PREFIX})`, "Vendor", "Remarks"],
       ],
-      body: details.records.map((record) => [
-        format(new Date(record.date), "d MMM yyyy"),
-        sanitizeForPdf(record.category),
-        sanitizeForPdf(record.description),
-        record.amount.toLocaleString(),
-        record.vendor ? sanitizeForPdf(record.vendor) : "-",
-        record.remarks ? sanitizeForPdf(record.remarks) : "-",
+      body: details?.records?.map((record) => [
+        format(new Date(record?.date), "d MMM yyyy"),
+        sanitizeForPdf(record?.category),
+        sanitizeForPdf(record?.description),
+        record?.amount?.toLocaleString(),
+        record?.vendor ? sanitizeForPdf(record?.vendor) : "-",
+        record?.remarks ? sanitizeForPdf(record?.remarks) : "-",
       ]),
     });
   } else {
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text("No spending records for this period.", 14, cursorY + 6);
+    doc?.setFontSize(11);
+    doc?.setTextColor(100);
+    doc?.text("No spending records for this period.", 14, cursorY + 6);
   }
 
-  doc.save(buildFilename(details));
+  doc?.save(buildFilename(details));
 }

@@ -14,14 +14,14 @@ export default function BikeCard({
   bike: TBike;
   highlight?: boolean;
 }) {
-  const logged = bike.currentOdometer - (bike.initialOdometer ?? 0);
-  const since = bike.purchaseDate
-    ? format(new Date(bike.purchaseDate), "MMM yyyy")
+  const logged = bike?.currentOdometer - (bike?.initialOdometer ?? 0);
+  const since = bike?.purchaseDate
+    ? format(new Date(bike?.purchaseDate), "MMM yyyy")
     : "—";
 
   return (
     <Link
-      href={`/bikes/${bike._id}`}
+      href={`/bikes/${bike?._id}`}
       className={cn(
         "group flex flex-col gap-2.5 rounded-[10px] bg-card px-4 py-3.5 transition-shadow lg:gap-3.5 lg:p-[18px]",
         highlight ? "shadow-glow" : "shadow-sm hover:shadow-md",
@@ -30,10 +30,10 @@ export default function BikeCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="truncate text-base font-medium tracking-[-0.01em] lg:text-[17px]">
-            {bike.nickname}
+            {bike?.nickname}
           </div>
           <div className="truncate text-[12.5px] text-muted-foreground lg:text-[13px]">
-            {bike.brand} {bike.model}
+            {bike?.brand} {bike?.model}
           </div>
         </div>
         <ChevronRight className="size-[18px] shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
@@ -46,14 +46,14 @@ export default function BikeCard({
             Odometer
           </div>
           <div className="text-2xl font-medium tracking-[-0.02em] tabular-nums lg:mt-0.5 lg:text-[30px]">
-            {bike.currentOdometer.toLocaleString()}
+            {bike?.currentOdometer?.toLocaleString()}
             <span className="ml-1 text-[13px] font-normal tracking-normal text-muted-foreground lg:text-sm">
               km
             </span>
           </div>
         </div>
         <StatusTag className="max-w-[45%] truncate lg:hidden">
-          {bike.registrationNumber}
+          {bike?.registrationNumber}
         </StatusTag>
       </div>
 
@@ -63,13 +63,13 @@ export default function BikeCard({
         <div>
           <span className="lg:block">Logged</span>{" "}
           <span className="text-muted-foreground lg:mt-0.5 lg:block lg:text-foreground">
-            {logged.toLocaleString()} km
+            {logged?.toLocaleString()} km
           </span>
         </div>
         <div>
           <span className="lg:block">Tank</span>{" "}
           <span className="lg:mt-0.5 lg:block lg:text-foreground">
-            {bike.fuelTankCapacityLiters} L
+            {bike?.fuelTankCapacityLiters} L
           </span>
         </div>
         <div>
@@ -79,7 +79,7 @@ export default function BikeCard({
       </div>
 
       <StatusTag className="hidden self-start lg:inline-flex">
-        {bike.registrationNumber}
+        {bike?.registrationNumber}
       </StatusTag>
     </Link>
   );

@@ -43,7 +43,7 @@ export default function ErrorLogList() {
     result: TErrorLog[];
     meta: number;
   }>(
-    ["errorLogs", page.toString(), methodFilter],
+    ["errorLogs", page?.toString(), methodFilter],
     buildUrl("/admin/error-logs", {
       page,
       limit,
@@ -80,7 +80,7 @@ export default function ErrorLogList() {
               <SelectValue placeholder="Method" />
             </SelectTrigger>
             <SelectContent position="popper">
-              {METHOD_FILTERS.map((method) => (
+              {METHOD_FILTERS?.map((method) => (
                 <SelectItem key={method} value={method}>
                   {method === "all" ? "All methods" : method}
                 </SelectItem>
@@ -100,7 +100,7 @@ export default function ErrorLogList() {
           {(error as { message?: string })?.message ??
             "Failed to load error logs"}
         </div>
-      ) : logs.length === 0 ? (
+      ) : logs?.length === 0 ? (
         <StateCard
           icon={ShieldCheck}
           title="No errors logged"
@@ -123,35 +123,35 @@ export default function ErrorLogList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {logs.map((log) => (
+                  {logs?.map((log) => (
                     <tr
-                      key={log._id}
+                      key={log?._id}
                       onClick={() => setSelectedLog(log)}
                       className="row-fade h-12 cursor-pointer"
                     >
                       <td className="pl-4">
-                        <StatusTag tone={getStatusTone(log.status)}>
-                          {log.status}
+                        <StatusTag tone={getStatusTone(log?.status)}>
+                          {log?.status}
                         </StatusTag>
                       </td>
                       <td className="max-w-[280px] px-2">
                         <div className="flex min-w-0 items-baseline gap-2">
                           <span className="text-[11.5px] font-semibold">
-                            {log.method}
+                            {log?.method}
                           </span>
                           <span className="truncate font-mono text-xs text-muted-foreground">
-                            {log.path}
+                            {log?.path}
                           </span>
                         </div>
                       </td>
                       <td className="max-w-[320px] truncate px-2">
-                        {log.message}
+                        {log?.message}
                       </td>
                       <td className="px-2 whitespace-nowrap text-muted-foreground">
-                        {log.userEmail ?? "Anonymous"}
+                        {log?.userEmail ?? "Anonymous"}
                       </td>
                       <td className="pr-4 text-right whitespace-nowrap text-muted-foreground tabular-nums">
-                        {format(new Date(log.createdAt), "dd MMM, hh:mm a")}
+                        {format(new Date(log?.createdAt), "dd MMM, hh:mm a")}
                       </td>
                     </tr>
                   ))}
@@ -171,8 +171,8 @@ export default function ErrorLogList() {
 
           {/* ── mobile cards ── */}
           <div className="flex flex-col gap-2.5 lg:hidden">
-            {logs.map((log) => (
-              <ErrorLogCard key={log._id} log={log} onSelect={setSelectedLog} />
+            {logs?.map((log) => (
+              <ErrorLogCard key={log?._id} log={log} onSelect={setSelectedLog} />
             ))}
             {totalPages > 1 && (
               <TablePagination

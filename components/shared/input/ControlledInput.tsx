@@ -45,7 +45,7 @@ export default function ControlledInput({
               {...field}
               type={type}
               placeholder={placeholder}
-              value={field.value ?? ""}
+              value={field?.value ?? ""}
               step={step}
               className={cn(rightElement && "pr-10", className)}
             />
@@ -56,7 +56,7 @@ export default function ControlledInput({
             )}
           </div>
 
-          {error && <p className="text-xs text-destructive">{error.message}</p>}
+          {error && <p className="text-xs text-destructive">{error?.message}</p>}
         </div>
       )}
     />

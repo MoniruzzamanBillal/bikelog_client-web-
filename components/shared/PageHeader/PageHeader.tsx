@@ -32,20 +32,20 @@ export default function PageHeader({
       )}
     >
       <div className="min-w-0">
-        {crumbs && crumbs.length > 0 && (
+        {crumbs && crumbs?.length > 0 && (
           <nav
             aria-label="Breadcrumb"
             className="mb-1.5 hidden flex-wrap gap-1.5 text-xs text-muted-foreground lg:flex"
           >
-            {crumbs.map((crumb, i) => (
-              <Fragment key={`${crumb.label}-${i}`}>
+            {crumbs?.map((crumb, i) => (
+              <Fragment key={`${crumb?.label}-${i}`}>
                 {i > 0 && <span>/</span>}
-                {crumb.href ? (
-                  <Link href={crumb.href} className="hover:text-foreground">
-                    {crumb.label}
+                {crumb?.href ? (
+                  <Link href={crumb?.href} className="hover:text-foreground">
+                    {crumb?.label}
                   </Link>
                 ) : (
-                  <span className="text-foreground">{crumb.label}</span>
+                  <span className="text-foreground">{crumb?.label}</span>
                 )}
               </Fragment>
             ))}

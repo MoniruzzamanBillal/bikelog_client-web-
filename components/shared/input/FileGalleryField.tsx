@@ -40,22 +40,22 @@ export default function FileGalleryField({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const imageFiles = files.filter((file) => file.resourceType === "image");
+  const imageFiles = files?.filter((file) => file?.resourceType === "image");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files ?? []);
-    if (selectedFiles.length === 0) return;
+    const selectedFiles = Array.from(e?.target?.files ?? []);
+    if (selectedFiles?.length === 0) return;
 
-    const remaining = Math.max(max - files.length, 0);
-    const selected = selectedFiles.slice(0, remaining);
+    const remaining = Math.max(max - files?.length, 0);
+    const selected = selectedFiles?.slice(0, remaining);
 
-    if (selectedFiles.length > selected.length) {
+    if (selectedFiles?.length > selected?.length) {
       toast.info(
-        `Only ${remaining} more file${remaining === 1 ? "" : "s"} can be added right now (max ${max} total) — queued the first ${selected.length}.`,
+        `Only ${remaining} more file${remaining === 1 ? "" : "s"} can be added right now (max ${max} total) — queued the first ${selected?.length}.`,
       );
     }
 
-    if (selected.length > 0) onAdd(selected);
+    if (selected?.length > 0) onAdd(selected);
     e.target.value = "";
   };
 
@@ -80,26 +80,26 @@ export default function FileGalleryField({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {files.map((file) => {
-        const isImage = file.resourceType === "image";
-        const isDeleting = deletingId === file._id;
+      {files?.map((file) => {
+        const isImage = file?.resourceType === "image";
+        const isDeleting = deletingId === file?._id;
 
         return (
-          <div key={file._id} className="relative size-14 shrink-0">
+          <div key={file?._id} className="relative size-14 shrink-0">
             {isImage ? (
               <button
                 type="button"
                 onClick={() =>
                   setLightboxIndex(
-                    imageFiles.findIndex((img) => img._id === file._id),
+                    imageFiles?.findIndex((img) => img?._id === file?._id),
                   )
                 }
                 className="size-full overflow-hidden rounded-lg bg-accent"
                 aria-label="View image"
               >
                 <Image
-                  src={file.url}
-                  alt={file.originalName}
+                  src={file?.url}
+                  alt={file?.originalName}
                   fill
                   sizes="56px"
                   className="object-cover"
@@ -107,15 +107,15 @@ export default function FileGalleryField({
               </button>
             ) : (
               <a
-                href={file.url}
+                href={file?.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex size-full flex-col items-center justify-center gap-1 overflow-hidden rounded-lg bg-muted p-1"
-                aria-label={`Open ${file.originalName}`}
+                aria-label={`Open ${file?.originalName}`}
               >
                 <FileText className="size-5 shrink-0 text-primary" />
                 <span className="w-full truncate text-center text-[10px] text-muted-foreground">
-                  {file.originalName}
+                  {file?.originalName}
                 </span>
               </a>
             )}
@@ -131,8 +131,8 @@ export default function FileGalleryField({
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveClick(file._id);
+                  e?.stopPropagation();
+                  handleRemoveClick(file?._id);
                 }}
                 className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-destructive"
                 aria-label="Delete file"
@@ -144,10 +144,10 @@ export default function FileGalleryField({
         );
       })}
 
-      {files.length < max && (
+      {files?.length < max && (
         <button
           type="button"
-          onClick={() => !uploading && inputRef.current?.click()}
+          onClick={() => !uploading && inputRef?.current?.click()}
           disabled={uploading}
           className={cn(
             "flex size-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors hover:bg-surface-hover hover:text-foreground",
@@ -185,7 +185,7 @@ export default function FileGalleryField({
       />
 
       <ImageLightbox
-        images={imageFiles.map((file) => ({ url: file.url }))}
+        images={imageFiles?.map((file) => ({ url: file?.url }))}
         initialIndex={lightboxIndex ?? 0}
         open={lightboxIndex !== null}
         onClose={() => setLightboxIndex(null)}

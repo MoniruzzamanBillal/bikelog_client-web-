@@ -30,7 +30,7 @@ const statusOptions: { value: TStatusFilter; label: string }[] = [
 
 export default function BikeIssue() {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
 
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<TStatusFilter>("all");
@@ -41,7 +41,7 @@ export default function BikeIssue() {
 
   const { data, isLoading, isError, error, refetch } =
     useFetchData<TBikeIssuesApiResponse>(
-      ["bikeIssues", bikeId, page.toString(), statusFilter],
+      ["bikeIssues", bikeId, page?.toString(), statusFilter],
       `/bikes/${bikeId}/issues?page=${page}&limit=${limit}&sort=-dateReported${
         statusFilter !== "all" ? `&status=${statusFilter}` : ""
       }`,
@@ -73,7 +73,7 @@ export default function BikeIssue() {
     if (!deletingIssue) return;
     try {
       const result = await deleteMutation({
-        url: `/bikes/${bikeId}/issues/${deletingIssue._id}`,
+        url: `/bikes/${bikeId}/issues/${deletingIssue?._id}`,
       });
       if (result?.success) {
         toast.success("Issue deleted");
@@ -92,7 +92,7 @@ export default function BikeIssue() {
   ) => {
     try {
       const result = await toggleStatusMutation({
-        url: `/bikes/${bikeId}/issues/${issue._id}/status`,
+        url: `/bikes/${bikeId}/issues/${issue?._id}/status`,
         payload: { status: nextStatus },
       });
       if (result?.success) {
@@ -107,12 +107,12 @@ export default function BikeIssue() {
   };
 
   // open/resolved split is exact when the whole list fits on one page
-  const openCount = issues.filter((i) => i.status === "open").length;
+  const openCount = issues?.filter((i) => i?.status === "open")?.length;
   const subtitle =
     isLoading || meta === 0
       ? ""
       : statusFilter === "all" && totalPages <= 1
-        ? `${openCount} open · ${issues.length - openCount} resolved`
+        ? `${openCount} open · ${issues?.length - openCount} resolved`
         : `${meta} issue${meta === 1 ? "" : "s"}`;
 
   const addButton = (label: string) => (
@@ -165,7 +165,7 @@ export default function BikeIssue() {
           message={error?.message}
           onRetry={() => refetch()}
         />
-      ) : issues.length === 0 ? (
+      ) : issues?.length === 0 ? (
         <StateCard
           icon={AlertTriangle}
           title={
@@ -176,9 +176,9 @@ export default function BikeIssue() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-          {issues.map((issue) => (
+          {issues?.map((issue) => (
             <BikeIssueCard
-              key={issue._id}
+              key={issue?._id}
               issue={issue}
               onEdit={setEditingIssue}
               onDelete={setDeletingIssue}

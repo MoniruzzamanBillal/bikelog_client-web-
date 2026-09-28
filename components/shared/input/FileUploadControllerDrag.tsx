@@ -40,8 +40,8 @@ export default function FileUploadControllerDrag({
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
+      reader?.readAsDataURL(file);
+      reader.onload = () => resolve(reader?.result as string);
       reader.onerror = (error) => reject(error);
     });
   };
@@ -52,20 +52,20 @@ export default function FileUploadControllerDrag({
       control={control}
       defaultValue={null}
       render={({ field, fieldState }) => {
-        const file: File | null = field.value;
+        const file: File | null = field?.value;
 
         const isImage = previewUrl?.startsWith("data:image");
         const isPdf = previewUrl?.startsWith("data:application/pdf");
 
         const processFile = async (file: File) => {
-          if (!SUPPORTED_FILE_TYPES_Pdf_img.includes(file.type)) {
+          if (!SUPPORTED_FILE_TYPES_Pdf_img?.includes(file?.type)) {
             alert("Allowed: PNG, JPG, WEBP, SVG, PDF");
             return;
           }
 
-          if (file.size > maxSize) {
+          if (file?.size > maxSize) {
             const maxSizeMB = maxSize / (1024 * 1024);
-            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            const fileSizeMB = (file?.size / (1024 * 1024))?.toFixed(2);
 
             console.log(
               `File size (${fileSizeMB}MB) exceeds the ${maxSizeMB}MB limit`,
@@ -81,11 +81,11 @@ export default function FileUploadControllerDrag({
           const base64 = await convertToBase64(file);
 
           setPreviewUrl(base64);
-          field.onChange(file);
+          field?.onChange(file);
         };
 
         const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-          const file = e.target.files?.[0];
+          const file = e?.target?.files?.[0];
           if (!file) return;
 
           await processFile(file);
@@ -93,33 +93,33 @@ export default function FileUploadControllerDrag({
 
         const handleDelete = () => {
           setPreviewUrl(null);
-          field.onChange(null);
+          field?.onChange(null);
         };
 
         const handleDragOver = (e: React.DragEvent) => {
-          e.preventDefault();
-          e.stopPropagation();
+          e?.preventDefault();
+          e?.stopPropagation();
           setIsDragging(true);
         };
 
         const handleDragEnter = (e: React.DragEvent) => {
-          e.preventDefault();
-          e.stopPropagation();
+          e?.preventDefault();
+          e?.stopPropagation();
           setIsDragging(true);
         };
 
         const handleDragLeave = (e: React.DragEvent) => {
-          e.preventDefault();
-          e.stopPropagation();
+          e?.preventDefault();
+          e?.stopPropagation();
           setIsDragging(false);
         };
 
         const handleDrop = async (e: React.DragEvent) => {
-          e.preventDefault();
-          e.stopPropagation();
+          e?.preventDefault();
+          e?.stopPropagation();
           setIsDragging(false);
 
-          const file = e.dataTransfer.files?.[0];
+          const file = e?.dataTransfer?.files?.[0];
           if (!file) return;
 
           await processFile(file);
@@ -215,9 +215,9 @@ export default function FileUploadControllerDrag({
               )}
             </div>
 
-            {fieldState.error && (
+            {fieldState?.error && (
               <p className="text-xs text-destructive mt-1">
-                {fieldState.error.message}
+                {fieldState?.error?.message}
               </p>
             )}
           </div>

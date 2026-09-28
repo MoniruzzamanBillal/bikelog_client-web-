@@ -55,30 +55,30 @@ import BikeFormModal from "../BikeFormModal";
 import { TBike } from "../type/bike.types";
 
 const taka = (n: number) =>
-  `৳${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  `৳${n?.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
 // avg km/l for the stat tile: prefer the last ≤5 exact full-tank periods
 function getAvgMileage(history?: TMileageHistoryResponse) {
   const exact = history?.exactRecords ?? [];
-  if (exact.length > 0) {
+  if (exact?.length > 0) {
     const recent = [...exact]
       .sort(
         (a, b) =>
-          new Date(b.periodEndDate).getTime() -
-          new Date(a.periodEndDate).getTime(),
+          new Date(b?.periodEndDate).getTime() -
+          new Date(a?.periodEndDate).getTime(),
       )
       .slice(0, 5);
     const avg =
-      recent.reduce((sum, r) => sum + r.mileageKmPerLiter, 0) / recent.length;
+      recent?.reduce((sum, r) => sum + r?.mileageKmPerLiter, 0) / recent?.length;
     return {
-      value: avg.toFixed(1),
-      hint: `Last ${recent.length} full-tank period${recent.length === 1 ? "" : "s"} · exact`,
+      value: avg?.toFixed(1),
+      hint: `Last ${recent?.length} full-tank period${recent?.length === 1 ? "" : "s"} · exact`,
     };
   }
   if (history?.approximate) {
     return {
-      value: history.approximate.mileageKmPerLiter.toFixed(1),
-      hint: `Last ${history.approximate.basedOnFuelLogCount} fills · estimate`,
+      value: history?.approximate?.mileageKmPerLiter?.toFixed(1),
+      hint: `Last ${history?.approximate?.basedOnFuelLogCount} fills · estimate`,
     };
   }
   return { value: "—", hint: "Log a full-tank fill to start" };
@@ -93,22 +93,22 @@ type TStat = {
 };
 
 const HubStat = ({ stat }: { stat: TStat }) => {
-  const Icon = stat.icon;
+  const Icon = stat?.icon;
   return (
     <div className="panel flex min-w-0 flex-col gap-1.5 p-4">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Icon className="size-3.5" />
-        <span className="truncate">{stat.label}</span>
+        <span className="truncate">{stat?.label}</span>
       </div>
       <div className="truncate text-[26px] font-medium tracking-[-0.02em] tabular-nums">
-        {stat.value}
-        {stat.unit && (
+        {stat?.value}
+        {stat?.unit && (
           <span className="ml-1 text-[13px] font-normal tracking-normal text-muted-foreground">
-            {stat.unit}
+            {stat?.unit}
           </span>
         )}
       </div>
-      <div className="truncate text-xs text-muted-foreground">{stat.hint}</div>
+      <div className="truncate text-xs text-muted-foreground">{stat?.hint}</div>
     </div>
   );
 };
@@ -161,7 +161,7 @@ const BikeDetailPage = () => {
 
       if (result?.success) {
         toast.success("Bike deleted successfully");
-        router.replace("/dashboard");
+        router?.replace("/dashboard");
       }
     } catch (error) {
       const message = (error as { message?: string })?.message;
@@ -218,23 +218,23 @@ const BikeDetailPage = () => {
   const avgMileage = getAvgMileage(historyData?.data);
   const lifetime = lifetimeData?.data;
   const monthSpend = spendingData?.data?.totalSpending ?? 0;
-  const perDay = monthSpend / now.getDate();
+  const perDay = monthSpend / now?.getDate();
   const recentFuel: TFuelLog[] = recentFuelData?.data?.result ?? [];
 
   const stats: TStat[] = [
     {
       icon: Gauge,
       label: "Odometer",
-      value: bike.currentOdometer.toLocaleString(),
+      value: bike?.currentOdometer?.toLocaleString(),
       unit: "km",
-      hint: `Since ${(bike.initialOdometer ?? 0).toLocaleString()} km at purchase`,
+      hint: `Since ${(bike?.initialOdometer ?? 0)?.toLocaleString()} km at purchase`,
     },
     {
       icon: Droplet,
       label: "Avg mileage",
-      value: avgMileage.value,
-      unit: avgMileage.value === "—" ? undefined : "km/l",
-      hint: avgMileage.hint,
+      value: avgMileage?.value,
+      unit: avgMileage?.value === "—" ? undefined : "km/l",
+      hint: avgMileage?.hint,
     },
     {
       icon: Wallet,
@@ -245,10 +245,10 @@ const BikeDetailPage = () => {
     {
       icon: Route,
       label: "Lifetime distance",
-      value: (lifetime?.totalDistanceKm ?? 0).toLocaleString(),
+      value: (lifetime?.totalDistanceKm ?? 0)?.toLocaleString(),
       unit: "km",
       hint: lifetime
-        ? `${lifetime.fuelLogCount} fill-ups · ${lifetime.totalLitersConsumed.toFixed(1)} L`
+        ? `${lifetime?.fuelLogCount} fill-ups · ${lifetime?.totalLitersConsumed?.toFixed(1)} L`
         : "No fill-ups yet",
     },
   ];
@@ -268,18 +268,18 @@ const BikeDetailPage = () => {
   const facts = [
     {
       label: "Purchased",
-      value: bike.purchaseDate
-        ? format(new Date(bike.purchaseDate), "dd MMM yyyy")
+      value: bike?.purchaseDate
+        ? format(new Date(bike?.purchaseDate), "dd MMM yyyy")
         : "—",
     },
-    { label: "Fuel tank", value: `${bike.fuelTankCapacityLiters} L` },
+    { label: "Fuel tank", value: `${bike?.fuelTankCapacityLiters} L` },
     {
       label: "Initial odometer",
-      value: `${(bike.initialOdometer ?? 0).toLocaleString()} km`,
+      value: `${(bike?.initialOdometer ?? 0)?.toLocaleString()} km`,
     },
     {
       label: "Current odometer",
-      value: `${bike.currentOdometer.toLocaleString()} km`,
+      value: `${bike?.currentOdometer?.toLocaleString()} km`,
     },
   ];
 
@@ -288,17 +288,17 @@ const BikeDetailPage = () => {
       {/* ── desktop header ── */}
       <PageHeader
         className="hidden lg:flex"
-        title={bike.nickname}
+        title={bike?.nickname}
         crumbs={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: bike.nickname },
+          { label: bike?.nickname },
         ]}
         description={
           <span className="mt-1.5 flex items-center gap-2.5">
             <span>
-              {bike.brand} {bike.model}
+              {bike?.brand} {bike?.model}
             </span>
-            <StatusTag>{bike.registrationNumber}</StatusTag>
+            <StatusTag>{bike?.registrationNumber}</StatusTag>
           </span>
         }
         actions={
@@ -327,7 +327,7 @@ const BikeDetailPage = () => {
               Odometer
             </div>
             <div className="text-[30px] font-medium tracking-[-0.02em] tabular-nums">
-              {bike.currentOdometer.toLocaleString()}
+              {bike?.currentOdometer?.toLocaleString()}
               <span className="ml-1 text-sm font-normal tracking-normal text-muted-foreground">
                 km
               </span>
@@ -364,8 +364,8 @@ const BikeDetailPage = () => {
           <div>
             <div className="text-muted-foreground">Avg mileage</div>
             <div className="mt-0.5 text-[15px]">
-              {avgMileage.value}
-              {avgMileage.value !== "—" && " km/l"}
+              {avgMileage?.value}
+              {avgMileage?.value !== "—" && " km/l"}
             </div>
           </div>
           <div>
@@ -377,7 +377,7 @@ const BikeDetailPage = () => {
           <div>
             <div className="text-muted-foreground">Lifetime</div>
             <div className="mt-0.5 text-[15px]">
-              {(lifetime?.totalDistanceKm ?? 0).toLocaleString()} km
+              {(lifetime?.totalDistanceKm ?? 0)?.toLocaleString()} km
             </div>
           </div>
         </div>
@@ -385,8 +385,8 @@ const BikeDetailPage = () => {
 
       {/* ── desktop stat tiles ── */}
       <div className="hidden grid-cols-2 gap-3 lg:grid xl:grid-cols-4">
-        {stats.map((stat) => (
-          <HubStat key={stat.label} stat={stat} />
+        {stats?.map((stat) => (
+          <HubStat key={stat?.label} stat={stat} />
         ))}
       </div>
 
@@ -394,7 +394,7 @@ const BikeDetailPage = () => {
 
       {/* ── mobile section tiles ── */}
       <div className="grid grid-cols-3 gap-2 lg:hidden">
-        {tiles.map(({ href, label, icon: Icon }) => (
+        {tiles?.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={`/bikes/${bikeId}/${href}`}
@@ -418,7 +418,7 @@ const BikeDetailPage = () => {
               All fuel logs →
             </Link>
           </div>
-          {recentFuel.length === 0 ? (
+          {recentFuel?.length === 0 ? (
             <p className="py-6 text-sm text-muted-foreground">
               No fill-ups logged yet.
             </p>
@@ -440,18 +440,18 @@ const BikeDetailPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentFuel.map((f) => (
-                    <tr key={f._id} className="row-fade h-10">
+                  {recentFuel?.map((f) => (
+                    <tr key={f?._id} className="row-fade h-10">
                       <td className="px-2 pl-0 whitespace-nowrap">
-                        {format(new Date(f.date), "dd MMM yyyy")}
+                        {format(new Date(f?.date), "dd MMM yyyy")}
                       </td>
                       <td className="px-2 whitespace-nowrap">
-                        {f.odometerReading.toLocaleString()} km
+                        {f?.odometerReading?.toLocaleString()} km
                       </td>
-                      <td className="px-2">{f.litersAdded.toFixed(2)} L</td>
+                      <td className="px-2">{f?.litersAdded?.toFixed(2)} L</td>
                       <td className="px-2 whitespace-nowrap">
                         ৳
-                        {f.totalCost.toLocaleString(undefined, {
+                        {f?.totalCost?.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -459,12 +459,12 @@ const BikeDetailPage = () => {
                       <td
                         className={cn(
                           "px-2",
-                          f.isFullTank
+                          f?.isFullTank
                             ? "text-success"
                             : "text-muted-foreground",
                         )}
                       >
-                        {f.isFullTank ? "Full" : "Partial"}
+                        {f?.isFullTank ? "Full" : "Partial"}
                       </td>
                     </tr>
                   ))}
@@ -477,10 +477,10 @@ const BikeDetailPage = () => {
         <div className="flex min-w-0 flex-col gap-4">
           <AiMileageInsightCard bikeId={bikeId} />
           <div className="panel grid grid-cols-2 gap-x-4 gap-y-2.5 px-[18px] py-4 text-[13px]">
-            {facts.map((f) => (
-              <div key={f.label}>
-                <div className="text-xs text-muted-foreground">{f.label}</div>
-                <div className="tabular-nums">{f.value}</div>
+            {facts?.map((f) => (
+              <div key={f?.label}>
+                <div className="text-xs text-muted-foreground">{f?.label}</div>
+                <div className="tabular-nums">{f?.value}</div>
               </div>
             ))}
           </div>
@@ -506,7 +506,7 @@ const BikeDetailPage = () => {
         showDeleteIcon
       >
         <p className="text-sm text-muted-foreground">
-          This will permanently remove &quot;{bike.nickname}&quot; and cannot be
+          This will permanently remove &quot;{bike?.nickname}&quot; and cannot be
           undone.
         </p>
         <ModalActionButtons

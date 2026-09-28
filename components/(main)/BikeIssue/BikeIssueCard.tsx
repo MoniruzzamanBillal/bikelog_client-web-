@@ -25,21 +25,21 @@ export default function BikeIssueCard({
   onDelete,
   onToggleStatus,
 }: TProps) {
-  const isOpen = issue.status === "open";
+  const isOpen = issue?.status === "open";
 
   const { mutateAsync: addImages, isPending: isAdding } = usePost([
-    ["bikeIssues", issue.bike],
+    ["bikeIssues", issue?.bike],
   ]);
   const { mutateAsync: removeImage, isPending: isRemoving } = useDelete([
-    ["bikeIssues", issue.bike],
+    ["bikeIssues", issue?.bike],
   ]);
 
   const handleAddImages = async (files: File[]) => {
     try {
       const formData = new FormData();
-      files.forEach((file) => formData.append("images", file));
+      files?.forEach((file) => formData?.append("images", file));
       await addImages({
-        url: `/bikes/${issue.bike}/issues/${issue._id}/images`,
+        url: `/bikes/${issue?.bike}/issues/${issue?._id}/images`,
         payload: formData,
       });
       toast.success("Images added");
@@ -52,7 +52,7 @@ export default function BikeIssueCard({
   const handleRemoveImage = async (imageId: string) => {
     try {
       await removeImage({
-        url: `/bikes/${issue.bike}/issues/${issue._id}/images/${imageId}`,
+        url: `/bikes/${issue?.bike}/issues/${issue?._id}/images/${imageId}`,
       });
       toast.success("Image deleted");
     } catch (error) {
@@ -66,13 +66,13 @@ export default function BikeIssueCard({
       <div className="flex items-start gap-2.5">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium">{issue.title}</span>
+            <span className="font-medium">{issue?.title}</span>
             <StatusTag tone={isOpen ? "warning" : "success"}>
               {isOpen ? "Open" : "Resolved"}
             </StatusTag>
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground">
-            Reported {format(new Date(issue.dateReported), "dd MMM yyyy")}
+            Reported {format(new Date(issue?.dateReported), "dd MMM yyyy")}
           </div>
         </div>
         <div className="flex shrink-0 gap-0.5 text-muted-foreground">
@@ -110,14 +110,14 @@ export default function BikeIssueCard({
         </div>
       </div>
 
-      {issue.description && (
+      {issue?.description && (
         <p className="m-0 text-[13px] text-pretty text-muted-foreground">
-          {issue.description}
+          {issue?.description}
         </p>
       )}
 
       <ImageGalleryField
-        images={issue.images ?? []}
+        images={issue?.images ?? []}
         onAdd={handleAddImages}
         onRemove={handleRemoveImage}
         uploading={isAdding || isRemoving}

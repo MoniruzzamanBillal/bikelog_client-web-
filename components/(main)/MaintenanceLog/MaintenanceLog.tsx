@@ -20,7 +20,7 @@ import { TMaintenanceLog } from "./type/maintenance-log.types";
 
 export default function MaintenanceLog() {
   const params = useParams();
-  const bikeId = params.bikeId as string;
+  const bikeId = params?.bikeId as string;
 
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
@@ -32,7 +32,7 @@ export default function MaintenanceLog() {
     result: TMaintenanceLog[];
     meta: number;
   }>(
-    ["maintenanceLogs", bikeId, page.toString()],
+    ["maintenanceLogs", bikeId, page?.toString()],
     `/bikes/${bikeId}/maintenance-logs?page=${page}&limit=${limit}&sort=-serviceDate`,
   );
 
@@ -61,7 +61,7 @@ export default function MaintenanceLog() {
     if (!deletingLog) return;
     try {
       const result = await deleteMutation({
-        url: `/bikes/${bikeId}/maintenance-logs/${deletingLog._id}`,
+        url: `/bikes/${bikeId}/maintenance-logs/${deletingLog?._id}`,
       });
       if (result?.success) {
         toast.success("Maintenance log deleted");
@@ -123,7 +123,7 @@ export default function MaintenanceLog() {
           message={error?.message}
           onRetry={() => refetch()}
         />
-      ) : logs.length === 0 ? (
+      ) : logs?.length === 0 ? (
         <StateCard
           icon={Wrench}
           title="No service history yet"
@@ -132,9 +132,9 @@ export default function MaintenanceLog() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-          {logs.map((log: TMaintenanceLog) => (
+          {logs?.map((log: TMaintenanceLog) => (
             <MaintenanceLogCard
-              key={log._id}
+              key={log?._id}
               log={log}
               maintenanceTypes={maintenanceTypes}
               onEdit={setEditingLog}
