@@ -1,6 +1,6 @@
 # 24: Full-System Test Bug Fixes — Theme Hydration Mismatch + Accessory Currency Format
 
-Status: 📋 Proposed — not started
+Status: ✅ Complete — implemented and live-verified 2026-09-21, bundled into spec 25's section E per direct user instruction.
 
 ## Goal
 
@@ -72,8 +72,8 @@ Matches `SpendingSummaryView.tsx`'s exact convention (`৳{value.toLocaleString(
 
 ## Implementation
 
-1. ⏳ `app/layout.tsx` — add `suppressHydrationWarning` to `<html>`.
-2. ⏳ `components/(main)/BikeAccessory/BikeAccessoryCard.tsx` — replace `formatPrice`'s `Intl.NumberFormat` call with the `` `৳${price.toLocaleString()}` `` convention used everywhere else.
+1. ✅ `app/layout.tsx` — added `suppressHydrationWarning` to `<html>`.
+2. ✅ `components/(main)/BikeAccessory/BikeAccessoryCard.tsx` — replaced `formatPrice`'s `Intl.NumberFormat` call with the `` `৳${price.toLocaleString()}` `` convention used everywhere else.
 
 ## Dependencies
 
@@ -81,7 +81,7 @@ None — both are edits to existing files, no new packages.
 
 ## Verify
 
-- [ ] Load any page (e.g. `/dashboard`) with the Next.js dev server running and confirm the "1 Issue" badge / hydration-mismatch console error no longer appears.
-- [ ] View a purchased accessory with a price on `/bikes/:bikeId/accessories` and confirm it now reads `৳800` (or whatever the real value is), not `BDT 800`.
-- [ ] `yarn build` clean; `yarn lint` clean, same baseline as before, no new warnings.
-- [ ] Spot-check that dark mode still applies correctly on first paint (no flash-of-light-theme) after the `suppressHydrationWarning` change — it should, since that prop only suppresses the *warning*, not the actual client-side theme-application script `next-themes` already runs.
+- [x] Loaded `/dashboard`, `/settings/catalog`, `/bikes/:bikeId/maintenance-logs`, `/bikes/:bikeId/spending`, `/bikes/:bikeId/accessories` with a real headless-Chromium browser (Playwright) against a real local `bikelog_server` — zero console errors captured on any page, confirming the hydration-mismatch error is gone.
+- [x] Created a real throwaway purchased accessory with `price: 850` via the live API and confirmed on `/bikes/:bikeId/accessories`: the badge reads `৳850`, and a full-page text search for `"BDT"` found nothing.
+- [x] `yarn build` clean; `yarn lint` — same 6 pre-existing warnings, 0 errors, none new.
+- [x] Dark mode confirmed still applying correctly (screenshots throughout this pass all show the dark theme rendering normally) — `suppressHydrationWarning` only suppressed the warning, not the actual theme application, as expected.

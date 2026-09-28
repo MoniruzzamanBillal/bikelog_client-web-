@@ -7,9 +7,10 @@ import { TFuelLog } from "./type/fuel-log.types";
 
 type TProps = {
   fuelLog: TFuelLog;
+  compact?: boolean;
 };
 
-export default function FuelLogReceiptCell({ fuelLog }: TProps) {
+export default function FuelLogReceiptCell({ fuelLog, compact = true }: TProps) {
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
     ["fuelLogs", fuelLog.bike],
   ]);
@@ -51,6 +52,7 @@ export default function FuelLogReceiptCell({ fuelLog }: TProps) {
       onDelete={handleDelete}
       uploading={isUploading || isDeleting}
       label="Receipt"
+      compact={compact}
     />
   );
 }

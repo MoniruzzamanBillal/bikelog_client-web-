@@ -1,14 +1,25 @@
 "use client";
 
 import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
+import PageHeader from "@/components/shared/PageHeader/PageHeader";
+import StateCard from "@/components/shared/StateCard/StateCard";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDelete, useFetchData, usePost } from "@/hooks/useApi";
 import { format } from "date-fns";
-import { BookOpen, ExternalLink, Loader2, Trash2, Upload } from "lucide-react";
+import {
+  BookOpen,
+  ExternalLink,
+  Loader2,
+  Sparkles,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { TBike } from "../Bike/type/bike.types";
 import { TBikeManualStatus } from "./type/bike-manual.types";
 
 export default function BikeManual() {
@@ -16,10 +27,16 @@ export default function BikeManual() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const { data, isLoading } = useFetchData<TBikeManualStatus>(
-    ["bikeManual", bikeId],
-    `/bikes/${bikeId}/manual`,
-    { enabled: !!bikeId },
+  const { data, isLoading, isError, error, refetch } =
+    useFetchData<TBikeManualStatus>(
+      ["bikeManual", bikeId],
+      `/bikes/${bikeId}/manual`,
+      { enabled: !!bikeId },
+    );
+
+  const { data: bikeData } = useFetchData<TBike>(
+    ["bikes", bikeId],
+    `/bikes/${bikeId}`,
   );
 
   const { mutateAsync: uploadManual, isPending: isUploading } = usePost([
@@ -29,8 +46,7 @@ export default function BikeManual() {
     ["bikeManual", bikeId],
   ]);
 
-  const status = data?.data;
-  const manual = status?.manual;
+  const manual = data?.data?.manual;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,101 +76,133 @@ export default function BikeManual() {
   };
 
   const isBusy = isUploading || isDeleting;
-
-  if (isLoading) {
-    return <p className="p-4 text-sm text-muted-foreground">Loading...</p>;
-  }
+  const pickFile = () => !isBusy && inputRef.current?.click();
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="rounded-lg border border-border bg-card p-4">
-        <h1 className="text-lg font-semibold">Owner Manual</h1>
+    <div className="flex flex-col gap-3.5">
+      <PageHeader
+        title="Manual"
+        crumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          {
+            label: bikeData?.data?.nickname ?? "Bike",
+            href: `/bikes/${bikeId}`,
+          },
+          { label: "Manual" },
+        ]}
+        description="One PDF per bike"
+      />
 
-        {!manual ? (
-          <button
-            type="button"
-            onClick={() => !isBusy && inputRef.current?.click()}
-            disabled={isBusy}
-            className="mt-4 flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground hover:border-primary disabled:opacity-50"
-          >
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Skeleton className="h-[150px] rounded-[10px]" />
+        </div>
+      ) : isError ? (
+        <StateCard
+          variant="error"
+          title="Couldn’t load the manual"
+          message={error?.message}
+          onRetry={() => refetch()}
+        />
+      ) : !manual ? (
+        <button
+          type="button"
+          onClick={pickFile}
+          disabled={isBusy}
+          className="flex max-w-[620px] flex-col items-center justify-center gap-2.5 rounded-[10px] border border-dashed border-input px-6 py-11 text-center transition-colors hover:border-primary disabled:opacity-50"
+        >
+          <span className="grid size-11 place-items-center rounded-xl text-primary shadow-glow">
             {isUploading ? (
-              <Loader2 className="size-6 animate-spin" />
+              <Loader2 className="size-5 animate-spin" />
             ) : (
-              <BookOpen className="size-6" />
+              <Upload className="size-5" />
             )}
-            <span className="text-sm">
-              No manual uploaded yet — upload a PDF to let the AI Assistant
-              answer questions from it
-            </span>
-          </button>
-        ) : (
-          <div className="mt-4 space-y-3">
-            <div>
-              <p className="text-sm font-medium">{manual.originalName}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Uploaded {format(new Date(manual.uploadedAt), "dd-MMM-yyyy")}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {manual.chunkCount} section
-                {manual.chunkCount === 1 ? "" : "s"} indexed for AI chat
-              </p>
+          </span>
+          <span className="text-base font-medium">
+            {isUploading ? "Uploading…" : "Upload the owner’s manual"}
+          </span>
+          <span className="max-w-[380px] text-[13px] text-muted-foreground">
+            A PDF of the manual. The AI Assistant will answer service questions
+            from it.
+          </span>
+          <span className="mt-1 inline-flex h-10 items-center rounded-lg border border-primary px-3.5 text-sm font-medium text-primary">
+            Choose PDF
+          </span>
+        </button>
+      ) : (
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+          <div className="panel flex flex-col gap-3.5 p-[18px]">
+            <div className="flex items-center gap-3.5">
+              <div className="grid h-16 w-[52px] shrink-0 place-items-center rounded-md bg-accent text-accent-foreground">
+                <BookOpen className="size-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="truncate font-medium">{manual.originalName}</div>
+                <div className="mt-0.5 text-[12.5px] text-muted-foreground">
+                  Uploaded {format(new Date(manual.uploadedAt), "dd MMM yyyy")}
+                </div>
+                <div className="mt-0.5 text-[12.5px] text-success">
+                  {manual.chunkCount} section
+                  {manual.chunkCount === 1 ? "" : "s"} indexed for AI chat
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" className="h-10" asChild>
                 <a href={manual.url} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="size-4" />
+                  <ExternalLink />
                   View PDF
                 </a>
               </Button>
-
               <Button
                 variant="outline"
-                size="sm"
-                onClick={() => !isBusy && inputRef.current?.click()}
+                className="h-10"
+                onClick={pickFile}
                 disabled={isBusy}
               >
-                {isUploading ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Upload className="size-4" />
-                )}
+                {isUploading ? <Loader2 className="animate-spin" /> : <Upload />}
                 Replace
               </Button>
-
               <Button
                 variant="destructive"
-                size="sm"
+                className="h-10"
                 onClick={() => setConfirmOpen(true)}
                 disabled={isBusy}
               >
-                {isDeleting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Trash2 className="size-4" />
-                )}
+                {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />}
                 Delete
               </Button>
             </div>
+          </div>
 
+          <div className="flex flex-col gap-2.5 rounded-[10px] bg-card p-[18px] shadow-glow">
+            <div className="flex items-center gap-1.5 text-[11px] tracking-[0.1em] text-primary uppercase">
+              <Sparkles className="size-3.5" />
+              Grounds the AI Assistant
+            </div>
+            <p className="m-0 text-[13.5px] text-pretty">
+              Questions like “What’s the recommended chain slack?” are answered
+              from the most relevant pages of this manual.
+            </p>
             <Link
               href={`/bikes/${bikeId}/assistant`}
-              className="inline-block text-sm text-primary underline-offset-4 hover:underline"
+              className="text-[13px] text-primary hover:underline"
             >
-              Ask the AI Assistant about this manual
+              Ask the AI Assistant →
             </Link>
           </div>
-        )}
+        </div>
+      )}
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept="application/pdf"
-          className="hidden"
-          onChange={handleFileChange}
-          disabled={isBusy}
-        />
-      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileChange}
+        disabled={isBusy}
+      />
 
       <ConfirmDeleteModal
         open={confirmOpen}

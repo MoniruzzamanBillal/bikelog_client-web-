@@ -1,6 +1,10 @@
 "use client";
 
+import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
+import PageHeader from "@/components/shared/PageHeader/PageHeader";
 import PrimaryButton from "@/components/shared/PrimaryButton/PrimaryButton";
+import StateCard from "@/components/shared/StateCard/StateCard";
+import { TablePagination } from "@/components/shared/table/TablePagination";
 import {
   Select,
   SelectContent,
@@ -8,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TablePagination } from "@/components/shared/table/TablePagination";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDelete, useFetchData } from "@/hooks/useApi";
-import { Plus } from "lucide-react";
+import { Plus, ShoppingBag } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TBike } from "../Bike/type/bike.types";
 import BikeAccessoryCard from "./BikeAccessoryCard";
 import BikeAccessoryFormModal from "./BikeAccessoryFormModal";
 import {
@@ -26,6 +31,12 @@ import {
 type TStatusFilter = "all" | TAccessoryStatus;
 type TUrgencyFilter = "all" | TAccessoryUrgency;
 
+const STATUS_GROUPS: { status: TAccessoryStatus; label: string }[] = [
+  { status: "pending", label: "Pending" },
+  { status: "purchased", label: "Purchased" },
+  { status: "cancelled", label: "Cancelled" },
+];
+
 export default function BikeAccessory() {
   const params = useParams();
   const bikeId = params.bikeId as string;
@@ -36,25 +47,31 @@ export default function BikeAccessory() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editingAccessory, setEditingAccessory] =
     useState<TBikeAccessory | null>(null);
+  const [deletingAccessory, setDeletingAccessory] =
+    useState<TBikeAccessory | null>(null);
   const limit = 20;
 
-  const { data, isLoading } = useFetchData<TBikeAccessoriesApiResponse>(
-    ["bikeAccessories", bikeId, page.toString(), statusFilter, urgencyFilter],
-    `/bikes/${bikeId}/accessories?page=${page}&limit=${limit}${
-      statusFilter !== "all" ? `&status=${statusFilter}` : ""
-    }${urgencyFilter !== "all" ? `&urgency=${urgencyFilter}` : ""}`,
+  const { data, isLoading, isError, error, refetch } =
+    useFetchData<TBikeAccessoriesApiResponse>(
+      ["bikeAccessories", bikeId, page.toString(), statusFilter, urgencyFilter],
+      `/bikes/${bikeId}/accessories?page=${page}&limit=${limit}${
+        statusFilter !== "all" ? `&status=${statusFilter}` : ""
+      }${urgencyFilter !== "all" ? `&urgency=${urgencyFilter}` : ""}`,
+    );
+
+  const { data: bikeData } = useFetchData<TBike>(
+    ["bikes", bikeId],
+    `/bikes/${bikeId}`,
   );
 
-  const { mutateAsync: deleteMutation } = useDelete([
+  const { mutateAsync: deleteMutation, isPending: isDeleting } = useDelete([
     ["bikeAccessories", bikeId],
+    ["spending", bikeId],
   ]);
 
   const accessories = data?.data?.result ?? [];
   const meta = data?.data?.meta ?? 0;
   const totalPages = Math.ceil(meta / limit);
-
-  const handleEdit = (accessory: TBikeAccessory) =>
-    setEditingAccessory(accessory);
 
   const handleStatusFilterChange = (value: TStatusFilter) => {
     setStatusFilter(value);
@@ -66,11 +83,11 @@ export default function BikeAccessory() {
     setPage(1);
   };
 
-  const handleDelete = async (accessory: TBikeAccessory) => {
-    if (!confirm("Delete this accessory?")) return;
+  const handleConfirmDelete = async () => {
+    if (!deletingAccessory) return;
     try {
       const result = await deleteMutation({
-        url: `/bikes/${bikeId}/accessories/${accessory._id}`,
+        url: `/bikes/${bikeId}/accessories/${deletingAccessory._id}`,
       });
       if (result?.success) {
         toast.success("Accessory deleted");
@@ -78,18 +95,59 @@ export default function BikeAccessory() {
     } catch (error) {
       const message = (error as { message?: string })?.message;
       toast.error(message ?? "Failed to delete");
+    } finally {
+      setDeletingAccessory(null);
     }
   };
 
+  const groups = STATUS_GROUPS.map((g) => ({
+    ...g,
+    items: accessories.filter((a) => a.status === g.status),
+  })).filter((g) => g.items.length > 0);
+
+  const subtitle =
+    isLoading || meta === 0
+      ? ""
+      : groups.map((g) => `${g.items.length} ${g.label.toLowerCase()}`).join(" · ");
+
+  const addButton = (label: string) => (
+    <PrimaryButton onClick={() => setCreateOpen(true)}>
+      <Plus className="size-4" />
+      {label}
+    </PrimaryButton>
+  );
+
+  const renderCard = (accessory: TBikeAccessory) => (
+    <BikeAccessoryCard
+      key={accessory._id}
+      accessory={accessory}
+      onEdit={setEditingAccessory}
+      onDelete={setDeletingAccessory}
+    />
+  );
+
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Accessories</h1>
-        <PrimaryButton onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-1 size-4" />
-          Add
-        </PrimaryButton>
-      </div>
+    <div className="flex flex-col gap-3.5">
+      <PageHeader
+        title="Accessories"
+        crumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          {
+            label: bikeData?.data?.nickname ?? "Bike",
+            href: `/bikes/${bikeId}`,
+          },
+          { label: "Accessories" },
+        ]}
+        description={subtitle}
+        actions={
+          <>
+            <span className="lg:hidden">{addButton("Add")}</span>
+            <span className="hidden lg:inline-flex">
+              {addButton("Add accessory")}
+            </span>
+          </>
+        }
+      />
 
       <div className="flex flex-wrap gap-2">
         <Select
@@ -98,7 +156,7 @@ export default function BikeAccessory() {
             handleStatusFilterChange(value as TStatusFilter)
           }
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger size="sm" className="w-[150px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent position="popper">
@@ -115,7 +173,7 @@ export default function BikeAccessory() {
             handleUrgencyFilterChange(value as TUrgencyFilter)
           }
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger size="sm" className="w-[150px]">
             <SelectValue placeholder="Filter by urgency" />
           </SelectTrigger>
           <SelectContent position="popper">
@@ -128,20 +186,43 @@ export default function BikeAccessory() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      ) : accessories.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No accessories yet.</p>
-      ) : (
-        <div className="space-y-3">
-          {accessories.map((accessory) => (
-            <BikeAccessoryCard
-              key={accessory._id}
-              accessory={accessory}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 xl:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-20 rounded-[10px]" />
           ))}
         </div>
+      ) : isError ? (
+        <StateCard
+          variant="error"
+          title="Couldn’t load accessories"
+          message={error?.message}
+          onRetry={() => refetch()}
+        />
+      ) : accessories.length === 0 ? (
+        <StateCard
+          icon={ShoppingBag}
+          title={
+            statusFilter === "all" && urgencyFilter === "all"
+              ? "Wishlist is empty"
+              : "No accessories match these filters"
+          }
+          message="Track accessories you plan to buy. Marking one purchased adds its price to spending."
+          action={addButton("Add accessory")}
+        />
+      ) : (
+        groups.map((group) => (
+          <section key={group.status} className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-xs tracking-[0.08em] text-muted-foreground uppercase">
+              {group.label}
+              <span className="tracking-normal tabular-nums">
+                {group.items.length}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 xl:grid-cols-3">
+              {group.items.map(renderCard)}
+            </div>
+          </section>
+        ))
       )}
 
       {!isLoading && totalPages > 1 && (
@@ -151,7 +232,7 @@ export default function BikeAccessory() {
           totalItems={meta}
           itemsPerPage={limit}
           onPageChange={setPage}
-          className="rounded-lg border border-border bg-card"
+          className="panel border-t-0"
         />
       )}
 
@@ -171,6 +252,15 @@ export default function BikeAccessory() {
           accessory={editingAccessory}
         />
       )}
+
+      <ConfirmDeleteModal
+        open={!!deletingAccessory}
+        onClose={() => setDeletingAccessory(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete accessory?"
+        description="This accessory will be permanently removed and cannot be undone."
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

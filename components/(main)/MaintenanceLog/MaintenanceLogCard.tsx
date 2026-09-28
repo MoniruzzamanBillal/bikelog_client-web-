@@ -1,11 +1,13 @@
 "use client";
 
 import ImageUploadThumb from "@/components/shared/input/ImageUploadThumb";
+import StatusTag from "@/components/shared/StatusTag/StatusTag";
 import { useDelete, usePut } from "@/hooks/useApi";
+import { format } from "date-fns";
 import { SquarePen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { TMaintenanceLog } from "./type/maintenance-log.types";
 import { TMaintenanceType } from "../SettingsCatalog/type/maintenance-type.types";
+import { TMaintenanceLog } from "./type/maintenance-log.types";
 
 type TProps = {
   log: TMaintenanceLog;
@@ -27,6 +29,9 @@ function getTypeName(
   }
   return "Maintenance";
 }
+
+const iconBtn =
+  "grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover";
 
 export default function MaintenanceLogCard({
   log,
@@ -68,62 +73,98 @@ export default function MaintenanceLogCard({
     }
   };
 
+  const oilName =
+    typeof log.oilType === "object" && log.oilType?.name
+      ? log.oilType.name
+      : undefined;
+
+  const nextDue =
+    log.nextDueOdometer != null
+      ? `${log.nextDueOdometer.toLocaleString()} km`
+      : log.nextDueDate
+        ? format(new Date(log.nextDueDate), "dd MMM yyyy")
+        : "—";
+
+  const hasMeta =
+    !!log.serviceCenter || (log.partsReplaced?.length ?? 0) > 0;
+
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-start justify-between">
-        <div className="flex gap-3">
-          <ImageUploadThumb
-            imageUrl={log.serviceImage?.url}
-            onUpload={handleImageUpload}
-            onDelete={handleImageDelete}
-            uploading={isUploading || isDeleting}
-            label="Service"
-          />
-          <div>
-            <p className="text-sm font-medium">
+    <div className="panel flex flex-col gap-2.5 p-3.5">
+      <div className="flex items-start gap-3">
+        <ImageUploadThumb
+          imageUrl={log.serviceImage?.url}
+          onUpload={handleImageUpload}
+          onDelete={handleImageDelete}
+          uploading={isUploading || isDeleting}
+          label="Service"
+          className="size-14"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">
               {getTypeName(log, maintenanceTypes)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(log.serviceDate).toLocaleDateString()} ·{" "}
-              {log.odometerReading.toLocaleString()} km
-            </p>
+            </span>
+            {oilName && <StatusTag tone="accent">{oilName}</StatusTag>}
+          </div>
+          <div className="mt-0.5 text-xs text-muted-foreground tabular-nums">
+            {format(new Date(log.serviceDate), "dd MMM yyyy")} ·{" "}
+            {log.odometerReading.toLocaleString()} km
           </div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-0.5">
           <button
             type="button"
             onClick={() => onEdit(log)}
-            className="rounded p-1 text-muted-foreground hover:text-foreground"
+            className={iconBtn}
             title="Edit"
+            aria-label="Edit maintenance log"
           >
-            <SquarePen className="size-4" />
+            <SquarePen className="size-[15px]" />
           </button>
           <button
             type="button"
             onClick={() => onDelete(log)}
-            className="rounded p-1 text-muted-foreground hover:text-red-600"
+            className={`${iconBtn} hover:text-destructive`}
             title="Delete"
+            aria-label="Delete maintenance log"
           >
-            <Trash2 className="size-4" />
+            <Trash2 className="size-[15px]" />
           </button>
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-        <p>Cost: ৳{log.cost.toLocaleString()}</p>
-        <p>Interval: {log.intervalKmUsed.toLocaleString()} km</p>
-        <p>Next due: {log.nextDueOdometer.toLocaleString()} km</p>
-        {log.serviceCenter && <p>At: {log.serviceCenter}</p>}
+      <div className="grid grid-cols-3 gap-2 text-xs tabular-nums">
+        <div>
+          <div className="text-muted-foreground">Cost</div>
+          <div className="text-[13.5px] font-medium">
+            ৳{log.cost.toLocaleString()}
+          </div>
+        </div>
+        <div>
+          <div className="text-muted-foreground">Interval</div>
+          <div className="text-[13.5px]">
+            {log.intervalKmUsed != null
+              ? `${log.intervalKmUsed.toLocaleString()} km`
+              : "—"}
+          </div>
+        </div>
+        <div>
+          <div className="text-muted-foreground">Next due</div>
+          <div className="text-[13.5px]">{nextDue}</div>
+        </div>
       </div>
 
-      {log.partsReplaced && log.partsReplaced.length > 0 && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Parts: {log.partsReplaced.join(", ")}
-        </p>
+      {hasMeta && (
+        <div className="hidden flex-wrap items-center gap-1.5 text-xs text-muted-foreground lg:flex">
+          {log.serviceCenter && <span>{log.serviceCenter}</span>}
+          {log.partsReplaced?.map((part) => (
+            <StatusTag key={part}>{part}</StatusTag>
+          ))}
+        </div>
       )}
 
       {log.notes && (
-        <p className="mt-1 text-xs text-muted-foreground italic">
+        <p className="m-0 hidden text-[12.5px] text-pretty text-muted-foreground lg:block">
           {log.notes}
         </p>
       )}

@@ -34,9 +34,9 @@ export default function ControlledInput({
       render={({ field, fieldState: { error } }) => (
         <div className="space-y-1">
           {label && (
-            <label className="text-sm font-medium">
+            <label className="mb-1.5 block text-xs text-foreground/70">
               {label}
-              {isRequired && <span className="ml-1 text-red-500">*</span>}
+              {isRequired && <span className="ml-0.5 text-destructive">*</span>}
             </label>
           )}
 
@@ -56,7 +56,7 @@ export default function ControlledInput({
             )}
           </div>
 
-          {error && <p className="text-sm text-red-500">{error.message}</p>}
+          {error && <p className="text-xs text-destructive">{error.message}</p>}
         </div>
       )}
     />

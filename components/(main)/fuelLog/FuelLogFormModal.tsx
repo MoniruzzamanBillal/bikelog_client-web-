@@ -29,13 +29,19 @@ export default function FuelLogFormModal({
 }: TFuelLogFormModalProps) {
   const isEditMode = !!fuelLog;
 
-  const { mutateAsync, isPending: isCreating } = usePost([
+  // a fill moves the odometer, mileage and spending — refresh the hub's stats too
+  const invalidateKeys = [
     ["fuelLogs", bikeId],
-  ]);
+    ["bikes", bikeId],
+    ["mileage"],
+    ["spending", bikeId],
+    ["reminders", bikeId],
+  ];
 
-  const { mutateAsync: updateMutation, isPending: isUpdating } = usePatch([
-    ["fuelLogs", bikeId],
-  ]);
+  const { mutateAsync, isPending: isCreating } = usePost(invalidateKeys);
+
+  const { mutateAsync: updateMutation, isPending: isUpdating } =
+    usePatch(invalidateKeys);
 
   const methods = useForm<TFuelLogFormType>({
     resolver: zodResolver(fuelLogSchema),
@@ -140,8 +146,8 @@ export default function FuelLogFormModal({
           <ControlledDateSelect name="date" label="Date" isRequired />
 
           {/* <div className="space-y-1">
-            <label className="text-sm font-medium">
-              Date<span className="ml-1 text-red-500">*</span>
+            <label className="mb-1.5 block text-xs text-foreground/70">
+              Date<span className="ml-0.5 text-destructive">*</span>
             </label>
             <Controller
               name="date"

@@ -1,11 +1,14 @@
 "use client";
 
 import ImageGalleryField from "@/components/shared/input/ImageGalleryField";
+import StatusTag from "@/components/shared/StatusTag/StatusTag";
 import { useDelete, usePost } from "@/hooks/useApi";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CheckCircle2, RotateCcw, SquarePen, Trash2 } from "lucide-react";
+import { Check, RotateCcw, SquarePen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { TBikeIssue, TBikeIssueStatus } from "./type/bike-issue.types";
+
 type TProps = {
   issue: TBikeIssue;
   onEdit: (issue: TBikeIssue) => void;
@@ -13,10 +16,8 @@ type TProps = {
   onToggleStatus: (issue: TBikeIssue, nextStatus: TBikeIssueStatus) => void;
 };
 
-const ISSUE_STATUS_BADGE: Record<TBikeIssueStatus, string> = {
-  open: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
-  resolved: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-};
+const iconBtn =
+  "grid size-8 place-items-center rounded-md transition-colors hover:bg-surface-hover";
 
 export default function BikeIssueCard({
   issue,
@@ -61,67 +62,66 @@ export default function BikeIssueCard({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">{issue.title}</p>
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ISSUE_STATUS_BADGE[issue.status]}`}
-            >
-              {issue.status === "open" ? "Open" : "Resolved"}
-            </span>
+    <div className="panel flex flex-col gap-2.5 p-3.5">
+      <div className="flex items-start gap-2.5">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">{issue.title}</span>
+            <StatusTag tone={isOpen ? "warning" : "success"}>
+              {isOpen ? "Open" : "Resolved"}
+            </StatusTag>
           </div>
-          <p className="text-xs text-muted-foreground pt-2 ">
-            {format(new Date(issue.dateReported), "dd-MMM-yyyy")}
-          </p>
+          <div className="mt-0.5 text-xs text-muted-foreground">
+            Reported {format(new Date(issue.dateReported), "dd MMM yyyy")}
+          </div>
         </div>
-        <div className="flex shrink-0 gap-1">
+        <div className="flex shrink-0 gap-0.5 text-muted-foreground">
           <button
             type="button"
             onClick={() => onEdit(issue)}
-            className="rounded p-1 text-muted-foreground hover:text-foreground"
+            className={iconBtn}
             title="Edit"
+            aria-label="Edit issue"
           >
-            <SquarePen className="size-4" />
+            <SquarePen className="size-[15px]" />
           </button>
           <button
             type="button"
             onClick={() => onToggleStatus(issue, isOpen ? "resolved" : "open")}
-            className="rounded p-1 text-muted-foreground hover:text-foreground"
-            title={isOpen ? "Mark Resolved" : "Reopen"}
+            className={cn(iconBtn, isOpen && "text-success")}
+            title={isOpen ? "Mark resolved" : "Reopen"}
+            aria-label={isOpen ? "Mark resolved" : "Reopen"}
           >
             {isOpen ? (
-              <CheckCircle2 className="size-4" />
+              <Check className="size-[15px]" />
             ) : (
-              <RotateCcw className="size-4" />
+              <RotateCcw className="size-[15px]" />
             )}
           </button>
           <button
             type="button"
             onClick={() => onDelete(issue)}
-            className="rounded p-1 text-muted-foreground hover:text-red-600"
+            className={cn(iconBtn, "hover:text-destructive")}
             title="Delete"
+            aria-label="Delete issue"
           >
-            <Trash2 className="size-4" />
+            <Trash2 className="size-[15px]" />
           </button>
         </div>
       </div>
 
       {issue.description && (
-        <p className="mt-2 text-xs text-muted-foreground">
+        <p className="m-0 text-[13px] text-pretty text-muted-foreground">
           {issue.description}
         </p>
       )}
 
-      <div className="mt-3">
-        <ImageGalleryField
-          images={issue.images ?? []}
-          onAdd={handleAddImages}
-          onRemove={handleRemoveImage}
-          uploading={isAdding || isRemoving}
-        />
-      </div>
+      <ImageGalleryField
+        images={issue.images ?? []}
+        onAdd={handleAddImages}
+        onRemove={handleRemoveImage}
+        uploading={isAdding || isRemoving}
+      />
     </div>
   );
 }

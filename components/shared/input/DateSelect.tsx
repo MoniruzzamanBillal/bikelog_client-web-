@@ -65,12 +65,12 @@ export default function DateSelect({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="border border-surface-border py-2.5 px-3 rounded-[8px] flex items-center gap-x-2 cursor-pointer">
+      <PopoverTrigger className="flex h-10 w-full cursor-pointer items-center gap-x-2 rounded-lg border border-input bg-card px-2.5 text-left transition-colors hover:border-foreground/40">
         <div>
-          <CalendarRange className=" size-5 " />
+          <CalendarRange className="size-4 text-muted-foreground" />
         </div>
 
-        <span className="font-semibold text-[0.875rem] text-surface-text-muted">
+        <span className="text-sm text-foreground tabular-nums">
           {formatDate()}
         </span>
       </PopoverTrigger>
@@ -83,7 +83,7 @@ export default function DateSelect({
             onSelect={handleSingleSelect}
             defaultMonth={defaultMonth}
             captionLayout="dropdown"
-            className="bg-surface border border-table-border"
+            className="bg-popover"
           />
         ) : (
           <Calendar
@@ -92,7 +92,7 @@ export default function DateSelect({
             onSelect={handleRangeSelect}
             defaultMonth={defaultMonth}
             captionLayout="dropdown"
-            className="bg-surface border border-table-border"
+            className="bg-popover"
           />
         )}
       </PopoverContent>

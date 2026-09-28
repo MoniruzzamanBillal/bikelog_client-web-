@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AuthLayout from "@/components/feature/auth/AuthLayout";
 import RegisterForm from "@/components/feature/auth/RegisterForm";
 import { getToken } from "@/lib/tokenManager";
 
@@ -21,11 +22,11 @@ export default function RegisterPage() {
   if (!checked) return null;
 
   return (
-    <div className="flex min-h-dvh items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-center text-xl font-semibold">Register</h1>
-        <RegisterForm />
-      </div>
-    </div>
+    <AuthLayout
+      heading="Create your account"
+      lede="Start logging your first bike in a minute."
+    >
+      <RegisterForm />
+    </AuthLayout>
   );
 }

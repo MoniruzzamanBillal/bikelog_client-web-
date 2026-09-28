@@ -45,9 +45,9 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
         render={({ field, fieldState: { error } }) => (
           <div className="space-y-1">
             {label && (
-              <label className="text-sm font-medium">
+              <label className="mb-1.5 block text-xs text-foreground/70">
                 {label}
-                {isRequired && <span className="ml-1 text-red-500">*</span>}
+                {isRequired && <span className="ml-0.5 text-destructive">*</span>}
               </label>
             )}
 
@@ -59,19 +59,16 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
             >
               <SelectTrigger
                 className={cn(
-                  `flex h-[42px] w-full rounded-md border border-input bg-surface-primary px-3 py-1 text-base shadow-sm transition-colors file:border-0 focus:outline-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${
-                    error
-                      ? "border border-rose-500"
-                      : "focus:ring-ring focus:border-ring"
-                  }`,
+                  "h-10 w-full text-base md:text-sm",
+                  error && "border-destructive",
                   className,
                 )}
               >
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
-              <SelectContent className=" bg-surface-popover " position="popper">
+              <SelectContent position="popper">
                 {isEmpty ? (
-                  <div className="px-3 py-2 text-sm text-red-400 font-medium text-center cursor-default">
+                  <div className="px-3 py-2 text-sm text-muted-foreground text-center cursor-default">
                     No options available
                   </div>
                 ) : (
@@ -90,7 +87,7 @@ const ControlledSelectField: React.FC<ControlledSelectFieldProps> = ({
               </SelectContent>
             </Select>
             {error && error && (
-              <div className="text-rose-500 text-xs mt-1 pl-2">
+              <div className="text-xs text-destructive mt-1">
                 {error.message}
               </div>
             )}

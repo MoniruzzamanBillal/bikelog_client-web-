@@ -14,6 +14,9 @@ interface TablePaginationProps {
   siblingCount?: number;
 }
 
+const pageBtn =
+  "grid size-8 place-items-center rounded-lg text-[13px] tabular-nums shadow-sm transition-colors hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-45";
+
 export function TablePagination({
   currentPage,
   totalPages,
@@ -64,69 +67,64 @@ export function TablePagination({
   return (
     <div
       className={cn(
-        "flex items-center justify-between px-6 py-5",
-        "border-t border-surface-border",
-        "bg-surface-secondary ",
+        "flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 text-[13px] sm:px-[18px]",
         className,
       )}
     >
-      {/* Items count */}
       {showItemCount && (
-        <div className=" font-medium text-[0.875rem] leading-5.25 text-surface-text  ">
+        <span className="text-muted-foreground tabular-nums">
           Showing {totalItems > 0 ? startIndex : 0} to {endIndex} of{" "}
           {totalItems} items
-        </div>
+        </span>
       )}
 
-      {/* Pagination controls */}
-      <div className="flex items-center gap-2 ">
-        {/* Previous button */}
+      <div className="flex items-center gap-1.5">
         <button
+          type="button"
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className={`p-1.5   size-8 rounded-[8px]  disabled:opacity-50 disabled:cursor-not-allowed transition-all border  border-table-border flex justify-center items-center cursor-pointer tablePaginationNumber tablePaginationGradientBorder  `}
+          className={cn(pageBtn, "text-muted-foreground")}
           aria-label="Previous page"
         >
-          <ChevronLeft size={18} className=" text-surface-text " />
+          <ChevronLeft className="size-4" />
         </button>
 
-        {/* Page numbers */}
-        <div className="flex items-center gap-2  ">
-          {paginationRange.map((page, index) => {
-            if (page === "...") {
-              return (
-                <span
-                  key={`dots-${index}`}
-                  className=" size-8 p-1.5 flex items-center justify-center rounded-[8px]  bg-primary text-primary-foreground  tablePaginationNumber tablePaginationGradientBorder "
-                >
-                  ⋯
-                </span>
-              );
-            }
-
-            const pageNumber = page as number;
+        {paginationRange.map((page, index) => {
+          if (page === "...") {
             return (
-              <button
-                key={pageNumber}
-                onClick={() => onPageChange(pageNumber)}
-                className={`  p-1.5 rounded-[8px] size-8 font-semibold text-[0.875rem] leading-5.25 flex justify-center items-center border ${currentPage === pageNumber ? " bg-primary text-primary-foreground border-primary " : " text-surface-text tablePaginationNumber tablePaginationGradientBorder  border-surface-border "} `}
-                aria-label={`Go to page ${pageNumber}`}
-                aria-current={currentPage === pageNumber ? "page" : undefined}
+              <span
+                key={`dots-${index}`}
+                className="grid size-8 place-items-center text-muted-foreground"
               >
-                {pageNumber}
-              </button>
+                …
+              </span>
             );
-          })}
-        </div>
+          }
 
-        {/* Next button */}
+          const pageNumber = page as number;
+          const active = currentPage === pageNumber;
+          return (
+            <button
+              type="button"
+              key={pageNumber}
+              onClick={() => onPageChange(pageNumber)}
+              className={cn(pageBtn, active && "text-primary shadow-glow")}
+              aria-label={`Go to page ${pageNumber}`}
+              aria-current={active ? "page" : undefined}
+            >
+              {pageNumber}
+            </button>
+          );
+        })}
+
         <button
+          type="button"
           onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className={`p-1.5   size-8 rounded-[8px]  disabled:opacity-50 disabled:cursor-not-allowed transition-all border  border-table-border flex justify-center items-center cursor-pointer tablePaginationNumber tablePaginationGradientBorder  `}
+          className={pageBtn}
           aria-label="Next page"
         >
-          <ChevronRight size={18} className=" text-surface-text " />
+          <ChevronRight className="size-4" />
         </button>
       </div>
     </div>

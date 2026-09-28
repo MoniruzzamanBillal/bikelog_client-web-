@@ -19,11 +19,11 @@ export const maintenanceLogSchema = z.object({
 
   intervalKmUsed: z
     .string()
-    .min(1, "Service interval is required")
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    .optional()
+    .refine((val) => !val || (!isNaN(Number(val)) && Number(val) > 0), {
       message: "Service interval must be a positive number",
     })
-    .refine((val) => Number(val) <= 50000, {
+    .refine((val) => !val || Number(val) <= 50000, {
       message: "Service interval cannot exceed 50,000 km",
     }),
 

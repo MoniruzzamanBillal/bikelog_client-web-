@@ -1,6 +1,7 @@
 "use client";
 
 import FileGalleryField from "@/components/shared/input/FileGalleryField";
+import StatusTag from "@/components/shared/StatusTag/StatusTag";
 import { useDelete, usePost } from "@/hooks/useApi";
 import { differenceInCalendarDays, format } from "date-fns";
 import { SquarePen, Trash2 } from "lucide-react";
@@ -15,6 +16,9 @@ type TProps = {
 
 const EXPIRY_SOON_THRESHOLD_DAYS = 30;
 
+const iconBtn =
+  "grid size-8 place-items-center rounded-md transition-colors hover:bg-surface-hover";
+
 function ExpiryBadge({ expiryDate }: { expiryDate?: string }) {
   if (!expiryDate) return null;
 
@@ -24,25 +28,19 @@ function ExpiryBadge({ expiryDate }: { expiryDate?: string }) {
   );
 
   if (daysRemaining < 0) {
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-        Expired
-      </span>
-    );
+    return <StatusTag tone="danger">Expired</StatusTag>;
   }
 
   if (daysRemaining <= EXPIRY_SOON_THRESHOLD_DAYS) {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+      <StatusTag tone="warning">
         Expires in {daysRemaining} day{daysRemaining === 1 ? "" : "s"}
-      </span>
+      </StatusTag>
     );
   }
 
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-      Expires {format(new Date(expiryDate), "dd-MMM-yyyy")}
-    </span>
+    <StatusTag>Expires {format(new Date(expiryDate), "dd MMM yyyy")}</StatusTag>
   );
 }
 
@@ -86,48 +84,47 @@ export default function BikeDocumentCard({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div>
+    <div className="panel flex flex-col gap-2.5 p-3.5">
+      <div className="flex items-start gap-2.5">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-medium">{document.title}</p>
+            <span className="font-medium">{document.title}</span>
             <ExpiryBadge expiryDate={document.expiryDate} />
           </div>
+          {document.description && (
+            <p className="m-0 mt-0.5 text-[12.5px] text-muted-foreground">
+              {document.description}
+            </p>
+          )}
         </div>
-        <div className="flex shrink-0 gap-1">
+        <div className="flex shrink-0 gap-0.5 text-muted-foreground">
           <button
             type="button"
             onClick={() => onEdit(document)}
-            className="rounded p-1 text-muted-foreground hover:text-foreground"
+            className={iconBtn}
             title="Edit"
+            aria-label="Edit document"
           >
-            <SquarePen className="size-4" />
+            <SquarePen className="size-[15px]" />
           </button>
           <button
             type="button"
             onClick={() => onDelete(document)}
-            className="rounded p-1 text-muted-foreground hover:text-red-600"
+            className={`${iconBtn} hover:text-destructive`}
             title="Delete"
+            aria-label="Delete document"
           >
-            <Trash2 className="size-4" />
+            <Trash2 className="size-[15px]" />
           </button>
         </div>
       </div>
 
-      {document.description && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {document.description}
-        </p>
-      )}
-
-      <div className="mt-3">
-        <FileGalleryField
-          files={document.files ?? []}
-          onAdd={handleAddFiles}
-          onRemove={handleRemoveFile}
-          uploading={isAdding || isRemoving}
-        />
-      </div>
+      <FileGalleryField
+        files={document.files ?? []}
+        onAdd={handleAddFiles}
+        onRemove={handleRemoveFile}
+        uploading={isAdding || isRemoving}
+      />
     </div>
   );
 }

@@ -7,8 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Button } from "@/components/ui/button";
-import { EllipsisVertical, SquarePen, Trash2 } from "lucide-react";
+import { MoreHorizontal, SquarePen, Trash2 } from "lucide-react";
+import { ReactNode } from "react";
 
 type TableActionMenuProps<T> = {
   rowData: T;
@@ -16,49 +16,51 @@ type TableActionMenuProps<T> = {
   onDelete?: (data: T) => void;
   editLabel?: string;
   deleteLabel?: string;
+  disabled?: boolean;
+  footnote?: ReactNode;
 };
 
 export default function TableActionMenu<T>({
   rowData,
   onEdit,
   onDelete,
-  editLabel = "Edit Info",
+  editLabel = "Edit",
   deleteLabel = "Delete",
+  disabled = false,
+  footnote,
 }: TableActionMenuProps<T>) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild className="flex justify-center w-full">
-        <Button variant={"ghost"} className="border-none bg-transparent hover:bg-transparent shadow-none px-0 focus-visible:ring-0">
-          <EllipsisVertical className="size-5" />
-        </Button>
+      <DropdownMenuTrigger
+        aria-label="Row actions"
+        className="grid size-8 place-items-center rounded-md text-muted-foreground outline-none hover:bg-surface-hover hover:text-foreground data-[state=open]:bg-surface-hover"
+      >
+        <MoreHorizontal className="size-4" />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="end"
-        className="rounded-[8px] py-4 px-3 space-y-3"
-      >
+      <DropdownMenuContent align="end" className="w-56">
         {onEdit && (
-          <DropdownMenuItem
-            className="flex flex-row items-center gap-x-2"
-            onClick={() => onEdit(rowData)}
-          >
-            <SquarePen className="size-5 text-surface-text" />
-            <span className="text-[0.875rem] leading-5.25 font-medium text-surface-text">
-              {editLabel}
-            </span>
+          <DropdownMenuItem disabled={disabled} onClick={() => onEdit(rowData)}>
+            <SquarePen />
+            {editLabel}
           </DropdownMenuItem>
         )}
 
         {onDelete && (
           <DropdownMenuItem
-            className="flex flex-row items-center gap-x-2"
+            variant="destructive"
+            disabled={disabled}
             onClick={() => onDelete(rowData)}
           >
-            <Trash2 className="size-5 text-surface-text" />
-            <span className="text-[0.875rem] leading-5.25 font-medium text-surface-text">
-              {deleteLabel}
-            </span>
+            <Trash2 />
+            {deleteLabel}
           </DropdownMenuItem>
+        )}
+
+        {footnote && (
+          <div className="mt-1 border-t border-border px-2.5 pt-1.5 pb-2 text-[11.5px] leading-snug text-muted-foreground">
+            {footnote}
+          </div>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

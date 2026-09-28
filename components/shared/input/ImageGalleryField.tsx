@@ -75,24 +75,24 @@ export default function ImageGalleryField({
         const isDeleting = deletingId === image._id;
 
         return (
-          <div key={image._id} className="relative size-16 shrink-0">
+          <div key={image._id} className="relative size-14 shrink-0">
             <button
               type="button"
               onClick={() => setLightboxIndex(index)}
-              className="size-full overflow-hidden rounded-md border border-border bg-muted"
+              className="size-full overflow-hidden rounded-lg bg-accent"
               aria-label="View image"
             >
               <Image
                 src={image.url}
                 alt="Issue evidence"
                 fill
-                sizes="64px"
+                sizes="56px"
                 className="object-cover"
               />
             </button>
             
             {isDeleting && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-sm">
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/50 backdrop-blur-sm">
                 <Loader2 className="size-5 animate-spin text-primary" />
               </div>
             )}
@@ -105,7 +105,7 @@ export default function ImageGalleryField({
                   e.stopPropagation();
                   handleRemoveClick(image._id);
                 }}
-                className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-600"
+                className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-destructive"
                 aria-label="Delete image"
               >
                 <X className="size-3 text-white" />
@@ -121,7 +121,7 @@ export default function ImageGalleryField({
           onClick={() => !uploading && inputRef.current?.click()}
           disabled={uploading}
           className={cn(
-            "flex size-16 shrink-0 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground hover:border-primary",
+            "flex size-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors hover:bg-surface-hover hover:text-foreground",
             uploading && "opacity-50",
           )}
           aria-label="Add evidence photo"
@@ -129,7 +129,10 @@ export default function ImageGalleryField({
           {uploading && !deletingId ? (
             <Loader2 className="size-5 animate-spin" />
           ) : (
-            <Plus className="size-5" />
+            <>
+              <Plus className="size-[15px]" />
+              {max - images.length} left
+            </>
           )}
         </button>
       )}

@@ -56,9 +56,9 @@ const ControlledSearchSelectField = ({
         render={({ field, fieldState: { error } }) => (
           <div className="space-y-1">
             {label && (
-              <label className="text-sm font-medium">
+              <label className="mb-1.5 block text-xs text-foreground/70">
                 {label}
-                {isRequired && <span className="ml-1 text-red-500">*</span>}
+                {isRequired && <span className="ml-0.5 text-destructive">*</span>}
               </label>
             )}
 
@@ -69,11 +69,8 @@ const ControlledSearchSelectField = ({
                   role="combobox"
                   aria-expanded={open}
                   className={cn(
-                    `flex h-[42px] w-full max-w-xs justify-between rounded-md border bg-surface-primary px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
-                      error
-                        ? "border-rose-500"
-                        : "focus:ring-ring focus:border-ring"
-                    }`,
+                    "h-10 w-full justify-between border-input bg-card px-2.5 font-normal hover:bg-card hover:border-foreground/40",
+                    error && "border-destructive",
                     className,
                   )}
                 >
@@ -123,7 +120,7 @@ const ControlledSearchSelectField = ({
             </Popover>
 
             {error && (
-              <div className="text-rose-500 text-xs mt-1 pl-2">
+              <div className="text-xs text-destructive mt-1">
                 {error.message}
               </div>
             )}

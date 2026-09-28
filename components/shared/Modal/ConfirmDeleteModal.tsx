@@ -25,6 +25,7 @@ export default function ConfirmDeleteModal({
       <p className="text-sm text-muted-foreground">{description}</p>
       <ModalActionButtons
         confirmText="Delete"
+        variant="destructive"
         onConfirm={onConfirm}
         isLoading={isLoading}
       />

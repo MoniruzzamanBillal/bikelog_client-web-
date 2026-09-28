@@ -25,15 +25,7 @@ const PrimaryButton = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        "cursor-pointer ",
-        " font-bold text-[0.875rem] ",
-        "bg-red-600 text-neutral-50 ",
-        "hover:bg-red-700",
-        "active:scale-[0.98]",
-
-        className,
-      )}
+      className={cn("h-10 active:scale-[0.98]", className)}
     >
       {children}
     </Button>

@@ -38,15 +38,15 @@ export default function ControlledCheckbox({
             {label && (
               <label
                 htmlFor={name}
-                className="  text-sm sm:text-base leading-6 tracking-normal font-medium text-neutral-700 dark:text-neutral-50 cursor-pointer"
+                className="  text-sm leading-6 cursor-pointer"
               >
                 {label}
-                {isRequired && <span className="ml-1 text-red-500">*</span>}
+                {isRequired && <span className="ml-0.5 text-destructive">*</span>}
               </label>
             )}
           </div>
 
-          {error && <p className="text-sm text-red-500">{error.message}</p>}
+          {error && <p className="text-xs text-destructive">{error.message}</p>}
         </div>
       )}
     />

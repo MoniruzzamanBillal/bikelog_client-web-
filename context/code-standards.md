@@ -34,7 +34,7 @@ All rows below `/login`/`/register` live under `app/(main)/` and are unreachable
 
 No `/bikes/new` or `/fuel-logs/new` routes — creation is always a modal on the relevant list page (`BaseModal` + `FormActionButtons`), never a separate page. Faster to build, and the reusable modal already does the job.
 
-`app/(admin)/` is a reserved route group, not in this table — no admin routes exist in v1 (see `project-overview.md`'s "Roles" section).
+`/admin` (`app/(admin)/admin`) is the admin-only error log dashboard (spec 26). It's gated by session + `userRole === "admin"` in `app/(admin)/layout.tsx`, and a non-admin gets redirected to `/dashboard`.
 
 ## Data Fetching & Mutations
 

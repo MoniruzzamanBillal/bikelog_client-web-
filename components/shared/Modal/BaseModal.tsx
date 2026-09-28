@@ -32,31 +32,31 @@ export default function BaseModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "p-0 gap-0 rounded-[8px] border border-table-border w-full max-h-[92vh] flex flex-col overflow-hidden bg-background",
+          "p-0 gap-0 w-full max-h-[92vh] flex flex-col overflow-hidden",
           className,
         )}
       >
         {showDeleteIcon && (
-          <div className="shrink-0 px-6 pt-6 bg-background">
-            <DialogHeader>
-              <DialogTitle className="size-12">
-                <Trash2 className="size-12 text-rose-500" />
-              </DialogTitle>
-            </DialogHeader>
+          <div className="shrink-0 px-5 pt-5 sm:px-6 sm:pt-6">
+            <span className="grid size-10 place-items-center rounded-[10px] text-destructive shadow-[0_0_0_1px_color-mix(in_srgb,var(--destructive)_50%,transparent)]">
+              <Trash2 className="size-5" />
+            </span>
           </div>
         )}
 
+        {!title && <DialogTitle className="sr-only">Dialog</DialogTitle>}
+
         {title && (
-          <div className="shrink-0 px-6 py-5 bg-background border-b border-table-border">
+          <div className="shrink-0 px-5 pt-5 pb-3 sm:px-6 sm:pt-6">
             <DialogHeader>
-              <DialogTitle className="font-semibold text-[1.5rem] leading-[1.5rem]">
+              <DialogTitle className="pr-8 text-left text-xl leading-tight font-medium tracking-tight">
                 {title}
               </DialogTitle>
             </DialogHeader>
           </div>
         )}
         
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto px-5 pt-2 pb-5 sm:px-6 sm:pb-6">
           {children}
         </div>
       </DialogContent>
