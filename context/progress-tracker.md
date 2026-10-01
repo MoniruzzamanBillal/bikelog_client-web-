@@ -4,7 +4,12 @@ Update this file after every spec — status table, Recent Activity log, and Kno
 
 ## Current Phase
 
-Specs 01 (project setup), 02 (auth), and 03 (bike management) are complete. The context docs (this set of 6 files) and the spec-by-spec implementation plan (`context/specs/`) were written first, grounded directly in the completed `bikelog_server` API (see `bikelog_server/postman/` for the verified route/schema reference used) and an audit of the inherited Next.js scaffold's existing component library.
+**All 27 specs are complete** (plus the `25a` follow-up fix). The paragraphs below describe specs 01–03 and the foundational decisions they established; they are kept because those decisions still hold, but they are **not** a current inventory — the Spec Implementation Status table is. Highlights since: fuel logs, mileage stats, the maintenance catalog, maintenance logs/reminders and spending summary completed the MVP (04–08); then bike issues (11), accessories (12), trend charts (13, widened to 6 months in 20), AI integration (14), image uploads (15) and a lightbox (16), bike documents (17), the owner-manual PDF (18), spending PDF export (21), the accessory purchase-lock (23), a backend/app parity catch-up (25), the **admin error-log dashboard** (26), and the full **Nocturne** visual redesign (27).
+
+Two notes for anyone reading this file as a status source:
+
+- The `bikelog_server` backend this client consumes **migrated from MongoDB/Mongoose to Prisma/PostgreSQL** (merged 2026-09-21). This client needed **zero changes** for it: the server deliberately kept its wire contract Mongo-shaped, still returning `_id` and the same populated-field names. Don't read a `_id` in this codebase as evidence the backend is still on Mongo.
+- `bikelog_app` (the React Native client) is the developer's primary target platform and is **ahead of this client** in spec count. This web client is no longer where new features land first — see the note at the end of this section.
 
 Spec 01 turned that scaffold into a clean base: dead shop-admin/table-demo code removed, `lib/tokenManager.ts` + `utils/axiosInstance.ts` + `utils/api.ts`/`hooks/useApi.ts` rebuilt to the documented shapes, `components/layout/AppShell.tsx` + `app/(main)/layout.tsx`'s hard session gate built, `app/page.tsx` now unconditionally redirects to `/login`, and no files exist yet under `app/(admin)/`.
 
@@ -16,7 +21,9 @@ This is explicitly a **v1 web prototype**, not the end-state frontend — the de
 
 The auth/token handling (`lib/tokenManager.ts`, axios interceptors) and the API-calling/mutation layer (`hooks/useApi.ts`, `utils/api.ts`) were both rebuilt from scratch in spec 01/02 rather than kept from the `table` scaffold's versions — see `architecture.md`'s "Auth & Access Model" and "API Calling & Mutation Pattern" for the exact shapes. On top of that, the session model enforces a **hard navigation gate**: no route besides `/login`/`/register` renders without a valid session, checked synchronously at `app/(main)/layout.tsx` (not left to an API call failing first) — see `architecture.md` Invariant 7.
 
-The backend has two roles (`user`/`admin`) but no role-based authorization implemented yet. v1 of this frontend builds the `user`-role experience only, under `app/(main)/`; `app/(admin)/` is reserved (no files) for an admin panel later — see `project-overview.md`'s "Roles" section and `architecture.md` Invariant 8.
+The backend has two roles (`user`/`admin`). This was originally scoped as `user`-role only, with `app/(admin)/` reserved and empty — **spec 26 has since built it out**: `app/(admin)/admin/` now holds the error-log dashboard, gated on session + `userRole === "admin"`, consuming the backend's `GET /api/admin/error-logs` endpoints (backend spec 24). There is still no promotion endpoint — making a user an admin is a direct DB write, by documented convention. `project-overview.md`'s "Roles" section and `architecture.md` Invariant 8 predate this and still describe the reserved-and-empty state.
+
+**Working model as of 2026-10-01 (standing instruction from the developer):** active development has moved to `bikelog_app`. Issues and feature requests are raised against the **app** first; if a request needs backend support, `bikelog_server` is updated to match; and this web client is updated **only when that backend change requires it** (e.g. a changed response shape, a removed field, a new required request param). In practice that means this client follows rather than leads, and can legitimately sit behind the app on feature count — but it must not be left broken by a backend change. When a backend change lands, check this client against it.
 
 ## Spec Implementation Status
 
