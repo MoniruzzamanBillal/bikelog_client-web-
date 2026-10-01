@@ -24,19 +24,19 @@ Per the root `CLAUDE.md`, work is app-first and this client is updated only when
    - `components/(main)/MaintenanceLog/MaintenanceLogFormModal.tsx:80,85` — extracts `._id` for the picker value.
    - `components/(main)/MaintenanceLog/RemindersBanner.tsx:21` — resolves via the catalog list; now receives a populated object from the reminders endpoint.
 
-So nothing here is *broken* by spec 41. **This spec is therefore parity work**, chosen deliberately so the two clients do not diverge — the app gets a delete button and this client should too, since both render the same catalog.
+So nothing here is _broken_ by spec 41. **This spec is therefore parity work**, chosen deliberately so the two clients do not diverge — the app gets a delete button and this client should too, since both render the same catalog.
 
-⚠️ **One thing to verify rather than assume**: `RemindersBanner.tsx:21` resolves the type name from the fetched catalog list. Once deleted types vanish from that list, a reminder whose type was deleted would fall through to its `"Maintenance"` fallback *unless* spec 41 §C's populated `{ _id, name }` on the reminders payload is consumed. Check this file against the real response when implementing; it may need the same `typeof === "object"` branch the card already has.
+⚠️ **One thing to verify rather than assume**: `RemindersBanner.tsx:21` resolves the type name from the fetched catalog list. Once deleted types vanish from that list, a reminder whose type was deleted would fall through to its `"Maintenance"` fallback _unless_ spec 41 §C's populated `{ _id, name }` on the reminders payload is consumed. Check this file against the real response when implementing; it may need the same `typeof === "object"` branch the card already has.
 
 ### Patterns to reuse — all of it already exists
 
-| Need | Reuse |
-| --- | --- |
-| `DELETE` mutation | `useDelete` — `hooks/useApi.ts:79`, same shape as `usePatch` |
+| Need               | Reuse                                                                                                                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DELETE` mutation  | `useDelete` — `hooks/useApi.ts:79`, same shape as `usePatch`                                                                                                                                              |
 | Confirmation modal | `ConfirmDeleteModal` — `components/shared/Modal/ConfirmDeleteModal.tsx`, props `{ open, onClose, onConfirm, title, description, isLoading }`, already used by `BikeManual.tsx` and `ImageUploadThumb.tsx` |
-| Toasts | `sonner` ^2.0.7 — the sections already call `toast.success` / `toast.error`; **`toast.warning` is built in**, no config needed |
-| Delete icon | `Trash2` from `lucide-react` (the sections already import `Check`, `Pencil`, `X`) |
-| Table shell | `CatalogCard` + `catalogInput` — `components/(main)/SettingsCatalog/CatalogCard.tsx` |
+| Toasts             | `sonner` ^2.0.7 — the sections already call `toast.success` / `toast.error`; **`toast.warning` is built in**, no config needed                                                                            |
+| Delete icon        | `Trash2` from `lucide-react` (the sections already import `Check`, `Pencil`, `X`)                                                                                                                         |
+| Table shell        | `CatalogCard` + `catalogInput` — `components/(main)/SettingsCatalog/CatalogCard.tsx`                                                                                                                      |
 
 **No new packages.** This is the notable difference from the app side, where a `warning` toast variant has to be registered from scratch — sonner gives it for free here.
 
@@ -62,7 +62,7 @@ Per `context/ui-context.md` and the Nocturne tokens in `app/globals.css`:
   grid size-[30px] place-items-center rounded-md text-muted-foreground hover:bg-surface-hover hover:text-destructive
   ```
 - Icon is `<Trash2 className="size-3.5" />`, matching the `Pencil` sizing.
-- `title` and `aria-label` are required — the existing buttons set `aria-label={`Edit ${t?.name}`}`, so use `` aria-label={`Delete ${t?.name}`} ``.
+- `title` and `aria-label` are required — the existing buttons set `aria-label={`Edit ${t?.name}`}`, so use ``aria-label={`Delete ${t?.name}`}``.
 - The row is a table row, so the extra button needs no layout change — the `flex` wrapper absorbs it. (Contrast with the app, where a fixed-width action column had to be widened.)
 - Deleted rows simply disappear. No "show deleted" toggle, no strikethrough, no restore UI — re-adding the same name revives it server-side, which covers realistic recovery.
 
@@ -171,6 +171,7 @@ Per the warning in Design, confirm it still names a deleted type correctly once 
 `yarn build` and `yarn lint` clean, then exercise in a phone-width viewport **and** desktop, with `bikelog_server` running spec 41.
 
 **The blocked-delete path — the point of the feature**
+
 - [ ] Create an engine oil type in Settings.
 - [ ] On a bike's maintenance page, add a maintenance log that selects it.
 - [ ] Back in Settings, click delete on that oil type → `ConfirmDeleteModal` opens naming it.
@@ -179,17 +180,20 @@ Per the warning in Design, confirm it still names a deleted type correctly once 
 - [ ] Delete the blocking maintenance log, retry → succeeds, success toast, row disappears.
 
 **The happy path**
+
 - [ ] Delete an unused type → confirm modal → success toast → row disappears, no page reload needed (query invalidation).
 - [ ] `isLoading` disables the modal's confirm button while in flight.
 - [ ] Cancelling the modal deletes nothing.
 
 **History must survive**
+
 - [ ] After deleting a type, open a maintenance log that used it → its type name still renders, **not** the word "Maintenance".
 - [ ] The reminders banner still names that type correctly (see Implementation step 4).
 - [ ] The maintenance-log form's picker no longer offers the deleted type.
 - [ ] Re-add a type with the deleted name → succeeds, historical logs still read correctly.
 
 **Layout & a11y**
+
 - [ ] Edit + delete buttons both fit the action column at phone width without wrapping or overflowing the table.
 - [ ] Both have `title` and a row-specific `aria-label`; delete is reachable and operable by keyboard.
 - [ ] Inline edit mode still works — its Check/X buttons are unaffected.
