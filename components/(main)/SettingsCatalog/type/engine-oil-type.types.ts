@@ -2,6 +2,7 @@ export interface TEngineOilType {
   _id: string;
   name: string;
   suggestedIntervalKm: number;
+  isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -3,6 +3,7 @@ export interface TMaintenanceType {
   name: string;
   defaultIntervalKm?: number;
   defaultIntervalDays?: number;
+  isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
 }

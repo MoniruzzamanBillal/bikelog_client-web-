@@ -1,8 +1,8 @@
 # 28: Delete maintenance types & engine oil types
 
-Status: ⛔ Not Started — plan only, written 2026-10-01. **No code written yet.**
+Status: ✅ Complete — implemented and browser-verified 2026-10-01 against a local `bikelog_server` running spec 41.
 
-Web half of a three-repo feature. **Blocked on `bikelog_server/context/specs/41-catalog-soft-delete.md`** — there is no endpoint to call until it ships. App counterpart: `bikelog_app/ai context/specs/45-catalog-soft-delete.md`.
+Web half of a three-repo feature. Backend half (`bikelog_server/context/specs/41-catalog-soft-delete.md`) and app half (`bikelog_app/ai context/specs/45-catalog-soft-delete.md`, plus its `45a` fix) both shipped first; this unblocked on spec 41 landing.
 
 ---
 
@@ -26,7 +26,9 @@ Per the root `CLAUDE.md`, work is app-first and this client is updated only when
 
 So nothing here is _broken_ by spec 41. **This spec is therefore parity work**, chosen deliberately so the two clients do not diverge — the app gets a delete button and this client should too, since both render the same catalog.
 
-⚠️ **One thing to verify rather than assume**: `RemindersBanner.tsx:21` resolves the type name from the fetched catalog list. Once deleted types vanish from that list, a reminder whose type was deleted would fall through to its `"Maintenance"` fallback _unless_ spec 41 §C's populated `{ _id, name }` on the reminders payload is consumed. Check this file against the real response when implementing; it may need the same `typeof === "object"` branch the card already has.
+✅ **Verified, not assumed** (this was the spec's one open risk): `RemindersBanner.tsx` is **already safe and needed no change**. Its `getTypeName` (line 17) checks `typeof maintenanceType === "object"` and returns `.name` before ever falling back to the catalog lookup, its React `key` derives `typeKey` from either shape (line 107), and `TReminder.maintenanceType` is already declared as the `{ _id, name } | string` union. That guard was added by spec 25's reminders-banner fix.
+
+This is the one place the two clients genuinely diverged: the **app's** copy of this file had no such guard, so backend spec 41 §C broke it and it needed `bikelog_app`'s spec `45a` as a live fix. This client was already correct. The lesson from `45a` — _verify the shape per endpoint, never generalise_ — is exactly why this was checked rather than trusted.
 
 ### Patterns to reuse — all of it already exists
 
@@ -150,13 +152,17 @@ Check how `CatalogCard` composes its children to find the right place for the mo
 
 Identical, with: key `["engineOilTypes"]`, URL `/engine-oil-types/${id}`, copy "Engine oil type deleted" / "Delete engine oil type?" / "Failed to delete engine oil type".
 
-### 4. Verify `RemindersBanner.tsx`
+### 4. Verify `RemindersBanner.tsx` — ✅ no change required
 
-Per the warning in Design, confirm it still names a deleted type correctly once spec 41 §C populates the reminders payload. Add the `typeof === "object"` branch if it does not already read the object form.
+Checked against the real response: it already reads the populated object form (see Design). **No edit was made to this file.**
 
 ### Files touched
 
-`components/(main)/SettingsCatalog/MaintenanceTypeSection.tsx` · `EngineOilTypeSection.tsx` · `type/maintenance-type.types.ts` · `type/engine-oil-type.types.ts` · possibly `components/(main)/MaintenanceLog/RemindersBanner.tsx`
+`components/(main)/SettingsCatalog/MaintenanceTypeSection.tsx` · `EngineOilTypeSection.tsx` · `type/maintenance-type.types.ts` · `type/engine-oil-type.types.ts`
+
+`RemindersBanner.tsx` was **not** touched — see step 4.
+
+One deviation from the plan as written: the read-only row's action `<td>` wrapper was `flex justify-end`; it became `flex justify-end gap-0.5` so the pencil and trash do not sit flush against each other, matching the gap the inline-edit row's Check/X pair already used. The plan said "the `flex` wrapper absorbs it" with no layout change — true for fitting, but the pair reads better with the same spacing as the edit row.
 
 ---
 
@@ -168,33 +174,48 @@ Per the warning in Design, confirm it still names a deleted type correctly once 
 
 ## Verify
 
-`yarn build` and `yarn lint` clean, then exercise in a phone-width viewport **and** desktop, with `bikelog_server` running spec 41.
+`yarn build` ✅ · `yarn lint` ✅ (0 errors; the same 5 pre-existing warnings as before — `useReactTable` ×2, unused `activeTab`) · `npx tsc --noEmit` ✅.
+
+Then exercised for real in Chromium (Playwright) at **390×844** and **1440×900**, against a local `bikelog_server` on `:5000` running spec 41, with `utils/config/envConfig.ts` temporarily pointed at `localhost` and restored afterwards. Fixtures (a throwaway user, bike, 4 catalog rows and 1 maintenance log) were created for the run and **hard-deleted afterwards**; the maintenance log was inserted directly via Prisma so it could not bump a real odometer or fire the expenseTracker2 sync. **30/30 checks passed.**
 
 **The blocked-delete path — the point of the feature**
 
-- [ ] Create an engine oil type in Settings.
-- [ ] On a bike's maintenance page, add a maintenance log that selects it.
-- [ ] Back in Settings, click delete on that oil type → `ConfirmDeleteModal` opens naming it.
-- [ ] Confirm → **one amber warning toast** carrying the backend's sentence (names the oil type and the log count); the row stays in the table.
-- [ ] Repeat for a maintenance type. Note every log pins its maintenance type (the FK is required), so any log at all blocks it.
-- [ ] Delete the blocking maintenance log, retry → succeeds, success toast, row disappears.
+- [x] Create an engine oil type in Settings.
+- [x] On a bike's maintenance page, add a maintenance log that selects it.
+- [x] Back in Settings, click delete on that oil type → `ConfirmDeleteModal` opens naming it.
+- [x] Confirm → **one amber warning toast** carrying the backend's sentence, verbatim: `"ZZ Spec28 Oil InUse" is used by 1 maintenance log and can't be deleted. Remove or re-assign it first.` Asserted `data-type="warning"` (not `error`) and `count === 1` — no double-toast. The row stays in the table.
+- [x] Repeat for a maintenance type — same sentence, same amber type, row stays.
+- [x] Delete the blocking maintenance log, retry → succeeds, success toast, row disappears.
 
 **The happy path**
 
-- [ ] Delete an unused type → confirm modal → success toast → row disappears, no page reload needed (query invalidation).
-- [ ] `isLoading` disables the modal's confirm button while in flight.
-- [ ] Cancelling the modal deletes nothing.
+- [x] Delete an unused type → confirm modal → success toast (`data-type="success"`) → row disappears with no reload (query invalidation).
+- [x] Cancelling the modal (Esc) deletes nothing and shows no toast.
+- [ ] ~~`isLoading` disables the modal's confirm button while in flight.~~ **Not achievable, and not a defect in this spec** — see the note below.
 
 **History must survive**
 
-- [ ] After deleting a type, open a maintenance log that used it → its type name still renders, **not** the word "Maintenance".
-- [ ] The reminders banner still names that type correctly (see Implementation step 4).
-- [ ] The maintenance-log form's picker no longer offers the deleted type.
-- [ ] Re-add a type with the deleted name → succeeds, historical logs still read correctly.
+- [x] After deleting a type, a maintenance log that used it still renders its real type name, **not** the word "Maintenance" (asserted against a soft-deleted catalog row).
+- [x] The reminders banner still names that type correctly — `RemindersBanner.tsx` already handled the populated shape (Implementation step 4).
+- [x] The maintenance-log form's picker no longer offers the deleted type, while still offering the live one (asserted on the real option list).
+- [x] Re-add a type with the deleted name → succeeds with a success toast (not a 409), the row reappears, and it is the **same database row revived** (id identical to the original, exactly one row with that name — confirmed via Prisma, not just the UI).
 
 **Layout & a11y**
 
-- [ ] Edit + delete buttons both fit the action column at phone width without wrapping or overflowing the table.
-- [ ] Both have `title` and a row-specific `aria-label`; delete is reachable and operable by keyboard.
-- [ ] Inline edit mode still works — its Check/X buttons are unaffected.
-- [ ] No React DOM-nesting warning in the console from the modal's placement.
+- [x] Edit + delete both fit the action column at 390px — no page overflow and no table overflow inside its container. Confirmed by screenshot as well as by measurement.
+- [x] No horizontal overflow at 1440px either.
+- [x] Both buttons have `title` and a row-specific `aria-label`; the delete button is keyboard-focusable.
+- [x] Inline edit mode still works — its Check/X buttons are unaffected, and cancelling returns to the read-only row with its delete button intact.
+- [x] No React DOM-nesting warning in the console from the modal's placement (it renders as a sibling of `CatalogCard`, outside the `<table>`), and no hydration errors.
+
+---
+
+### Finding: the `isLoading` prop is dead here — and at every other call site
+
+`ConfirmDeleteModal`'s `isLoading` feeds `ModalActionButtons`' `disabled`, but this spec's handler (as the plan prescribed) calls `setDeleteTarget(null)` **before** awaiting the mutation, so the modal is already unmounted by the time `isDeleting` turns true. Measured, not assumed: with the `DELETE` artificially delayed by 2.5s, **zero** dialogs were open mid-flight.
+
+This is **not specific to this spec**. It is the established pattern in every existing delete flow in this codebase — `BikeManual.tsx:68`, `MaintenanceLog.tsx`, `FuelLog.tsx` all close the modal first and then pass `isLoading={isDeleting}` to a modal that can no longer be on screen. The prop has been inert at all of them since it was introduced.
+
+Deliberately **not** changed here, for three reasons: it is a shared-component-level concern (`ai-workflow-rules.md` requires a `components/shared/*` fix to be generically correct, not special-cased for one feature); diverging in just these two sections would make them inconsistent with the other six call sites; and it is out of this spec's stated scope. Recorded in `progress-tracker.md`'s Known Gaps for a future pass that can fix all eight call sites together.
+
+The user-visible impact is small — the delete is optimistic, the list refetches on success, and a failure surfaces as the warning toast — but double-clicking a delete can fire two requests, which is the real reason it is worth fixing eventually.
