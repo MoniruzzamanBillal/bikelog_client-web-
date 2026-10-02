@@ -16,8 +16,10 @@ This is a compact supplement to `CLAUDE.md` — read that first for full archite
 ## Navigation: `redirect()` is server-only
 `redirect()` from `next/navigation` only works in Server Components during render. Never use it in event handlers, `useEffect`, or `setTimeout` — use `router.replace()` instead. `app/page.tsx` is the one exception (server-side render-time redirect).
 
-## Known display bug: blank maintenance type names
-`RemindersBanner.tsx` renders blank names because the backend's `getRemindersFromDB` doesn't `.populate("maintenanceType")`. Workaround: resolve the ObjectId client-side against the maintenance-types list, or add a `typeof === "object"` guard before reading `.name` (as `MaintenanceLogCard.tsx` does).
+## Reference fields can arrive populated OR as a bare id — always guard
+`maintenanceType`/`oilType` may be either `{ _id, name }` or a bare id string, so read them through a `typeof x === "object"` guard before touching `.name` (and derive React keys from `._id`, never from the object itself). `RemindersBanner.tsx`, `MaintenanceLogCard.tsx` and `MaintenanceLogFormModal.tsx` all do this correctly today.
+
+This file previously documented a "blank maintenance type names" bug in `RemindersBanner.tsx`. **That bug is fixed** — spec 25 added the guard, and `bikelog_server` spec 41 §C now populates `{ _id, name }` on the reminders payload server-side, which is also what lets a *soft-deleted* type still resolve its name. Re-verified in a browser during spec 28. Keep the guards: they are the live path now, not legacy — do not "tidy" them away.
 
 ## VSCode auto-format on save
 `.vscode/settings.json` runs eslint fix + organize imports on save. Import lines will be automatically rearranged.
