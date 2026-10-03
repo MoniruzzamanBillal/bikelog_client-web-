@@ -23,6 +23,7 @@ Specs are numbered in the order they should be built — each one after 01 depen
 | 26 | [26-admin-error-log-dashboard.md](26-admin-error-log-dashboard.md) | ✅ Complete | Admin role: `app/(admin)/` route group + role gate, Admin bottom-nav tab, `/admin` dashboard with a paginated, method-filterable error log and a detail modal. Client for backend spec 24. |
 | 27 | [27-nocturne-redesign.md](27-nocturne-redesign.md) | ✅ Complete | Nocturne visual redesign from Claude Design: tokens, app shell, shared components, all screens. |
 | 28 | [28-catalog-soft-delete.md](28-catalog-soft-delete.md) | ✅ Complete | Delete control on both catalog tables: `ConfirmDeleteModal` + the backend's 409 refusal shown as `toast.warning`. Client for backend spec 41. Browser-verified 30/30. |
+| 29 | [29-settings-update-odometer.md](29-settings-update-odometer.md) | ✅ Complete | Odometer input on the Settings page. Client for `bikelog-server` spec 44. |
 
 _Rows 11–19 are real, already-`✅ Complete` specs (bike issues, bike accessories, trend charts, AI integration, image uploads/lightbox, bike documents, decimal-field fix — see `progress-tracker.md`'s own status table, which is the authoritative one) that were never backfilled into this index — a pre-existing doc-sync gap, not introduced by spec 20/21 and out of scope to backfill here per their own limited scope._
 
