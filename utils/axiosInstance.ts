@@ -51,7 +51,12 @@ instance?.interceptors?.response?.use(
     }
 
     const errorObj = {
-      statusCode: error?.response?.data?.statusCode || 500,
+      // ! Spec 30 §E: read the HTTP status off the RESPONSE, not off the body. The server's
+      // ! globalErrorHandler sends `{ success, message, errorSources, stack }` and has never
+      // ! sent `data.statusCode`, so this field was unconditionally 500 and this client was
+      // ! structurally blind to every status code. `bikelog_app`'s axiosInstance already
+      // ! documents the same finding from the app side.
+      statusCode: error?.response?.status ?? 500,
       message: error?.response?.data?.message || "Something went wrong",
       errors: error?.response?.data?.errors,
     };

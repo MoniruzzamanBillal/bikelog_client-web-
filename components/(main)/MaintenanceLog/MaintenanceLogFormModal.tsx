@@ -1,6 +1,7 @@
 "use client";
 
 import BaseModal from "@/components/shared/Modal/BaseModal";
+import { Button } from "@/components/ui/button";
 import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
 import ControlledDateSelect from "@/components/shared/input/ControlledDateSelect";
 import ControlledInput from "@/components/shared/input/ControlledInput";
@@ -8,6 +9,7 @@ import ControlledSelectField from "@/components/shared/input/ControlledSelectFie
 import ControlledTextArea from "@/components/shared/input/ControlledTextArea";
 import { useFetchData, usePatch, usePost } from "@/hooks/useApi";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -65,7 +67,11 @@ export default function MaintenanceLogFormModal({
 
   const watchedType = methods?.watch("maintenanceType");
   const selectedMt = maintenanceTypes?.find((mt) => mt?._id === watchedType);
-  const isEngineOil = selectedMt?.name === "Engine Oil";
+  // ! Spec 30 §B: gated on the server's `requiresOilType` flag, not on the type's name.
+  // ! The old `selectedMt?.name === "Engine Oil"` match only worked because the global
+  // ! catalog was seeded with that exact row — with per-user catalogs and no seeding
+  // ! (server spec 42) a new user could never surface this field at all.
+  const isEngineOil = !!selectedMt?.requiresOilType;
 
   useEffect(() => {
     if (!isEngineOil) {
@@ -159,6 +165,13 @@ export default function MaintenanceLogFormModal({
     label: mt?.name,
     value: mt?._id,
   }));
+  // ! Spec 30 §C: with per-user catalogs and no seeding (server spec 42), a brand-new
+  // ! user's catalog is legitimately empty — and an empty ControlledSelectField just looks
+  // ! like a broken form. Show the way to Settings instead of a dead select.
+  // ! Create mode ONLY: a user who soft-deleted every type still has existing logs, and
+  // ! must be able to edit one's odometer/cost/notes. Swapping the whole form out in edit
+  // ! mode would take away more than the type select they cannot use anyway.
+  const hasNoTypes = !isEditMode && mtOptions?.length === 0;
   const oilOptions = oilTypes?.map((ot) => ({
     label: `${ot?.name} (${ot?.suggestedIntervalKm} km)`,
     value: ot?._id,
@@ -170,55 +183,71 @@ export default function MaintenanceLogFormModal({
       onClose={onClose}
       title={isEditMode ? "Edit Maintenance" : "Add Maintenance"}
     >
-      <FormProvider {...methods}>
-        <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
-          <ControlledSelectField
-            name="maintenanceType"
-            label="Maintenance Type"
-            options={mtOptions}
-            isRequired
-            placeholder="Select type"
-          />
-
-          <ControlledInput
-            name="odometerReading"
-            label="Odometer (km)"
-            type="number"
-            step="0.01"
-            isRequired
-          />
-
-          {isEngineOil && (
+      {hasNoTypes ? (
+        <div className="flex flex-col items-start gap-3 py-2">
+          <p className="m-0 text-sm text-muted-foreground">
+            You haven&apos;t added any maintenance types yet, so there is
+            nothing to log against. Your catalog is yours alone and starts empty
+            — add the services you want to track (oil change, chain lube, tyres)
+            and come back here.
+          </p>
+          <Link href="/settings/catalog" onClick={onClose}>
+            <Button type="button">Go to maintenance catalog</Button>
+          </Link>
+        </div>
+      ) : (
+        <FormProvider {...methods}>
+          <form
+            onSubmit={methods?.handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
             <ControlledSelectField
-              name="oilType"
-              label="Engine Oil Type"
-              options={oilOptions}
-              placeholder="Select oil type"
+              name="maintenanceType"
+              label="Maintenance Type"
+              options={mtOptions}
+              isRequired
+              placeholder="Select type"
             />
-          )}
 
-          <ControlledInput
-            name="intervalKmUsed"
-            label="Service Interval (km) (optional)"
-            type="number"
-            step="0.01"
-          />
+            <ControlledInput
+              name="odometerReading"
+              label="Odometer (km)"
+              type="number"
+              step="0.01"
+              isRequired
+            />
 
-          <ControlledInput
-            name="cost"
-            label="Cost (৳)"
-            type="number"
-            step="0.01"
-            isRequired
-          />
+            {isEngineOil && (
+              <ControlledSelectField
+                name="oilType"
+                label="Engine Oil Type"
+                options={oilOptions}
+                placeholder="Select oil type"
+              />
+            )}
 
-          <ControlledDateSelect
-            name="serviceDate"
-            label="Service Date"
-            isRequired
-          />
+            <ControlledInput
+              name="intervalKmUsed"
+              label="Service Interval (km) (optional)"
+              type="number"
+              step="0.01"
+            />
 
-          {/* <div className="space-y-1">
+            <ControlledInput
+              name="cost"
+              label="Cost (৳)"
+              type="number"
+              step="0.01"
+              isRequired
+            />
+
+            <ControlledDateSelect
+              name="serviceDate"
+              label="Service Date"
+              isRequired
+            />
+
+            {/* <div className="space-y-1">
             <label className="mb-1.5 block text-xs text-foreground/70">
               Service Date<span className="ml-0.5 text-destructive">*</span>
             </label>
@@ -237,12 +266,12 @@ export default function MaintenanceLogFormModal({
             />
           </div> */}
 
-          <ControlledDateSelect
-            name="nextDueDate"
-            label="Next Due Date (optional)"
-          />
+            <ControlledDateSelect
+              name="nextDueDate"
+              label="Next Due Date (optional)"
+            />
 
-          {/* <div className="space-y-1">
+            {/* <div className="space-y-1">
             <label className="mb-1.5 block text-xs text-foreground/70">
               Next Due Date (optional)
             </label>
@@ -260,28 +289,29 @@ export default function MaintenanceLogFormModal({
             />
           </div> */}
 
-          <ControlledInput
-            name="serviceCenter"
-            label="Service Center (optional)"
-            placeholder="e.g. Honda Service"
-          />
+            <ControlledInput
+              name="serviceCenter"
+              label="Service Center (optional)"
+              placeholder="e.g. Honda Service"
+            />
 
-          <ControlledInput
-            name="partsReplaced"
-            label="Parts Replaced (optional)"
-            placeholder="Comma-separated: Oil Filter, Engine Oil"
-          />
+            <ControlledInput
+              name="partsReplaced"
+              label="Parts Replaced (optional)"
+              placeholder="Comma-separated: Oil Filter, Engine Oil"
+            />
 
-          <ControlledTextArea
-            name="notes"
-            label="Notes (optional)"
-            placeholder="Any notes..."
-            rows={3}
-          />
+            <ControlledTextArea
+              name="notes"
+              label="Notes (optional)"
+              placeholder="Any notes..."
+              rows={3}
+            />
 
-          <FormActionButtons isEditMode={isEditMode} isPending={isPending} />
-        </form>
-      </FormProvider>
+            <FormActionButtons isEditMode={isEditMode} isPending={isPending} />
+          </form>
+        </FormProvider>
+      )}
     </BaseModal>
   );
 }

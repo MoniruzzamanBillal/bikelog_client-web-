@@ -1,6 +1,6 @@
 # 30: Per-user catalogs — cache isolation, `requiresOilType`, empty states (web)
 
-Status: ⛔ Not Started — plan only, awaiting implementation.
+Status: ✅ Complete (code, 2026-10-04) — every checklist item below is implemented, `yarn build` and `yarn lint` are clean. **The browser pass in §Test plan has not been run**, and cannot be until `bikelog_server` spec 46's database rollout happens: that spec's code is merged but its migrations and backfill were never applied, so the live API still returns global catalogs and no `requiresOilType`. See "Rollout order" at the end. Two wrong assumptions in §B/§D were found while implementing and are fixed per `30a-fix-controlledcheckbox-outside-rhf-and-oil-subtitle.md`.
 
 Web half of a three-repo change. Server counterpart: `bikelog_server/context/specs/46-per-user-catalog-ownership.md` (**ships first**). App counterpart: `bikelog_app/ai context/specs/48-per-user-catalogs.md`.
 
@@ -113,17 +113,17 @@ This is **not strictly forced** by the server change: the per-component `toast.w
 
 ## Implementation checklist
 
-- [ ] 1. `app/QueryProvider.tsx` — `useState(() => new QueryClient())`
-- [ ] 2. `AppShell.tsx` — `queryClient.clear()` + hard nav in `handleLogout`
-- [ ] 3. `LoginForm.tsx` — `clear()` before `setToken`
-- [ ] 4. `type/maintenance-type.types.ts` — `requiresOilType: boolean`
-- [ ] 5. `MaintenanceTypeSection.tsx` — `ControlledCheckbox` in the add form and the edit row; both payloads
-- [ ] 6. `MaintenanceLogFormModal.tsx` — gate on the flag; empty state for a zero-option select
-- [ ] 7. Copy fixes (§D)
-- [ ] 8. `utils/axiosInstance.ts` — the status-code drive-by (§E)
-- [ ] 9. `yarn build` + `yarn lint` clean
-- [ ] 10. Phone-width viewport verification (§Test plan)
-- [ ] 11. Mark **Complete** in `progress-tracker.md`
+- [x] 1. `app/QueryProvider.tsx` — `useState(() => new QueryClient())`
+- [x] 2. `AppShell.tsx` — `queryClient.clear()` + hard nav in `handleLogout`. `router` is kept for a non-browser fallback branch so the import does not become unused.
+- [x] 3. `LoginForm.tsx` — `clear()` before `setToken`
+- [x] 4. `type/maintenance-type.types.ts` — `requiresOilType: boolean` on the entity, optional on both payload types
+- [x] 5. `MaintenanceTypeSection.tsx` — checkbox in the add form and the edit row; both payloads. **Not `ControlledCheckbox`** — it calls `useFormContext()` and this file has no react-hook-form at all, so it would throw at render. Uses the `components/ui/checkbox` primitive `ControlledCheckbox` itself wraps, driven by the same `useState` pattern as every other field here. See spec 30a §1.
+- [x] 6. `MaintenanceLogFormModal.tsx` — gate on the flag; empty state replacing the whole form (not just the select) when the catalog is empty, with a link to Settings → catalog that closes the modal. Scoped to **create mode**: a user who soft-deleted every type still has existing logs and must be able to edit one's odometer/cost/notes, so swapping the form out in edit mode would remove more than the unusable type select.
+- [x] 7. Copy fixes (§D) — including `EngineOilTypeSection`'s subtitle, which was **not** the "Shared catalog · …" string §D predicted but `"Suggested interval pre-fills the Engine Oil service form"` — i.e. the same magic string §B exists to delete, in prose instead of code. See spec 30a §2. Both `emptyText` values rewritten for a genuinely new user, per §C.
+- [x] 8. `utils/axiosInstance.ts` — the status-code drive-by (§E)
+- [x] 9. `yarn build` + `yarn lint` clean — 0 errors, 5 warnings, all pre-existing (4 React-Compiler "incompatible library" on `useReactTable`/RHF `watch()`, 1 unused `activeTab`). `grep -rn '=== "Engine Oil"'` and `grep -rn "Shared catalog"` have no live hits; the only `"Engine Oil"` occurrences left are two comments recording what was removed.
+- [ ] 10. Phone-width viewport verification (§Test plan) — **not run.** Blocked on the server rollout, see below.
+- [ ] 11. Mark **Complete** in `progress-tracker.md` — pending step 10.
 
 ---
 
@@ -172,3 +172,22 @@ Maintenance-log cards and `RemindersBanner` must show real type names, never a f
 
 - Keying caches by user id would make isolation structural rather than dependent on remembering to `clear()`. Deliberately deferred — `clear()` on logout and login covers the realistic paths.
 - This client still cannot distinguish error _classes_ beyond what §E unlocks, because `globalErrorHandler` sends no machine-readable code. Centralising Prisma/HTTP error mapping is a backend decision, tracked in server spec 46's Open items.
+
+---
+
+## Rollout order — read before deploying this (added 2026-10-04)
+
+This spec's own opening says it "is not a release blocker for the server" and that the clients "can ship in either order". **That is true of the wire contract but not of the user-visible behaviour, and the distinction matters here.** The dependency runs the other way for one feature:
+
+`requiresOilType` is `@default(false)` on the server. Applying server migration A gives every existing catalog row `false`; it is the server's **backfill** (`--apply`, seeding the flag from the real oil-change row name) that sets it `true`. So between deploying this client and completing that backfill, `isEngineOil` is permanently false and **the engine-oil dropdown is unreachable for everyone**, including existing users who have it today via the name match.
+
+Nothing is lost — a maintenance log's `oilType` is optional and existing logs keep theirs — but it is a visible regression in that window.
+
+**So: complete `bikelog_server` spec 46's rollout first** (its "Operator runbook" section, through migration C), then deploy this. In that order every item in §Test plan is meaningful. In the other order the headline leak test would pass for the wrong reason — the server is still serving one global catalog, so both users legitimately see the same rows and a leak cannot be distinguished from correct behaviour.
+
+The §A cache-isolation work is the one part that is genuinely order-independent and correct to ship now: it fixes a real leak of *any* cached data between users in the same tab, catalogs or not.
+
+### What was verified, and what was not
+
+- **Verified:** `yarn build` (all 17 routes compile), `yarn lint` (0 errors, no new warnings), the two grep checks, and a local `next dev` smoke run in which `/login` and `/settings/catalog` both compile and serve 200 with no compile errors.
+- **Not verified:** anything requiring a live API. No login, no two-user leak test, no `requiresOilType` round-trip, no 375px layout check of the inline-edit row's new checkbox, no console-error sweep. Every behavioural claim above is derived from the code.

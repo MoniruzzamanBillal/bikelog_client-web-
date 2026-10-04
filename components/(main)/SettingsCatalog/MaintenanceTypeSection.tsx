@@ -2,6 +2,7 @@
 
 import ConfirmDeleteModal from "@/components/shared/Modal/ConfirmDeleteModal";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useDelete, useFetchData, usePatch, usePost } from "@/hooks/useApi";
 import { Check, Pencil, Trash2, X } from "lucide-react";
 import { useState } from "react";
@@ -31,6 +32,10 @@ export default function MaintenanceTypeSection() {
   const [name, setName] = useState("");
   const [defaultIntervalKm, setDefaultIntervalKm] = useState("");
   const [defaultIntervalDays, setDefaultIntervalDays] = useState("");
+  // ! Spec 30 §B. Plain useState and the `components/ui/checkbox` primitive directly, NOT
+  // ! `ControlledCheckbox` as spec 30 §B suggested — that one calls `useFormContext()` and
+  // ! this file has no react-hook-form anywhere. See spec 30a for the full reasoning.
+  const [requiresOilType, setRequiresOilType] = useState(false);
 
   // a target object, not a boolean — the modal copy names the row being deleted
   const [deleteTarget, setDeleteTarget] = useState<TMaintenanceType | null>(
@@ -41,6 +46,7 @@ export default function MaintenanceTypeSection() {
   const [editName, setEditName] = useState("");
   const [editIntervalKm, setEditIntervalKm] = useState("");
   const [editIntervalDays, setEditIntervalDays] = useState("");
+  const [editRequiresOilType, setEditRequiresOilType] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault();
@@ -56,12 +62,14 @@ export default function MaintenanceTypeSection() {
           ...(defaultIntervalDays
             ? { defaultIntervalDays: Number(defaultIntervalDays) }
             : {}),
+          requiresOilType,
         } as unknown as Record<string, unknown>,
       });
       toast.success("Maintenance type created");
       setName("");
       setDefaultIntervalKm("");
       setDefaultIntervalDays("");
+      setRequiresOilType(false);
       setAddOpen(false);
     } catch (error) {
       const message = (error as { message?: string })?.message;
@@ -78,6 +86,7 @@ export default function MaintenanceTypeSection() {
     setEditIntervalDays(
       type?.defaultIntervalDays != null ? String(type?.defaultIntervalDays) : "",
     );
+    setEditRequiresOilType(!!type?.requiresOilType);
   };
 
   const cancelEdit = () => {
@@ -85,6 +94,7 @@ export default function MaintenanceTypeSection() {
     setEditName("");
     setEditIntervalKm("");
     setEditIntervalDays("");
+    setEditRequiresOilType(false);
   };
 
   const handleSaveEdit = async () => {
@@ -100,6 +110,7 @@ export default function MaintenanceTypeSection() {
           defaultIntervalDays: editIntervalDays?.trim()
             ? Number(editIntervalDays)
             : null,
+          requiresOilType: editRequiresOilType,
         } as unknown as Record<string, unknown>,
       });
       toast.success("Maintenance type updated");
@@ -129,14 +140,14 @@ export default function MaintenanceTypeSection() {
     <>
       <CatalogCard
         title="Maintenance types"
-        subtitle="Shared catalog · used by maintenance logs and reminders"
+        subtitle="Your catalog · used by your maintenance logs and reminders"
         headers={[
           { label: "Interval km", short: "km" },
           { label: "Interval days", short: "days" },
         ]}
         isLoading={isLoading}
         isEmpty={types?.length === 0}
-        emptyText="No maintenance types yet."
+        emptyText="No maintenance types yet — add the services you want to track (oil change, chain lube, tyres). Your catalog starts empty."
         addOpen={addOpen}
         onToggleAdd={() => setAddOpen((o) => !o)}
         addForm={
@@ -165,6 +176,24 @@ export default function MaintenanceTypeSection() {
                 className={catalogInput}
               />
             </div>
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="requiresOilType"
+                checked={requiresOilType}
+                // ! Radix types this `boolean | "indeterminate"`, hence the narrowing
+                onCheckedChange={(v) => setRequiresOilType(v === true)}
+                className="mt-0.5"
+              />
+              <label
+                htmlFor="requiresOilType"
+                className="cursor-pointer text-[13px] leading-5"
+              >
+                Needs an engine oil type
+                <span className="block text-xs text-muted-foreground">
+                  Shows the oil-type picker when logging this service
+                </span>
+              </label>
+            </div>
             <Button
               type="submit"
               disabled={isPending || !name?.trim()}
@@ -186,8 +215,25 @@ export default function MaintenanceTypeSection() {
                   placeholder="Name"
                   className={catalogInput}
                 />
+                {/* ! Stacked UNDER the name input, inside the existing Name cell, rather
+                    ! than given a column of its own — a 5th column squeezes the name input
+                    ! below usability at 375px, which is this project's real design target
+                    ! (bikelog_app spec 43 hit exactly this with the same table pattern). */}
+                <div className="mt-1.5 flex items-center gap-1.5">
+                  <Checkbox
+                    id={`requiresOilType-${t?._id}`}
+                    checked={editRequiresOilType}
+                    onCheckedChange={(v) => setEditRequiresOilType(v === true)}
+                  />
+                  <label
+                    htmlFor={`requiresOilType-${t?._id}`}
+                    className="cursor-pointer text-xs whitespace-nowrap text-muted-foreground"
+                  >
+                    Needs oil type
+                  </label>
+                </div>
               </td>
-              <td className="px-1 py-1.5">
+              <td className="px-1 py-1.5 align-top">
                 <input
                   type="number"
                   value={editIntervalKm}
@@ -196,7 +242,7 @@ export default function MaintenanceTypeSection() {
                   className={`${catalogInput} text-right`}
                 />
               </td>
-              <td className="px-1 py-1.5">
+              <td className="px-1 py-1.5 align-top">
                 <input
                   type="number"
                   value={editIntervalDays}
@@ -205,7 +251,7 @@ export default function MaintenanceTypeSection() {
                   className={`${catalogInput} text-right`}
                 />
               </td>
-              <td className="py-1.5 pr-2">
+              <td className="py-1.5 pr-2 align-top">
                 <div className="flex justify-end gap-0.5">
                   <button
                     type="button"

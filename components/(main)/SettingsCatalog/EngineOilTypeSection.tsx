@@ -106,11 +106,11 @@ export default function EngineOilTypeSection() {
     <>
       <CatalogCard
         title="Engine oil types"
-        subtitle="Suggested interval pre-fills the Engine Oil service form"
+        subtitle="Your catalog · suggested interval pre-fills a maintenance log that needs an oil type"
         headers={[{ label: "Suggested km", short: "km" }]}
         isLoading={isLoading}
         isEmpty={types?.length === 0}
-        emptyText="No engine oil types yet."
+        emptyText="No engine oil types yet — add the oils you actually use. Your catalog starts empty."
         addOpen={addOpen}
         onToggleAdd={() => setAddOpen((o) => !o)}
         addForm={
