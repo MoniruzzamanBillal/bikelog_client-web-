@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The frontend for "Bike Log" — a Next.js 16 (App Router) + React 19 web app, client for the separately-tracked `bikelog_server` REST API (Express + Mongoose, one level up). It lets a rider log fuel fill-ups and maintenance events per motorcycle and view derived mileage, maintenance reminders, and spending. Built mobile-first (~375–430px is the actual design target, not a breakpoint to "also support").
+The frontend for "Bike Log" — a Next.js 16 (App Router) + React 19 web app, client for the separately-tracked `bikelog_server` REST API (Express + Prisma 7 + PostgreSQL/Neon, a sibling directory — not one level up). It lets a rider log fuel fill-ups and maintenance events per motorcycle and view derived mileage, maintenance reminders, and spending. Built mobile-first (~375–430px is the actual design target, not a breakpoint to "also support").
 
 This web app is a deliberate first prototype, not the end goal — the developer's real target is a React Native app later. Keep screens and folder structure simple enough that lessons (not necessarily code) carry over, per `context/project-overview.md`.
 
 `context/` has more detail (goals, user flows, per-spec history) — `context/progress-tracker.md` is the most useful one to skim for *why* something is built the way it is. **Treat `context/architecture.md` and `context/code-standards.md` with caution**: they describe a `components/feature/<domain>/` + `use<Domain>.ts` hook-wrapper pattern that was the intended design during specs 03–08, but the code was since restructured to `components/(main)/<Domain>/` with no domain-hook layer (see "Architecture at a glance" below for what's actually there) and those two docs were never updated to match. Trust the code and this file over those two on anything to do with folder layout or the API-calling pattern; the rest of `context/` (auth model, response envelope, styling rules, route table) still checks out against the real code.
+
+**Spec 30 (per-user catalogs) is written but Not Started** — `context/specs/30-per-user-catalogs.md`. It closes a cross-tenant react-query cache leak (logout clears the cookie but not the cache, and it is a *soft* nav, so the tree and cache survive), swaps the `name === "Engine Oil"` dropdown gate for the backend's new `requiresOilType` flag, and fixes `utils/axiosInstance.ts`'s `statusCode`, which has always been 500 because the server never sends `data.statusCode`. Depends on `bikelog_server` spec 46, but is not a release blocker for it — that wire change is additive.
 
 ## Commands
 
