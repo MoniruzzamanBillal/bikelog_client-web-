@@ -27,7 +27,26 @@ yarn lint     # eslint (Next.js core-web-vitals + typescript config)
 
 No automated test suite (`yarn test` doesn't exist here, matching the backend's stub). Manual verification is the norm: run `yarn dev`, exercise the flow at a phone-width viewport, cross-check payloads against `bikelog_server/postman/dummy-data.md`.
 
-Requires `.env`/`.env.local` with `NEXT_PUBLIC_API_BASE_URL` (see `utils/config/envConfig.ts`, falls back to `http://localhost:3000/api` if unset); the backend must be running separately (`bikelog_server`, default port 5000) for any real data flow to work.
+Requires `.env`/`.env.local` with `NEXT_PUBLIC_API_BASE_URL` — a **bare origin with no `/api` suffix** (e.g. `http://localhost:5000`); `utils/config/envConfig.ts` appends `/api` and falls back to `https://bikelog-server.vercel.app` if unset. The backend must be running separately (`bikelog_server`, default port 5000) for any real data flow to work. Note `.env.local` takes precedence over `.env` in Next, and the one on disk points at the deployed backend — set it to `http://localhost:5000` when working against a local server.
+
+### Docker (spec 31)
+
+```bash
+docker compose up local -d --build    # builds and serves on :3000
+```
+
+Three things to know:
+
+- **`NEXT_PUBLIC_API_BASE_URL` is baked in at BUILD time.** Next inlines every `NEXT_PUBLIC_*` read into the client bundle, so compose passes it via `build.args`, not `environment`. **Changing the backend URL means rebuilding the image, not restarting the container.**
+- **The URL must be reachable from the end user's browser**, not from inside the Docker network — every API call originates in `"use client"` code, so a compose service name would not resolve. That is also why there is no shared network with `bikelog_server`: the server is reached over the host's published port.
+- **`ENV HOSTNAME=0.0.0.0` in the Dockerfile is load-bearing**, not boilerplate. Next's standalone server does `process.env.HOSTNAME || '0.0.0.0'` and Docker injects the container ID into `HOSTNAME`, so without the override Next binds only the container's bridge IP. The published port still works via docker-proxy, so the app looks fine while every in-container healthcheck is refused.
+
+The image is a 3-stage `node:22-alpine` standalone build. Every `.env*` is dockerignored (`.env.local` holds a live `VERCEL_OIDC_TOKEN`), which means the build arg is the *only* source of the URL — so forgetting it silently bakes in the Vercel fallback instead of failing. To check which URL actually shipped:
+
+```bash
+docker run --rm --entrypoint sh bikelog-web-local:latest \
+  -c 'grep -rho "http://localhost:5000" .next/static | head -1'
+```
 
 ## Architecture at a glance
 

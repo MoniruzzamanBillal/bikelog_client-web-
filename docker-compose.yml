@@ -1,0 +1,74 @@
+services:
+  local:
+    image: bikelog-web-local:${VERSION:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # ! BUILD ARG, NOT A RUNTIME ENV VAR. Next inlines NEXT_PUBLIC_* into the client
+        # ! bundle during `next build`, so putting this under `environment:` would have
+        # ! zero effect on an already-built image. The `:?` guard fails the build loudly
+        # ! rather than letting Next bake in an empty string.
+        # !
+        # ! Interpolated from ./.env. The value is a bare ORIGIN with no /api suffix —
+        # ! utils/config/envConfig.ts appends /api.
+        # !
+        # ! `localhost` here is resolved by the END USER'S BROWSER against the host
+        # ! machine, reaching bikelog-server-local's published port 5000. So this image
+        # ! only works for a browser on this machine; for any other client, rebuild with
+        # ! the host's LAN IP or public origin.
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:?NEXT_PUBLIC_API_BASE_URL must be set in .env (bare origin, no /api suffix) — Next inlines it at build time}
+    container_name: bikelog-web-local
+
+    ports:
+      - "3000:3000"
+
+    # No env_file and no environment block on purpose: this app reads exactly one variable
+    # and it is consumed at build time. Nothing is read at runtime. In particular
+    # .env.local must stay out of here — it holds a live VERCEL_OIDC_TOKEN.
+
+    restart: unless-stopped
+
+    healthcheck:
+      # ! /login, NOT /. app/page.tsx is a server component that calls redirect("/login"),
+      # ! so GET / answers 307 and relying on wget to chase it is needless fragility.
+      # ! /login answers a flat 200 and makes no API call, so this probe tests THIS
+      # ! container only and won't go red just because the API is down.
+      # ! This only works because the Dockerfile sets ENV HOSTNAME=0.0.0.0 — without it
+      # ! Next binds the bridge IP alone and the probe fails forever with
+      # ! "Connection refused" (as the reference raw-materials container does today).
+      # ! 127.0.0.1 rather than `localhost` so the probe can't be confused by IPv6 or
+      # ! /etc/hosts ordering. wget is present on node:22-alpine via BusyBox; curl is not.
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    deploy:
+      resources:
+        limits:
+          # 768M rather than 512M: Next 16 + React 19 SSR idles around 100-150M, and
+          # next/image optimization runs sharp in-process, which can spike 200-300M on a
+          # large remote image from res.cloudinary.com.
+          # NOTE this governs RUNTIME only — `docker compose build` is not constrained by
+          # deploy.resources, and a Next 16 Turbopack build can want 2-4GB. That is a
+          # Docker daemon/VM sizing question, not a compose one.
+          memory: 768M
+          cpus: "1.0"
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - local-network
+
+networks:
+  # Named bridge. There is deliberately no shared network with bikelog_server: this
+  # client's API calls originate in the user's browser, so cross-container DNS would be
+  # useless. The server is reached over the host's published port instead.
+  local-network:
+    driver: bridge
