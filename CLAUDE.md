@@ -4,11 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The frontend for "Bike Log" — a Next.js 16 (App Router) + React 19 web app, client for the separately-tracked `bikelog_server` REST API (Express + Mongoose, one level up). It lets a rider log fuel fill-ups and maintenance events per motorcycle and view derived mileage, maintenance reminders, and spending. Built mobile-first (~375–430px is the actual design target, not a breakpoint to "also support").
+The frontend for "Bike Log" — a Next.js 16 (App Router) + React 19 web app, client for the separately-tracked `bikelog_server` REST API (Express + Prisma 7 + PostgreSQL/Neon, a sibling directory — not one level up). It lets a rider log fuel fill-ups and maintenance events per motorcycle and view derived mileage, maintenance reminders, and spending. Built mobile-first (~375–430px is the actual design target, not a breakpoint to "also support").
 
 This web app is a deliberate first prototype, not the end goal — the developer's real target is a React Native app later. Keep screens and folder structure simple enough that lessons (not necessarily code) carry over, per `context/project-overview.md`.
 
 `context/` has more detail (goals, user flows, per-spec history) — `context/progress-tracker.md` is the most useful one to skim for *why* something is built the way it is. **Treat `context/architecture.md` and `context/code-standards.md` with caution**: they describe a `components/feature/<domain>/` + `use<Domain>.ts` hook-wrapper pattern that was the intended design during specs 03–08, but the code was since restructured to `components/(main)/<Domain>/` with no domain-hook layer (see "Architecture at a glance" below for what's actually there) and those two docs were never updated to match. Trust the code and this file over those two on anything to do with folder layout or the API-calling pattern; the rest of `context/` (auth model, response envelope, styling rules, route table) still checks out against the real code.
+
+**Spec 30 (per-user catalogs) is implemented but NOT yet deployable** — `context/specs/30-per-user-catalogs.md`, plus `30a` for two wrong assumptions in its own §B/§D. It closed a cross-tenant react-query cache leak (logout cleared the cookie but not the cache, and it is a *soft* nav, so the tree and cache survived — now `queryClient.clear()` on both logout and login, plus a hard nav matching the 401 path), swapped the `name === "Engine Oil"` dropdown gate for the backend's `requiresOilType` flag, added empty states for a genuinely empty catalog, and fixed `utils/axiosInstance.ts`'s `statusCode`, which had always been 500 because the server never sends `data.statusCode`.
+
+**Do not deploy it before `bikelog_server` spec 46's database rollout.** That spec's code is merged but its migrations and backfill were never applied. `requiresOilType` is `@default(false)` server-side and only becomes `true` on existing rows when the backfill runs — so shipping this client first makes the engine-oil dropdown unreachable for everyone, including users who have it today via the old name match. The wire change really is additive, as spec 30 says; the *behaviour* is not order-independent. The cache-isolation half is, and is correct to ship whenever.
+
+Two things worth carrying forward from implementing it: `ControlledCheckbox` and `ControlledSelectField` both call `useFormContext()`, so **neither works in the `SettingsCatalog` sections**, which are plain `useState` with no react-hook-form — reach for the `components/ui/*` primitive they wrap instead (spec 29 hit the same wall with the select). And a fifth column in the catalog tables' inline-edit `<tr>` squeezes the name input past usability at 375px; stack under the Name cell instead.
 
 ## Commands
 
@@ -21,7 +27,26 @@ yarn lint     # eslint (Next.js core-web-vitals + typescript config)
 
 No automated test suite (`yarn test` doesn't exist here, matching the backend's stub). Manual verification is the norm: run `yarn dev`, exercise the flow at a phone-width viewport, cross-check payloads against `bikelog_server/postman/dummy-data.md`.
 
-Requires `.env`/`.env.local` with `NEXT_PUBLIC_API_BASE_URL` (see `utils/config/envConfig.ts`, falls back to `http://localhost:3000/api` if unset); the backend must be running separately (`bikelog_server`, default port 5000) for any real data flow to work.
+Requires `.env`/`.env.local` with `NEXT_PUBLIC_API_BASE_URL` — a **bare origin with no `/api` suffix** (e.g. `http://localhost:5000`); `utils/config/envConfig.ts` appends `/api` and falls back to `https://bikelog-server.vercel.app` if unset. The backend must be running separately (`bikelog_server`, default port 5000) for any real data flow to work. Note `.env.local` takes precedence over `.env` in Next, and the one on disk points at the deployed backend — set it to `http://localhost:5000` when working against a local server.
+
+### Docker (spec 31)
+
+```bash
+docker compose up local -d --build    # builds and serves on :3000
+```
+
+Three things to know:
+
+- **`NEXT_PUBLIC_API_BASE_URL` is baked in at BUILD time.** Next inlines every `NEXT_PUBLIC_*` read into the client bundle, so compose passes it via `build.args`, not `environment`. **Changing the backend URL means rebuilding the image, not restarting the container.**
+- **The URL must be reachable from the end user's browser**, not from inside the Docker network — every API call originates in `"use client"` code, so a compose service name would not resolve. That is also why there is no shared network with `bikelog_server`: the server is reached over the host's published port.
+- **`ENV HOSTNAME=0.0.0.0` in the Dockerfile is load-bearing**, not boilerplate. Next's standalone server does `process.env.HOSTNAME || '0.0.0.0'` and Docker injects the container ID into `HOSTNAME`, so without the override Next binds only the container's bridge IP. The published port still works via docker-proxy, so the app looks fine while every in-container healthcheck is refused.
+
+The image is a 3-stage `node:22-alpine` standalone build. Every `.env*` is dockerignored (`.env.local` holds a live `VERCEL_OIDC_TOKEN`), which means the build arg is the *only* source of the URL — so forgetting it silently bakes in the Vercel fallback instead of failing. To check which URL actually shipped:
+
+```bash
+docker run --rm --entrypoint sh bikelog-web-local:latest \
+  -c 'grep -rho "http://localhost:5000" .next/static | head -1'
+```
 
 ## Architecture at a glance
 

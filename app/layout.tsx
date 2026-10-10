@@ -1,8 +1,8 @@
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "./QueryProvider";
 
 const inter = Inter({
@@ -33,7 +33,7 @@ export default function RootLayout({
             enableSystem={false}
           >
             {children}
-            <Toaster closeButton position="top-right" />
+            <Toaster richColors closeButton position="top-right" />
           </ThemeProvider>
         </QueryProvider>
       </body>

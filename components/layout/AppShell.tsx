@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useFetchData } from "@/hooks/useApi";
+import { useQueryClient } from "@tanstack/react-query";
 import { clearToken } from "@/lib/tokenManager";
 import { getUserEmail, isAdminUser } from "@/lib/userRole";
 import { cn } from "@/lib/utils";
@@ -154,6 +155,7 @@ const SidebarLink = ({
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { bikeId, section, activeKey } = useRouteInfo();
   // ! safe to read the cookie here — both layouts only render AppShell after their post-mount session check
   const [isAdmin] = useState(isAdminUser);
@@ -168,8 +170,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const bike = bikeId ? bikeData?.data : undefined;
 
   const handleLogout = () => {
+    // ! Spec 30 §A — the cross-tenant leak. `clearToken()` only deletes the cookie, and
+    // ! `router.replace` is a SOFT navigation: the React tree and the whole query cache
+    // ! survive it, so without this `clear()` the next user to log in in the same tab sees
+    // ! the previous user's cached rows render on mount (staleTime is 0 everywhere, so they
+    // ! are visibly on screen before the refetch lands, not merely held in memory). That
+    // ! became a correctness bug the moment the catalogs went per-user (server spec 46).
+    queryClient?.clear();
     clearToken();
-    router?.replace("/login");
+    // ! A HARD nav, matching what the 401 path in utils/axiosInstance.ts already does.
+    // ! `clear()` alone is enough for the cache; this additionally drops component state
+    // ! and makes explicit logout behave identically to the already-safe 401 path.
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    } else {
+      router?.replace("/login");
+    }
   };
 
   const bikeItems: TNavItem[] = bikeId

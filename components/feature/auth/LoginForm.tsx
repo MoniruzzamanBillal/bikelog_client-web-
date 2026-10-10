@@ -4,6 +4,7 @@ import ControlledInput from "@/components/shared/input/ControlledInput";
 import { Button } from "@/components/ui/button";
 import { usePost } from "@/hooks/useApi";
 import { setToken } from "@/lib/tokenManager";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +16,7 @@ import { loginSchema, TLoginForm } from "./auth.schema";
 
 export default function LoginForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const methods = useForm<TLoginForm>({ resolver: zodResolver(loginSchema) });
   const { mutateAsync: loginMutation, isPending } = usePost();
@@ -29,6 +31,11 @@ export default function LoginForm() {
       });
       if (result?.token) {
         toast.success("Logged in successfully");
+        // ! Spec 30 §A: clearing on LOGIN is the stronger of the two invariants, and the
+        // ! reason both exist. Logout can be skipped — the tab is closed, the token
+        // ! expires, the app crashes — but nobody arrives at a session without logging in.
+        // ! Must run before setToken/navigation so nothing can refetch under the old cache.
+        queryClient?.clear();
         setToken(result?.token);
         setTimeout(() => router?.replace("/dashboard"), 100);
       }
