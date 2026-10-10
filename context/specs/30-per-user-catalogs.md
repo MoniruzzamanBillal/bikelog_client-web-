@@ -185,7 +185,7 @@ Nothing is lost — a maintenance log's `oilType` is optional and existing logs 
 
 **So: complete `bikelog_server` spec 46's rollout first** (its "Operator runbook" section, through migration C), then deploy this. In that order every item in §Test plan is meaningful. In the other order the headline leak test would pass for the wrong reason — the server is still serving one global catalog, so both users legitimately see the same rows and a leak cannot be distinguished from correct behaviour.
 
-The §A cache-isolation work is the one part that is genuinely order-independent and correct to ship now: it fixes a real leak of *any* cached data between users in the same tab, catalogs or not.
+The §A cache-isolation work is the one part that is genuinely order-independent and correct to ship now: it fixes a real leak of _any_ cached data between users in the same tab, catalogs or not.
 
 ### What was verified, and what was not
 
