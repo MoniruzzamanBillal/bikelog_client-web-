@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useFetchData } from "@/hooks/useApi";
 import { useQueryClient } from "@tanstack/react-query";
-import { clearToken } from "@/lib/tokenManager";
+import { clearTokens } from "@/lib/tokenManager";
 import { getUserEmail, isAdminUser } from "@/lib/userRole";
 import { cn } from "@/lib/utils";
 import {
@@ -170,14 +170,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const bike = bikeId ? bikeData?.data : undefined;
 
   const handleLogout = () => {
-    // ! Spec 30 §A — the cross-tenant leak. `clearToken()` only deletes the cookie, and
+    // ! Spec 30 §A — the cross-tenant leak. `clearTokens()` only deletes the cookies, and
     // ! `router.replace` is a SOFT navigation: the React tree and the whole query cache
     // ! survive it, so without this `clear()` the next user to log in in the same tab sees
     // ! the previous user's cached rows render on mount (staleTime is 0 everywhere, so they
     // ! are visibly on screen before the refetch lands, not merely held in memory). That
     // ! became a correctness bug the moment the catalogs went per-user (server spec 46).
     queryClient?.clear();
-    clearToken();
+    // ! Spec 32 §G: BOTH cookies. Leaving the refresh token behind would leave a live 15-day
+    // ! credential on the machine after an explicit logout, and the next request's interceptor
+    // ! would quietly refresh the session the user just ended.
+    clearTokens();
     // ! A HARD nav, matching what the 401 path in utils/axiosInstance.ts already does.
     // ! `clear()` alone is enough for the cache; this additionally drops component state
     // ! and makes explicit logout behave identically to the already-safe 401 path.
