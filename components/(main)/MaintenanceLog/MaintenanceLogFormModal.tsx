@@ -13,7 +13,6 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { TEngineOilType } from "../SettingsCatalog/type/engine-oil-type.types";
 import { TMaintenanceType } from "../SettingsCatalog/type/maintenance-type.types";
 import {
   maintenanceLogSchema,
@@ -42,19 +41,13 @@ export default function MaintenanceLogFormModal({
     ["maintenanceTypes"],
     "/maintenance-types",
   );
-  const { data: oilData } = useFetchData<TEngineOilType[]>(
-    ["engineOilTypes"],
-    "/engine-oil-types",
-  );
   const maintenanceTypes = mtData?.data ?? [];
-  const oilTypes = oilData?.data ?? [];
 
   const methods = useForm<TMaintenanceLogFormType>({
     resolver: zodResolver(maintenanceLogSchema),
     defaultValues: {
       maintenanceType: "",
       odometerReading: "",
-      oilType: "",
       intervalKmUsed: "",
       cost: "",
       serviceDate: new Date(),
@@ -65,20 +58,12 @@ export default function MaintenanceLogFormModal({
     },
   });
 
-  const watchedType = methods?.watch("maintenanceType");
-  const selectedMt = maintenanceTypes?.find((mt) => mt?._id === watchedType);
-  // ! Spec 30 §B: gated on the server's `requiresOilType` flag, not on the type's name.
-  // ! The old `selectedMt?.name === "Engine Oil"` match only worked because the global
-  // ! catalog was seeded with that exact row — with per-user catalogs and no seeding
-  // ! (server spec 42) a new user could never surface this field at all.
-  const isEngineOil = !!selectedMt?.requiresOilType;
-
-  useEffect(() => {
-    if (!isEngineOil) {
-      methods?.setValue("oilType", "");
-    }
-  }, [isEngineOil, methods]);
-
+  // ! Spec 33 §F: the engine-oil select is GONE from this form. Engine oil is its own
+  // ! module now (/bikes/:id/engine-oil), the server's import moved the historical oil
+  // ! entries out of `maintenance_logs`, and leaving the affordance here would let the
+  // ! rider re-create exactly the split that feature removes. Spec 30's `requiresOilType`
+  // ! gate went with it — the flag stays in the database and in the API (the server's
+  // ! import selector reads it), it just no longer drives anything on this client.
   useEffect(() => {
     if (!log) return;
     methods?.reset({
@@ -87,10 +72,6 @@ export default function MaintenanceLogFormModal({
           ? log?.maintenanceType?._id
           : log?.maintenanceType,
       odometerReading: log?.odometerReading?.toString(),
-      oilType:
-        typeof log?.oilType === "object" && log?.oilType
-          ? log?.oilType?._id
-          : ((log?.oilType as string) ?? ""),
       intervalKmUsed: log?.intervalKmUsed?.toString() ?? "",
       cost: log?.cost?.toString(),
       serviceDate: log?.serviceDate ? new Date(log?.serviceDate) : new Date(),
@@ -129,7 +110,6 @@ export default function MaintenanceLogFormModal({
           ? Number(data?.intervalKmUsed)
           : undefined,
         cost: Number(data?.cost),
-        oilType: data?.oilType || undefined,
         serviceDate: data?.serviceDate?.toISOString(),
         nextDueDate: data?.nextDueDate?.toISOString(),
         serviceCenter: data?.serviceCenter || undefined,
@@ -172,10 +152,6 @@ export default function MaintenanceLogFormModal({
   // ! must be able to edit one's odometer/cost/notes. Swapping the whole form out in edit
   // ! mode would take away more than the type select they cannot use anyway.
   const hasNoTypes = !isEditMode && mtOptions?.length === 0;
-  const oilOptions = oilTypes?.map((ot) => ({
-    label: `${ot?.name} (${ot?.suggestedIntervalKm} km)`,
-    value: ot?._id,
-  }));
 
   return (
     <BaseModal
@@ -216,15 +192,6 @@ export default function MaintenanceLogFormModal({
               step="0.01"
               isRequired
             />
-
-            {isEngineOil && (
-              <ControlledSelectField
-                name="oilType"
-                label="Engine Oil Type"
-                options={oilOptions}
-                placeholder="Select oil type"
-              />
-            )}
 
             <ControlledInput
               name="intervalKmUsed"
@@ -298,7 +265,7 @@ export default function MaintenanceLogFormModal({
             <ControlledInput
               name="partsReplaced"
               label="Parts Replaced (optional)"
-              placeholder="Comma-separated: Oil Filter, Engine Oil"
+              placeholder="Comma-separated: Brake Pads, Chain"
             />
 
             <ControlledTextArea

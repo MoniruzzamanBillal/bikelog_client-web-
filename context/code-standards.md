@@ -26,7 +26,8 @@
 | `/bikes/[bikeId]` | Bike hub: odometer, reminders banner, links to sub-features, edit/delete bike |
 | `/bikes/[bikeId]/fuel-logs` | Fuel log list + create/edit modal |
 | `/bikes/[bikeId]/mileage` | Mileage stats, tab-switched: History / Monthly / Yearly / Lifetime (one page, one component per tab — not four routes) |
-| `/bikes/[bikeId]/maintenance-logs` | Maintenance log list + create/edit modal; reminders list also shown here (not a separate route) |
+| `/bikes/[bikeId]/engine-oil` | Engine oil: the next-change forecast card + oil-change list/create/edit modal (spec 33) |
+| `/bikes/[bikeId]/maintenance-logs` | Maintenance log list + create/edit modal; reminders list also shown here (not a separate route). **No engine-oil field since spec 33 §F** |
 | `/bikes/[bikeId]/spending` | Spending summary, tab-switched: Month / Year / Lifetime |
 | `/settings/catalog` | Maintenance-type + engine-oil-type create/list (both catalogs, one page — neither has an update/delete API, so this is create+list only) |
 

@@ -18,6 +18,7 @@ import {
   BookOpen,
   ChevronDown,
   ChevronLeft,
+  Droplet,
   FileText,
   Fuel,
   Gauge,
@@ -57,6 +58,12 @@ const bikeSections: {
 }[] = [
   { key: "overview", segment: "", label: "Overview", icon: LayoutGrid },
   { key: "fuel", segment: "fuel-logs", label: "Fuel logs", short: "Fuel", icon: Fuel },
+  // ! spec 33 D5 puts engine oil next to fuel, not buried after Documents — those two are
+  // ! what the rider opens weekly. Registered here (not only as a hub tile) because this
+  // ! list also drives the desktop sidebar sub-nav and the mobile header's title/back
+  // ! target; without an entry the screen is unreachable on desktop and the mobile header
+  // ! titles it as if it were the bike overview.
+  { key: "engineOil", segment: "engine-oil", label: "Engine oil", short: "Oil", icon: Droplet },
   { key: "mileage", segment: "mileage", label: "Mileage", icon: Gauge },
   {
     key: "maintenance",

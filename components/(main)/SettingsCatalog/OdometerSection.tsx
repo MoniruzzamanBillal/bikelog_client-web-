@@ -16,9 +16,14 @@ import { catalogInput } from "./CatalogCard";
 export default function OdometerSection() {
   const { data, isLoading } = useFetchData<TBike[]>(["bikes"], "/bikes");
   // prefix keys: ["bikes"] also covers ["bikes", bikeId], ["reminders"] covers ["reminders", bikeId]
+  // ! ["engineOilStatus"] is spec 33 H-W4 and the single most important line for the
+  // ! feature the developer asked for: the oil screen's whole forecast is derived from
+  // ! this reading, so without it "km on this oil" would keep showing yesterday's number
+  // ! until a hard refresh — exactly the behaviour the feature exists to fix.
   const { mutateAsync: updateOdometer, isPending } = usePatch([
     ["bikes"],
     ["reminders"],
+    ["engineOilStatus"],
   ]);
   const bikes = data?.data ?? [];
 

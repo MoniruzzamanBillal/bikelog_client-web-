@@ -49,6 +49,7 @@ import {
   TLifetimeMileage,
   TMileageHistoryResponse,
 } from "../../Mileage/type/mileage.types";
+import { TEngineOilStatus } from "../../EngineOilLog/type/engine-oil-log.types";
 import RemindersBanner from "../../MaintenanceLog/RemindersBanner";
 import { TSpendingSummary } from "../../Spending/type/spending.types";
 import BikeFormModal from "../BikeFormModal";
@@ -150,6 +151,13 @@ const BikeDetailPage = () => {
     `/bikes/${bikeId}/fuel-logs?page=1&limit=5&sort=-date`,
     { enabled: !!bikeId },
   );
+  // ! spec 33 D9: the SAME key the engine-oil screen uses, so react-query serves it from
+  // ! cache and the hub costs no extra request once either screen has loaded.
+  const { data: oilStatusData } = useFetchData<TEngineOilStatus>(
+    ["engineOilStatus", bikeId],
+    `/bikes/${bikeId}/engine-oil-logs/status`,
+    { enabled: !!bikeId },
+  );
 
   const { mutateAsync: deleteBikeMutation, isPending: isDeleting } = useDelete([
     ["bikes"],
@@ -221,6 +229,22 @@ const BikeDetailPage = () => {
   const perDay = monthSpend / now?.getDate();
   const recentFuel: TFuelLog[] = recentFuelData?.data?.result ?? [];
 
+  const oilStatus = oilStatusData?.data;
+  // ! Hidden entirely on a bike with no oil log: a tile reading "0 km" would be a claim
+  // ! about an oil nobody has told us about. The strip then looks exactly as it does today.
+  const oilStat: TStat | null =
+    oilStatus?.lastChange && oilStatus?.kmSinceChange != null
+      ? {
+          icon: Droplet,
+          label: "On this oil",
+          value: oilStatus?.kmSinceChange?.toLocaleString(),
+          unit: "km",
+          hint:
+            oilStatus?.lastChange?.oilType?.name ??
+            `Since ${format(new Date(oilStatus?.lastChange?.changeDate), "dd MMM yyyy")}`,
+        }
+      : null;
+
   const stats: TStat[] = [
     {
       icon: Gauge,
@@ -236,6 +260,7 @@ const BikeDetailPage = () => {
       unit: avgMileage?.value === "—" ? undefined : "km/l",
       hint: avgMileage?.hint,
     },
+    ...(oilStat ? [oilStat] : []),
     {
       icon: Wallet,
       label: `Spent in ${format(now, "MMM yyyy")}`,
@@ -255,6 +280,8 @@ const BikeDetailPage = () => {
 
   const tiles: { href: string; label: string; icon: LucideIcon }[] = [
     { href: "fuel-logs", label: "Fuel logs", icon: Fuel },
+    // ! D5: next to fuel, not buried after Documents — those two are what the rider opens weekly
+    { href: "engine-oil", label: "Engine oil", icon: Droplet },
     { href: "mileage", label: "Mileage", icon: Gauge },
     { href: "maintenance-logs", label: "Maintenance", icon: Wrench },
     { href: "spending", label: "Spending", icon: Wallet },
@@ -380,11 +407,24 @@ const BikeDetailPage = () => {
               {(lifetime?.totalDistanceKm ?? 0)?.toLocaleString()} km
             </div>
           </div>
+          {oilStat && (
+            <div>
+              <div className="truncate text-muted-foreground">On this oil</div>
+              <div className="mt-0.5 text-[15px]">
+                {oilStat?.value} km
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* ── desktop stat tiles ── */}
-      <div className="hidden grid-cols-2 gap-3 lg:grid xl:grid-cols-4">
+      <div
+        className={cn(
+          "hidden grid-cols-2 gap-3 lg:grid",
+          oilStat ? "xl:grid-cols-5" : "xl:grid-cols-4",
+        )}
+      >
         {stats?.map((stat) => (
           <HubStat key={stat?.label} stat={stat} />
         ))}
