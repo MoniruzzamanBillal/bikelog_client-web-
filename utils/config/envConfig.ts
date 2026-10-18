@@ -29,10 +29,8 @@ const DEFAULT_API_ORIGIN = "https://bikelog-server.vercel.app";
 // ! "", which `??` would accept — yielding a relative "/api" baseURL that silently sends
 // ! every call to the Next server instead of the API. `||` catches "" as well as undefined.
 // ! Trailing slashes are stripped so "http://localhost:5000/" cannot produce a double slash.
-// const API_ORIGIN = (
-//   process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_ORIGIN
-// ).replace(/\/+$/, "");
+const API_ORIGIN = (
+  process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_ORIGIN
+).replace(/\/+$/, "");
 
-// export const getBaseUrl = (): string => `${API_ORIGIN}/api`;
-
-export const getBaseUrl = (): string => `http://localhost:5000/api`;
+export const getBaseUrl = (): string => `${API_ORIGIN}/api`;
