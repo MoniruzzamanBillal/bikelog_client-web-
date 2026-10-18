@@ -73,11 +73,6 @@ export default function MaintenanceLogCard({
     }
   };
 
-  const oilName =
-    typeof log?.oilType === "object" && log?.oilType?.name
-      ? log?.oilType?.name
-      : undefined;
-
   const nextDue =
     log?.nextDueOdometer != null
       ? `${log?.nextDueOdometer?.toLocaleString()} km`
@@ -100,11 +95,13 @@ export default function MaintenanceLogCard({
           className="size-14"
         />
         <div className="min-w-0 flex-1">
+          {/* ! spec 33 §F: the oil-type pill is gone — this is the single display site
+              ! for it on the maintenance screen (there is no table/column file here), and
+              ! after the server's import no live maintenance log carries an oil type. */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium">
               {getTypeName(log, maintenanceTypes)}
             </span>
-            {oilName && <StatusTag tone="accent">{oilName}</StatusTag>}
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground tabular-nums">
             {format(new Date(log?.serviceDate), "dd MMM yyyy")} ·{" "}

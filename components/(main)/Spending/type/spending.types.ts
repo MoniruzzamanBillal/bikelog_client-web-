@@ -28,7 +28,15 @@ export interface TSpendingInsight {
   cached: boolean;
 }
 
-export type TSpendingRecordSource = "fuel" | "maintenance";
+// ! Was `"fuel" | "maintenance"` and had been two values behind the server for a while:
+// ! `spending.interface.ts` is `"fuel" | "maintenance" | "accessory" | "oil"` (accessory
+// ! since server spec 25, oil since server spec 54). Nothing switches on this union, so
+// ! the drift was harmless at runtime — type hygiene, not behaviour.
+export type TSpendingRecordSource =
+  | "fuel"
+  | "maintenance"
+  | "accessory"
+  | "oil";
 
 export interface TSpendingRecord {
   date: string;

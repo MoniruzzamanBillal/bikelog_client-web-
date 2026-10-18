@@ -15,7 +15,9 @@ export const maintenanceLogSchema = z.object({
       message: "Odometer reading cannot exceed 999,999 km",
     }),
 
-  oilType: z.string().optional(),
+  // ! spec 33 §F: `oilType` removed — engine oil is its own module and its own form now.
+  // ! The maintenance API still accepts the field for history's sake; this client no
+  // ! longer sends it.
 
   intervalKmUsed: z
     .string()

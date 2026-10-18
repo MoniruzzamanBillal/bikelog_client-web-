@@ -3,7 +3,7 @@
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import { Button } from "@/components/ui/button";
 import { usePost } from "@/hooks/useApi";
-import { setToken } from "@/lib/tokenManager";
+import { setTokens } from "@/lib/tokenManager";
 import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, Eye, EyeOff } from "lucide-react";
@@ -34,9 +34,17 @@ export default function LoginForm() {
         // ! Spec 30 §A: clearing on LOGIN is the stronger of the two invariants, and the
         // ! reason both exist. Logout can be skipped — the tab is closed, the token
         // ! expires, the app crashes — but nobody arrives at a session without logging in.
-        // ! Must run before setToken/navigation so nothing can refetch under the old cache.
+        // ! Must run before setTokens/navigation so nothing can refetch under the old cache.
         queryClient?.clear();
-        setToken(result?.token);
+        // ! Spec 32 §G: `token` is the ACCESS token (15 min) and `refreshToken` the 15-day
+        // ! one — server spec 51 kept the `token` field name precisely so this kept working.
+        // ! A response with no `refreshToken` must NOT break login: the server deploys after
+        // ! this client (its §H), so every login during development answers without one and
+        // ! simply behaves as it did before refresh tokens existed.
+        setTokens({
+          accessToken: result?.token,
+          refreshToken: result?.refreshToken,
+        });
         setTimeout(() => router?.replace("/dashboard"), 100);
       }
     } catch (error) {
