@@ -1,8 +1,8 @@
 import StatusTag from "@/components/shared/StatusTag/StatusTag";
-import TableActionMenu from "@/components/shared/table/TableActionMenu";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import EngineOilReceiptCell from "./EngineOilReceiptCell";
+import EngineOilRowActions from "./EngineOilRowActions";
 import { getOilName, TEngineOilLog } from "./type/engine-oil-log.types";
 
 const money = (n: number) =>
@@ -96,11 +96,14 @@ export const engineOilLogColumns = ({
   {
     id: "actions",
     header: "",
-    // ! no lock rule here, unlike fuel logs — nothing downstream closes a period over an
-    // ! oil change, so every row stays editable
+    meta: { align: "right" },
+    // ! Visible edit/delete icons, not a 3-dot dropdown (the developer's call, 2026-10-18).
+    // ! Safe to drop the menu here precisely because there is no lock rule on an oil
+    // ! change — nothing downstream closes a period over one, so neither action is ever
+    // ! disabled and there is no footnote for a dropdown to carry.
     cell: ({ row }) => (
-      <TableActionMenu
-        rowData={row?.original}
+      <EngineOilRowActions
+        log={row?.original}
         onEdit={onEdit}
         onDelete={onDelete}
       />

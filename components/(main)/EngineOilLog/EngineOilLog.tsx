@@ -6,7 +6,6 @@ import PrimaryButton from "@/components/shared/PrimaryButton/PrimaryButton";
 import StateCard from "@/components/shared/StateCard/StateCard";
 import StatusTag from "@/components/shared/StatusTag/StatusTag";
 import GenericTableComponent from "@/components/shared/table/GenericTableComponent";
-import TableActionMenu from "@/components/shared/table/TableActionMenu";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDelete, useFetchData } from "@/hooks/useApi";
@@ -20,6 +19,7 @@ import EngineOilLogFormModal, {
   TEngineOilLogSeed,
 } from "./EngineOilLogFormModal";
 import EngineOilReceiptCell from "./EngineOilReceiptCell";
+import EngineOilRowActions from "./EngineOilRowActions";
 import EngineOilStatusCard from "./EngineOilStatusCard";
 import { engineOilLogColumns } from "./engineOilLogColumns";
 import {
@@ -263,9 +263,11 @@ const EngineOilLog = () => {
                         {log?.serviceCenter ? ` · ${log?.serviceCenter}` : ""}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end justify-between">
-                      <TableActionMenu
-                        rowData={log}
+                    <div className="flex flex-col items-end justify-between gap-1">
+                      {/* ! same icons as the desktop column, so one page has one
+                          ! interaction rather than a dropdown on one half of it */}
+                      <EngineOilRowActions
+                        log={log}
                         onEdit={setEditingLog}
                         onDelete={setDeletingLog}
                       />
