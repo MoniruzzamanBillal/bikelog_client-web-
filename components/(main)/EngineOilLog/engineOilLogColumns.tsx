@@ -76,9 +76,9 @@ export const engineOilLogColumns = ({
     id: "costPerKm",
     header: "৳/km",
     meta: { align: "right" },
-    // ! server-computed (server spec 54 D12), `null` on the OLDEST change: ৳/km divides the
-    // ! previous oil's cost by the distance it ran, and the oldest change has no earlier
-    // ! cost. Deliberately not filled in from `currentOdometer`, which would mix a settled
+    // ! server-computed (server spec 54 D12), `null` on the NEWEST change because its
+    // ! period is still open — the status card above already says how far that oil has
+    // ! run. Deliberately not filled in from `currentOdometer`, which would mix a settled
     // ! number and a moving one in the same column (§0 H-W12).
     cell: ({ row }) => (
       <span className="text-muted-foreground tabular-nums">
