@@ -50,10 +50,14 @@ export default function BikeAccessoryFormModal({
 
   const { mutateAsync, isPending: isCreating } = usePost([
     ["bikeAccessories", bikeId],
+    ["spending", bikeId],
+    ["accessoryMonthSpending", bikeId],
   ]);
 
   const { mutateAsync: updateMutation, isPending: isUpdating } = usePatch([
     ["bikeAccessories", bikeId],
+    ["spending", bikeId],
+    ["accessoryMonthSpending", bikeId],
   ]);
 
   const methods = useForm<TBikeAccessoryFormType>({

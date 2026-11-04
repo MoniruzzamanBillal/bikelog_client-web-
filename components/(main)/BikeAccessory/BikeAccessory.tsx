@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { TBike } from "../Bike/type/bike.types";
 import BikeAccessoryCard from "./BikeAccessoryCard";
 import BikeAccessoryFormModal from "./BikeAccessoryFormModal";
+import PurchasedAccessorySpending from "./PurchasedAccessorySpending";
 import {
   TAccessoryStatus,
   TAccessoryUrgency,
@@ -51,12 +52,17 @@ export default function BikeAccessory() {
     useState<TBikeAccessory | null>(null);
   const limit = 20;
 
+  // The "Purchased" filter shows a month-grouped spending view (bikelog_server spec 59) instead
+  // of the flat paginated list, so it uses its own query and hides pagination + the urgency filter.
+  const isPurchased = statusFilter === "purchased";
+
   const { data, isLoading, isError, error, refetch } =
     useFetchData<TBikeAccessoriesApiResponse>(
       ["bikeAccessories", bikeId, page?.toString(), statusFilter, urgencyFilter],
       `/bikes/${bikeId}/accessories?page=${page}&limit=${limit}${
         statusFilter !== "all" ? `&status=${statusFilter}` : ""
       }${urgencyFilter !== "all" ? `&urgency=${urgencyFilter}` : ""}`,
+      { enabled: !isPurchased },
     );
 
   const { data: bikeData } = useFetchData<TBike>(
@@ -67,6 +73,7 @@ export default function BikeAccessory() {
   const { mutateAsync: deleteMutation, isPending: isDeleting } = useDelete([
     ["bikeAccessories", bikeId],
     ["spending", bikeId],
+    ["accessoryMonthSpending", bikeId],
   ]);
 
   const accessories = data?.data?.result ?? [];
@@ -167,25 +174,36 @@ export default function BikeAccessory() {
           </SelectContent>
         </Select>
 
-        <Select
-          value={urgencyFilter}
-          onValueChange={(value) =>
-            handleUrgencyFilterChange(value as TUrgencyFilter)
-          }
-        >
-          <SelectTrigger size="sm" className="w-[150px]">
-            <SelectValue placeholder="Filter by urgency" />
-          </SelectTrigger>
-          <SelectContent position="popper">
-            <SelectItem value="all">All urgencies</SelectItem>
-            <SelectItem value="immediate">Immediate</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="low">Low</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Urgency is wishlist priority — meaningless once bought — and the Purchased view's
+            totals are intentionally across all purchases, so hide the filter there. */}
+        {!isPurchased && (
+          <Select
+            value={urgencyFilter}
+            onValueChange={(value) =>
+              handleUrgencyFilterChange(value as TUrgencyFilter)
+            }
+          >
+            <SelectTrigger size="sm" className="w-[150px]">
+              <SelectValue placeholder="Filter by urgency" />
+            </SelectTrigger>
+            <SelectContent position="popper">
+              <SelectItem value="all">All urgencies</SelectItem>
+              <SelectItem value="immediate">Immediate</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
-      {isLoading ? (
+      {isPurchased ? (
+        <PurchasedAccessorySpending
+          bikeId={bikeId}
+          onEdit={setEditingAccessory}
+          onDelete={setDeletingAccessory}
+          addButton={addButton("Add accessory")}
+        />
+      ) : isLoading ? (
         <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-20 rounded-[10px]" />

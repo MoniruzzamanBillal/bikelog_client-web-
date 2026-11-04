@@ -32,9 +32,11 @@ export default function BikeAccessoryCard({
 }: TProps) {
   const { mutateAsync: uploadImage, isPending: isUploading } = usePut([
     ["bikeAccessories", accessory?.bike],
+    ["accessoryMonthSpending", accessory?.bike],
   ]);
   const { mutateAsync: deleteImage, isPending: isDeleting } = useDelete([
     ["bikeAccessories", accessory?.bike],
+    ["accessoryMonthSpending", accessory?.bike],
   ]);
 
   const handleImageUpload = async (file: File) => {
