@@ -15,11 +15,14 @@ export const fuelLogColumns = ({
   onEdit,
   onDelete,
   getLockNote,
+  getMileage,
 }: {
   onEdit: (data: TFuelLog) => void;
   onDelete: (data: TFuelLog) => void;
   // ! server rejects edit/delete for fills inside a closed mileage record
   getLockNote: (data: TFuelLog) => string | undefined;
+  // ! closed-period km/l for a full-tank fill that closed a mileage record, else undefined
+  getMileage: (data: TFuelLog) => number | undefined;
 }): ColumnDef<TFuelLog>[] => [
   {
     accessorKey: "date",
@@ -69,6 +72,39 @@ export const fuelLogColumns = ({
       ) : (
         <StatusTag>Partial</StatusTag>
       ),
+  },
+  {
+    id: "mileage",
+    header: "Mileage",
+    meta: { align: "right" },
+    // ! Mirrors the app's FuelLogCard: the accent km/l pill is the closed full-tank
+    // ! period's exact mileage (only full-tank fills that closed a record have one), and
+    // ! the muted line below is the per-fill `km on this tank · ৳/km` the server sends
+    // ! (spec 57). The newest fill-up has an open period and no closing neighbour, so it
+    // ! shows neither — an em dash stands in.
+    cell: ({ row }) => {
+      const log = row?.original;
+      const kmPerLiter = getMileage(log);
+      const hasPerFill = log?.kmOnThisFill != null && log?.costPerKm != null;
+
+      if (kmPerLiter == null && !hasPerFill) {
+        return <span className="text-muted-foreground">—</span>;
+      }
+
+      return (
+        <div className="flex flex-col items-end gap-1 tabular-nums">
+          {kmPerLiter != null && (
+            <StatusTag tone="accent">{kmPerLiter.toFixed(1)} km/l</StatusTag>
+          )}
+          {hasPerFill && (
+            <span className="text-[11px] whitespace-nowrap text-muted-foreground">
+              {log?.kmOnThisFill?.toLocaleString()} km · ৳
+              {log?.costPerKm?.toFixed(2)}/km
+            </span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "fuelStation",

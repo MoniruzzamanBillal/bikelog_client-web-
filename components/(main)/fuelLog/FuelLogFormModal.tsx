@@ -5,20 +5,35 @@ import FormActionButtons from "@/components/shared/Modal/FormActionButtons";
 import ControlledCheckbox from "@/components/shared/input/ControlledCheckbox";
 import ControlledInput from "@/components/shared/input/ControlledInput";
 import ControlledTextArea from "@/components/shared/input/ControlledTextArea";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormState } from "react-hook-form";
 import { toast } from "sonner";
 
 import ControlledDateSelect from "@/components/shared/input/ControlledDateSelect";
 import { usePatch, usePost } from "@/hooks/useApi";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { fuelLogSchema, TFuelLogFormType } from "./schema/fuel-log.schema";
 import { TCreateFuelLogPayload, TFuelLog } from "./type/fuel-log.types";
+import { TFuelLogSeed } from "./useFuelLogSeed";
 
 type TFuelLogFormModalProps = {
   open: boolean;
   onClose: () => void;
   bikeId: string;
   fuelLog?: TFuelLog;
+  /** Pre-fill a NEW fill-up from the last log (spec 52). Ignored in edit mode. */
+  seedFromLastLog?: TFuelLogSeed;
+  /** The bike's `currentOdometer` — the floor of the server's accepted range. */
+  seedOdometer?: number;
+};
+
+/** ["price", "station", "tank setting"] -> "Price, station and tank setting" */
+const toSentence = (items: string[]) => {
+  const joined =
+    items.length > 1
+      ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`
+      : items[0];
+  return joined.charAt(0).toUpperCase() + joined.slice(1);
 };
 
 export default function FuelLogFormModal({
@@ -26,6 +41,8 @@ export default function FuelLogFormModal({
   onClose,
   bikeId,
   fuelLog,
+  seedFromLastLog,
+  seedOdometer,
 }: TFuelLogFormModalProps) {
   const isEditMode = !!fuelLog;
 
@@ -43,20 +60,59 @@ export default function FuelLogFormModal({
   const { mutateAsync: updateMutation, isPending: isUpdating } =
     usePatch(invalidateKeys);
 
+  // ! The edit path must never seed — seeds are read only when `!isEditMode`.
+  const seededDefaults: TFuelLogFormType = {
+    odometerReading: isEditMode
+      ? (fuelLog?.odometerReading?.toString() ?? "")
+      : (seedOdometer?.toString() ?? ""),
+    litersAdded: fuelLog?.litersAdded?.toString() ?? "",
+    isFullTank: isEditMode
+      ? (fuelLog?.isFullTank ?? false)
+      : (seedFromLastLog?.isFullTank ?? false),
+    pricePerLiter: isEditMode
+      ? (fuelLog?.pricePerLiter?.toString() ?? "")
+      : (seedFromLastLog?.pricePerLiter?.toString() ?? ""),
+    fuelStation: isEditMode
+      ? (fuelLog?.fuelStation ?? "")
+      : (seedFromLastLog?.fuelStation ?? ""),
+    date: fuelLog?.date ? new Date(fuelLog?.date) : new Date(),
+    notes: fuelLog?.notes ?? "",
+  };
+
   const methods = useForm<TFuelLogFormType>({
     resolver: zodResolver(fuelLogSchema),
-    defaultValues: {
-      odometerReading: fuelLog?.odometerReading?.toString() ?? "",
-      litersAdded: fuelLog?.litersAdded?.toString() ?? "",
-      isFullTank: fuelLog?.isFullTank ?? false,
-      pricePerLiter: fuelLog?.pricePerLiter?.toString() ?? "",
-      fuelStation: fuelLog?.fuelStation ?? "",
-      date: fuelLog?.date ? new Date(fuelLog?.date) : new Date(),
-      notes: fuelLog?.notes ?? "",
-    },
+    defaultValues: seededDefaults,
   });
 
+  // ! The seed queries can resolve AFTER this modal mounts (cold cache). Re-seed when the
+  // ! values arrive, but only while the form is still pristine, so we never clobber typing.
+  const { dirtyFields, isDirty } = useFormState({ control: methods.control });
+  useEffect(() => {
+    if (isEditMode || isDirty) return;
+    methods.reset(seededDefaults);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seedOdometer, seedFromLastLog?.pricePerLiter, seedFromLastLog?.fuelStation, seedFromLastLog?.isFullTank]);
+
   const isPending = isCreating || isUpdating;
+
+  // ! §G — a prefilled value you didn't notice is a wrong value you didn't notice. Each hint
+  // ! line disappears once you edit the field it describes (tracked via `dirtyFields`).
+  const odometerSeeded =
+    !isEditMode && seedOdometer != null && !dirtyFields?.odometerReading;
+  const carriedOver = !isEditMode
+    ? [
+        seedFromLastLog?.pricePerLiter !== undefined && !dirtyFields?.pricePerLiter
+          ? "price"
+          : null,
+        seedFromLastLog?.fuelStation && !dirtyFields?.fuelStation
+          ? "station"
+          : null,
+        seedFromLastLog?.isFullTank === true && !dirtyFields?.isFullTank
+          ? "tank setting"
+          : null,
+      ].filter((item): item is string => !!item)
+    : [];
+  const showSeedHint = odometerSeeded || carriedOver.length > 0;
 
   const onSubmit = async (data: TFuelLogFormType) => {
     try {
@@ -111,6 +167,23 @@ export default function FuelLogFormModal({
     >
       <FormProvider {...methods}>
         <form onSubmit={methods?.handleSubmit(onSubmit)} className="space-y-4">
+          {showSeedHint && (
+            <div className="flex flex-col gap-1 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-[11.5px] leading-4 text-accent-foreground">
+              {odometerSeeded && (
+                <span>
+                  Odometer starts at this bike&rsquo;s current reading — change
+                  it if you&rsquo;re backdating.
+                </span>
+              )}
+              {carriedOver.length > 0 && (
+                <span>
+                  {toSentence(carriedOver)} carried over from your last fill-up —
+                  check before saving.
+                </span>
+              )}
+            </div>
+          )}
+
           <ControlledInput
             name="odometerReading"
             label="Odometer Reading (km)"
@@ -144,25 +217,6 @@ export default function FuelLogFormModal({
           />
 
           <ControlledDateSelect name="date" label="Date" isRequired />
-
-          {/* <div className="space-y-1">
-            <label className="mb-1.5 block text-xs text-foreground/70">
-              Date<span className="ml-0.5 text-destructive">*</span>
-            </label>
-            <Controller
-              name="date"
-              control={methods.control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <DateSelect
-                  value={field.value}
-                  onChange={(date) => field.onChange(date)}
-                  mode="single"
-                  placeholder="Select date"
-                />
-              )}
-            />
-          </div> */}
 
           <ControlledTextArea
             name="notes"

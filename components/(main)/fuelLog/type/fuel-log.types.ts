@@ -8,6 +8,14 @@ export interface TFuelLog {
   isFullTank: boolean;
   pricePerLiter: number;
   totalCost: number;
+  // ! server-computed per LIST row (`bikelog_server` spec 57), mirroring the app's
+  // ! `TFuelLog`. `kmOnThisFill` is the NEXT fill-up's odometer reading minus this one's —
+  // ! how far this tank actually carried the bike — and `costPerKm` is this fill-up's money
+  // ! over that distance. Explicit `null` on the newest fill-up (period still open) and on
+  // ! `GET /:id` (the lookup doesn't run), so guard with `!= null`. NOT mileage: km/l still
+  // ! comes from the closed full-tank periods in the mileage history.
+  kmOnThisFill?: number | null;
+  costPerKm?: number | null;
   fuelStation?: string;
   date: string;
   notes?: string;
