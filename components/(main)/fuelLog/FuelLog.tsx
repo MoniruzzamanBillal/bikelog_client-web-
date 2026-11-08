@@ -19,7 +19,9 @@ import { TMileageHistoryResponse } from "../Mileage/type/mileage.types";
 import { fuelLogColumns } from "./fuelLogColumns";
 import FuelLogFormModal from "./FuelLogFormModal";
 import FuelLogReceiptCell from "./FuelLogReceiptCell";
+import TankForecastCard from "./TankForecastCard";
 import { TFuelLog, TFuelLogsApiResponse } from "./type/fuel-log.types";
+import { useFuelLogSeed } from "./useFuelLogSeed";
 
 const money = (n: number) =>
   n?.toLocaleString(undefined, {
@@ -59,6 +61,11 @@ const FuelLog = () => {
     `/bikes/${bikeId}/mileage`,
   );
 
+  // ! newest-log seed for the Add Fill-up modal + the shared latest-logs window the tank
+  // ! forecast needs. Deliberately NOT seeded from the paginated `fuelLogs` list above —
+  // ! on page 2 its first row is a months-old log (spec 52).
+  const { seed, odometerSeed } = useFuelLogSeed(bikeId);
+
   const { mutateAsync: deleteMutation, isPending: isDeleting } = useDelete([
     ["fuelLogs", bikeId],
     ["bikes", bikeId],
@@ -82,6 +89,16 @@ const FuelLog = () => {
   }, [historyData]);
 
   const getLockNote = (fuelLog: TFuelLog) => lockNotes?.get(fuelLog?._id);
+
+  // ! Exact km/l is carried on the mileage RECORD, not the fuel log — only a full-tank fill
+  // ! closes a period. Match on `endOdometer` (the closing fill's reading), as the app does,
+  // ! rather than trusting `fuelLogIds` order/membership.
+  const getMileage = (fuelLog: TFuelLog): number | undefined => {
+    if (!fuelLog?.isFullTank) return undefined;
+    return (historyData?.data?.exactRecords ?? []).find(
+      (record) => record?.endOdometer === fuelLog?.odometerReading,
+    )?.mileageKmPerLiter;
+  };
 
   const handleConfirmDelete = async () => {
     if (!deletingFuelLog) return;
@@ -145,6 +162,9 @@ const FuelLog = () => {
         }
       />
 
+      {/* ! Forecast, not an alert — renders nothing until the bike has a usable km/l figure. */}
+      <TankForecastCard bikeId={bikeId} />
+
       {isError ? (
         <StateCard
           variant="error"
@@ -162,6 +182,7 @@ const FuelLog = () => {
                 onEdit: setEditingFuelLog,
                 onDelete: setDeletingFuelLog,
                 getLockNote,
+                getMileage,
               })}
               isLoading={isLoading}
               emptyState={emptyState}
@@ -187,15 +208,23 @@ const FuelLog = () => {
               <>
                 {result?.map((log) => {
                   const lockNote = getLockNote(log);
+                  const kmPerLiter = getMileage(log);
+                  const hasPerFill =
+                    log?.kmOnThisFill != null && log?.costPerKm != null;
                   return (
                     <div key={log?._id} className="panel flex gap-3 py-3 pr-3 pl-3.5">
                       <div className="flex min-w-0 flex-1 flex-col gap-1">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           <span>{format(new Date(log?.date), "dd MMM yyyy")}</span>
                           {log?.isFullTank ? (
                             <StatusTag tone="success">Full</StatusTag>
                           ) : (
                             <StatusTag>Partial</StatusTag>
+                          )}
+                          {kmPerLiter != null && (
+                            <StatusTag tone="accent">
+                              {kmPerLiter.toFixed(1)} km/l
+                            </StatusTag>
                           )}
                         </div>
                         <div className="flex items-baseline gap-2.5 tabular-nums">
@@ -211,6 +240,19 @@ const FuelLog = () => {
                           {log?.odometerReading?.toLocaleString()} km
                           {log?.fuelStation ? ` · ${log?.fuelStation}` : ""}
                         </div>
+                        {/* ! Spec 57 per-fill figures, server-sent. Newest fill-up's
+                            ! period is still open, so it shows nothing here. */}
+                        {hasPerFill && (
+                          <div className="truncate text-xs text-muted-foreground tabular-nums">
+                            {log?.kmOnThisFill?.toLocaleString()} km on this tank · ৳
+                            {log?.costPerKm?.toFixed(2)}/km
+                          </div>
+                        )}
+                        {log?.notes ? (
+                          <div className="text-xs text-muted-foreground">
+                            {log?.notes}
+                          </div>
+                        ) : null}
                       </div>
                       <div className="flex flex-col items-end justify-between">
                         <TableActionMenu
@@ -270,6 +312,8 @@ const FuelLog = () => {
           open
           onClose={() => setIsCreateModalOpen(false)}
           bikeId={bikeId}
+          seedFromLastLog={seed}
+          seedOdometer={odometerSeed}
         />
       )}
 
