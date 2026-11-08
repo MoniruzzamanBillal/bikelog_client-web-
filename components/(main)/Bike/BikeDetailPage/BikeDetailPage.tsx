@@ -25,10 +25,12 @@ import {
   AlertTriangle,
   BookOpen,
   ChevronLeft,
+  Coins,
   Droplet,
   FileText,
   Fuel,
   Gauge,
+  Hourglass,
   LucideIcon,
   MoreHorizontal,
   Route,
@@ -146,6 +148,13 @@ const BikeDetailPage = () => {
     `/bikes/${bikeId}/spending-summary?period=month&targetMonth=${targetMonth}`,
     { enabled: !!bikeId },
   );
+  // ! All-in lifetime spend for Cost/km — SAME key the Spending screen's "Lifetime" tab uses
+  // ! (["spending", bikeId, "lifetime", "", ""]), so react-query serves it from cache.
+  const { data: lifetimeSpendData } = useFetchData<TSpendingSummary>(
+    ["spending", bikeId, "lifetime", "", ""],
+    `/bikes/${bikeId}/spending-summary?period=lifetime`,
+    { enabled: !!bikeId },
+  );
   const { data: recentFuelData } = useFetchData<TFuelLogsApiResponse>(
     ["fuelLogs", bikeId, "recent"],
     `/bikes/${bikeId}/fuel-logs?page=1&limit=5&sort=-date`,
@@ -245,6 +254,37 @@ const BikeDetailPage = () => {
         }
       : null;
 
+  // ! Oil life: percent of the oil-change interval used, server-computed (percentUsed).
+  // ! Hidden on a bike with no oil log, exactly like "On this oil".
+  const oilLifeStat: TStat | null =
+    oilStatus?.lastChange && oilStatus?.percentUsed != null
+      ? {
+          icon: Hourglass,
+          label: "Oil life",
+          value: `${Math.round(oilStatus?.percentUsed)}%`,
+          unit: "used",
+          hint:
+            oilStatus?.kmRemaining != null
+              ? oilStatus?.kmRemaining >= 0
+                ? `${oilStatus?.kmRemaining?.toLocaleString()} km to go`
+                : `${Math.abs(oilStatus?.kmRemaining)?.toLocaleString()} km overdue`
+              : "Interval used",
+        }
+      : null;
+
+  // ! Cost per km: all-in lifetime spend ÷ lifetime distance (currentOdometer − initialOdometer).
+  // ! "—" when there's no spend yet or no distance ridden (new bike — avoids ÷0). Two decimals,
+  // ! not the whole-taka `taka()` rounding, since per-km costs are small.
+  const lifetimeSpend = lifetimeSpendData?.data?.totalSpending;
+  const lifetimeDistanceKm =
+    bike?.currentOdometer != null && bike?.initialOdometer != null
+      ? bike?.currentOdometer - bike?.initialOdometer
+      : null;
+  const costPerKm =
+    lifetimeSpend != null && lifetimeDistanceKm != null && lifetimeDistanceKm > 0
+      ? lifetimeSpend / lifetimeDistanceKm
+      : null;
+
   const stats: TStat[] = [
     {
       icon: Gauge,
@@ -260,13 +300,24 @@ const BikeDetailPage = () => {
       unit: avgMileage?.value === "—" ? undefined : "km/l",
       hint: avgMileage?.hint,
     },
-    ...(oilStat ? [oilStat] : []),
     {
       icon: Wallet,
       label: `Spent in ${format(now, "MMM yyyy")}`,
       value: taka(monthSpend),
       hint: `${taka(perDay)} per day so far`,
     },
+    {
+      icon: Coins,
+      label: "Cost / km",
+      value: costPerKm == null ? "—" : `৳${costPerKm.toFixed(2)}`,
+      unit: costPerKm == null ? undefined : "per km",
+      hint:
+        costPerKm == null
+          ? "Needs spend and distance"
+          : "All spending ÷ distance ridden",
+    },
+    ...(oilStat ? [oilStat] : []),
+    ...(oilLifeStat ? [oilLifeStat] : []),
     {
       icon: Route,
       label: "Lifetime distance",
@@ -402,9 +453,9 @@ const BikeDetailPage = () => {
             <div className="mt-0.5 text-[15px]">{taka(monthSpend)}</div>
           </div>
           <div>
-            <div className="text-muted-foreground">Lifetime</div>
+            <div className="truncate text-muted-foreground">Cost / km</div>
             <div className="mt-0.5 text-[15px]">
-              {(lifetime?.totalDistanceKm ?? 0)?.toLocaleString()} km
+              {costPerKm == null ? "—" : `৳${costPerKm.toFixed(2)}`}
             </div>
           </div>
           {oilStat && (
@@ -415,6 +466,18 @@ const BikeDetailPage = () => {
               </div>
             </div>
           )}
+          {oilLifeStat && (
+            <div>
+              <div className="truncate text-muted-foreground">Oil life</div>
+              <div className="mt-0.5 text-[15px]">{oilLifeStat?.value} used</div>
+            </div>
+          )}
+          <div>
+            <div className="text-muted-foreground">Lifetime</div>
+            <div className="mt-0.5 text-[15px]">
+              {(lifetime?.totalDistanceKm ?? 0)?.toLocaleString()} km
+            </div>
+          </div>
         </div>
       </div>
 
@@ -422,7 +485,8 @@ const BikeDetailPage = () => {
       <div
         className={cn(
           "hidden grid-cols-2 gap-3 lg:grid",
-          oilStat ? "xl:grid-cols-5" : "xl:grid-cols-4",
+          // 5 tiles without an oil log, 7 with (adds On-this-oil + Oil life)
+          oilStat ? "xl:grid-cols-4" : "xl:grid-cols-5",
         )}
       >
         {stats?.map((stat) => (
