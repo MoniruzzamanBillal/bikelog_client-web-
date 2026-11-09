@@ -1,6 +1,6 @@
 # 37 — Engine oil status card: always show a date
 
-**Status**: 📝 Plan only — written 2026-11-09. App-parity catch-up. Mirrors `bikelog_app` spec **59**. Server half — `bikelog_server` spec **56** (the `/engine-oil-logs/status` endpoint gains an always-present `projectedDueDate`, an `overdueDays`, a `rateBasis.source`, and a provisional `estimate` block) — is **already implemented and deployed**. Pure web-client build.
+**Status**: ✅ Complete — 2026-11-09 (code; browser pass owed). App-parity catch-up. Mirrors `bikelog_app` spec **59**. Server half — `bikelog_server` spec **56** (the `/engine-oil-logs/status` endpoint gains an always-present `projectedDueDate`, an `overdueDays`, a `rateBasis.source`, and a provisional `estimate` block) — is **already implemented and deployed**. Pure web-client build.
 
 Companion to the already-shipped web spec **33** (engine oil log). This only changes how `EngineOilStatusCard.tsx` renders the status the server already returns.
 
@@ -16,7 +16,7 @@ Make the oil status card show a **projected date in every state the server can d
 
 ## Design
 
-- **No new source of truth.** Every date, day-count and percentage comes off `GET /engine-oil-logs/status` already computed. The card must not derive a date or a km/day of its own (app spec 59 H-A). It only *reads and formats* new fields.
+- **No new source of truth.** Every date, day-count and percentage comes off `GET /engine-oil-logs/status` already computed. The card must not derive a date or a km/day of its own (app spec 59 H-A). It only _reads and formats_ new fields.
 - **The estimate is visibly provisional.** When the card is driven by the `estimate` block, the status pill gains a `· est.` suffix and the card ends with one sentence naming the oil type and how to make it exact. Never mix an estimated figure into the unlabelled audit lines.
 - Keep the existing panel, pill tones, progress bar and audit lines; this is additive branching, not a redesign.
 
@@ -45,26 +45,26 @@ estimate?: {                        // present only when lastChange has NO inter
 
 In `EngineOilStatusCard.tsx`, rework the headline/subline/audit derivation to the state table below (mirrors app spec 59 §B). All new reads guarded with `!= null` so an older server renders exactly as spec 33 left it.
 
-| Server state | Headline | Sub-line under it |
-| --- | --- | --- |
-| `ok` / `upcoming`, `projectedDueDate` present | `Next change around 12 Nov` (unchanged) | `~N km to go` |
-| `overdue`, `projectedDueDate` present | `Was due around 3 Oct` (danger tone) | `${overdueDays} days past due · ~${Math.abs(kmRemaining)} km past due` |
-| `overdue`, no date (no rate) | `Due ${Math.abs(kmRemaining)} km ago` (danger) | `Was due at ${nextDueOdometer} km` (as today) |
-| No interval, **`estimate` present** | from `estimate.projectedDueDate` → `Next change around 12 Nov`, pill reads `…· est.` | `~${estimate.kmRemaining} km to go`; audit line `${kmSinceChange} / ${estimate.intervalKm} km on this oil · ${estimate.percentUsed}% · est.` + the source sentence |
-| No interval, **no** oil type (no estimate) | `${kmSinceChange} km on this oil` | `Set an interval on this change to get a due date` (as today) |
-| No rate at all (new bike) | `~${kmRemaining} km to go` | — (as today) |
+| Server state                                  | Headline                                                                             | Sub-line under it                                                                                                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ok` / `upcoming`, `projectedDueDate` present | `Next change around 12 Nov` (unchanged)                                              | `~N km to go`                                                                                                                                                      |
+| `overdue`, `projectedDueDate` present         | `Was due around 3 Oct` (danger tone)                                                 | `${overdueDays} days past due · ~${Math.abs(kmRemaining)} km past due`                                                                                             |
+| `overdue`, no date (no rate)                  | `Due ${Math.abs(kmRemaining)} km ago` (danger)                                       | `Was due at ${nextDueOdometer} km` (as today)                                                                                                                      |
+| No interval, **`estimate` present**           | from `estimate.projectedDueDate` → `Next change around 12 Nov`, pill reads `…· est.` | `~${estimate.kmRemaining} km to go`; audit line `${kmSinceChange} / ${estimate.intervalKm} km on this oil · ${estimate.percentUsed}% · est.` + the source sentence |
+| No interval, **no** oil type (no estimate)    | `${kmSinceChange} km on this oil`                                                    | `Set an interval on this change to get a due date` (as today)                                                                                                      |
+| No rate at all (new bike)                     | `~${kmRemaining} km to go`                                                           | — (as today)                                                                                                                                                       |
 
 Additional edits:
 
 1. **Estimate drives the whole card** when present (app spec 59 D3): headline, sub-line, the **progress bar** (`estimate.percentUsed`, clamped 0–100) and the **pill tone** (keyed on `estimate.status`, with the `· est.` suffix). Do not render a bar from a real interval beside an estimated date.
-2. **Source sentence** (app spec 59 D4): when the estimate is driving, end the card with e.g. *“Estimated from {oilType.name}’s {estimate.intervalKm} km interval — set one on this change to make it exact.”* Reuse the existing muted/secondary text style; add no new token.
+2. **Source sentence** (app spec 59 D4): when the estimate is driving, end the card with e.g. _“Estimated from {oilType.name}’s {estimate.intervalKm} km interval — set one on this change to make it exact.”_ Reuse the existing muted/secondary text style; add no new token.
 3. **Rate-basis suffix** (app spec 59 D5): in the `kmPerDay` audit line append ` long-run avg` / ` lifetime avg` when `rateBasis.source` is `"longRun"`/`"lifetime"`. `"recent"` (and absent) get **no** suffix, so the common case reads exactly as today.
 4. Keep `projectedDaysRemaining` rendering as-is; note the server omits it when overdue (it would go negative), so the overdue day-count comes from `overdueDays`.
 
 ### Hazards
 
 - **H-A — degrade cleanly.** All additions are optional fields; when absent, the new branches are unreachable and the card is byte-for-byte its spec-33 self. Deploy order is free in both directions.
-- **H-B — the estimate is a different *kind* of fact.** It is derived from the oil type’s *current* `suggestedIntervalKm`, so editing the catalog moves it. Everything it produces carries `est.`.
+- **H-B — the estimate is a different _kind_ of fact.** It is derived from the oil type’s _current_ `suggestedIntervalKm`, so editing the catalog moves it. Everything it produces carries `est.`.
 - **H-C — one `new Date()` only, with a guard.** A bad/absent date must never print `Invalid Date`; fall back to the dateless branch.
 
 ## Dependencies

@@ -1,6 +1,6 @@
 # 36 — Settings: profile (name + avatar), with a read-only email
 
-**Status**: 📝 Plan only — written 2026-11-09. App-parity catch-up. Mirrors `bikelog_app` specs **56** (profile update + avatar) and **58** (email stays read-only). Server halves — `bikelog_server` specs **53** (`/auth` profile routes + `profilePicture` column) and **55** (a submitted `email` is refused with 400) — are **already implemented and deployed**, so this is a pure web-client build with no backend work.
+**Status**: ✅ Complete — 2026-11-09 (code; browser pass owed). App-parity catch-up. Mirrors `bikelog_app` specs **56** (profile update + avatar) and **58** (email stays read-only). Server halves — `bikelog_server` specs **53** (`/auth` profile routes + `profilePicture` column) and **55** (a submitted `email` is refused with 400) — are **already implemented and deployed**, so this is a pure web-client build with no backend work.
 
 ---
 
@@ -15,17 +15,17 @@ Today the web client knows nothing about the user beyond the JWT claims (`lib/us
 - Follow the **Nocturne** design language already in the web client — reuse `panel`, `StatTile`/`StateCard` spacing, `StatusTag`, the `shared/input` form controls, `Button`, and `lucide-react` icons (`Camera`, `Pencil`, `Lock`, `Trash2`, `Loader2`, `UserRound`). No new visual language.
 - A **round avatar** with an initials fallback, a small camera affordance, and inline `Change photo` / `Remove photo` text buttons — the same look the app adopted from `expenseTracker2`.
 - The profile block sits at the **top of the Settings page**, above the odometer/catalog sections — identity belongs first.
-- **Email field**: rendered disabled/dimmed with a padlock in the trailing slot and the helper line **“Your email is your sign-in ID and can’t be changed.”** (mirrors app spec 58 D3). It must read as *locked*, not *broken* — dim the whole field (`opacity-[0.72]`) and show the lock before any click.
+- **Email field**: rendered disabled/dimmed with a padlock in the trailing slot and the helper line **“Your email is your sign-in ID and can’t be changed.”** (mirrors app spec 58 D3). It must read as _locked_, not _broken_ — dim the whole field (`opacity-[0.72]`) and show the lock before any click.
 - Edit is an **inline expansion** (a header `Edit` button toggles the editor open/closed), matching how the catalog sections already expand — not a modal or a bottom sheet.
 
 ### Endpoints (all under the axios `baseURL` `…/api`, auth prefix `/auth`)
 
-| Call | Method / path | Body | Returns |
-| --- | --- | --- | --- |
-| Load identity | `GET /auth/me` | — | `{ id, name, email, profilePicture: {url, publicId} \| null, userRole, … }` |
-| Save name | `PATCH /auth/update-profile` | `{ name }` | updated safe user. **Sending `email` → 400** (server spec 55); the UI never sends it |
-| Set/replace photo | `PUT /auth/profile-picture` | `multipart/form-data`, one part named **`image`** | user with new `profilePicture` |
-| Remove photo | `DELETE /auth/profile-picture` | — | user with `profilePicture: null` |
+| Call              | Method / path                  | Body                                              | Returns                                                                              |
+| ----------------- | ------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Load identity     | `GET /auth/me`                 | —                                                 | `{ id, name, email, profilePicture: {url, publicId} \| null, userRole, … }`          |
+| Save name         | `PATCH /auth/update-profile`   | `{ name }`                                        | updated safe user. **Sending `email` → 400** (server spec 55); the UI never sends it |
+| Set/replace photo | `PUT /auth/profile-picture`    | `multipart/form-data`, one part named **`image`** | user with new `profilePicture`                                                       |
+| Remove photo      | `DELETE /auth/profile-picture` | —                                                 | user with `profilePicture: null`                                                     |
 
 ## Implementation
 
@@ -48,7 +48,7 @@ Today the web client knows nothing about the user beyond the JWT claims (`lib/us
 
 ### Hazards / decisions
 
-- **H-A — the email block is UI honesty, not enforcement.** The server (spec 55) refuses a submitted `email` with a 400 and only ever writes `name`. The disabled field + lock is the *explanation*; never include `email` in the PATCH body.
+- **H-A — the email block is UI honesty, not enforcement.** The server (spec 55) refuses a submitted `email` with a 400 and only ever writes `name`. The disabled field + lock is the _explanation_; never include `email` in the PATCH body.
 - **H-B — a disabled field must look disabled.** In the Nocturne palette a bare disabled input looks almost identical to an editable one; the padlock + dimming are what make the rule legible before a click (app spec 58 H-A).
 - **D1 — do not reuse a bike image picker for the avatar.** An avatar is a circle with an initials state and two text buttons; keep `UserAvatar` purpose-built.
 - **D2 — `/auth/me` is the only source of name/photo.** The JWT claims give only `email`/`role`; the name has never been in the token.
@@ -63,7 +63,7 @@ No new packages. Uses existing `react-hook-form`, `@tanstack/react-query` (via `
 - [ ] `Edit` expands an inline editor; `Edit`/close toggles it.
 - [ ] Changing the name and pressing **Save name** persists it; the collapsed row and avatar update without a reload (`["auth","me"]` invalidation).
 - [ ] Picking an image uploads it (`PUT …/profile-picture`, part `image`) and the avatar updates; **Remove photo** clears it and the initials return.
-- [ ] The email field shows a padlock, is dimmed, opens no editor, and is never sent — it reads as *locked*, not broken.
+- [ ] The email field shows a padlock, is dimmed, opens no editor, and is never sent — it reads as _locked_, not broken.
 - [ ] A hand-rolled `PATCH /auth/update-profile` with an `email` key returns **400** (server backstop; the UI can’t produce it).
 - [ ] 320–360px width: the editor, avatar buttons and the email helper line wrap cleanly; no horizontal scroll.
 - [ ] `yarn build` (tsc) and `yarn lint` clean.
