@@ -1,12 +1,12 @@
 # 38 — Spending: Month tab category accordions
 
-**Status**: 📝 Plan only — written 2026-11-09. App-parity catch-up. Mirrors `bikelog_app` spec **62**. Server half — `bikelog_server` spec **60** (`GET /bikes/:bikeId/spending-summary/monthly-breakdown`) — is **already implemented and deployed**. Pure web-client build.
+**Status**: ✅ Complete — 2026-11-09 (code; browser pass owed). App-parity catch-up. Mirrors `bikelog_app` spec **62**. Server half — `bikelog_server` spec **60** (`GET /bikes/:bikeId/spending-summary/monthly-breakdown`) — is **already implemented and deployed**. Pure web-client build.
 
 ---
 
 ## Goal
 
-On the Spending page’s **Month** tab, turn each static category row (swatch · name · amount · bar · %) into an **accordion** that expands to that category’s line-item **records** — so the rider can see *which* logs made up a category’s total (e.g. Fuel → `12 Nov · 2L @ ৳100/L · ৳200`, `18 Nov · 3L @ ৳100/L · ৳300`) without leaving the page. **Month tab only** — Year, Lifetime and Trend are untouched by this spec.
+On the Spending page’s **Month** tab, turn each static category row (swatch · name · amount · bar · %) into an **accordion** that expands to that category’s line-item **records** — so the rider can see _which_ logs made up a category’s total (e.g. Fuel → `12 Nov · 2L @ ৳100/L · ৳200`, `18 Nov · 3L @ ৳100/L · ৳300`) without leaving the page. **Month tab only** — Year, Lifetime and Trend are untouched by this spec.
 
 ## Design
 
@@ -22,14 +22,24 @@ On the Spending page’s **Month** tab, turn each static category row (swatch ·
 
 ```ts
 type TSpendingRecord = {
-  date: string; category: string; description: string; amount: number;
-  vendor: string | null; remarks: string | null;
+  date: string;
+  category: string;
+  description: string;
+  amount: number;
+  vendor: string | null;
+  remarks: string | null;
   source: "fuel" | "maintenance" | "accessory" | "oil";
   liters: number | null;
 };
-type TSpendingCategoryGroup = { category: string; total: number; records: TSpendingRecord[] };
+type TSpendingCategoryGroup = {
+  category: string;
+  total: number;
+  records: TSpendingRecord[];
+};
 type TMonthlyCategoryBreakdown = {
-  period: "month"; targetMonth: string; totalSpending: number;
+  period: "month";
+  targetMonth: string;
+  totalSpending: number;
   categories: TSpendingCategoryGroup[];
 };
 ```

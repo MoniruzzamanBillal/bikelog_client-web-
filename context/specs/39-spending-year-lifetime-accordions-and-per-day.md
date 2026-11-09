@@ -1,6 +1,6 @@
 # 39 — Spending: Year & Lifetime accordions + per-day
 
-**Status**: 📝 Plan only — written 2026-11-09. App-parity catch-up. Mirrors `bikelog_app` specs **65** (Year/Lifetime accordions) and **63** (per-day on Year & Lifetime). Server half — `bikelog_server` spec **61** (`GET /bikes/:bikeId/spending-summary/period-breakdown`) — is **already implemented and deployed**. Pure web-client build. Builds on web spec 38’s pattern.
+**Status**: ✅ Complete — 2026-11-09 (code; browser pass owed). App-parity catch-up. Mirrors `bikelog_app` specs **65** (Year/Lifetime accordions) and **63** (per-day on Year & Lifetime). Server half — `bikelog_server` spec **61** (`GET /bikes/:bikeId/spending-summary/period-breakdown`) — is **already implemented and deployed**. Pure web-client build. Builds on web spec 38’s pattern.
 
 ---
 

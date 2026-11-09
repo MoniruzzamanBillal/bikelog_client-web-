@@ -14,9 +14,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { TBike } from "../Bike/type/bike.types";
 import AiSpendingInsightCard from "./AiSpendingInsightCard";
-import SpendingSummaryView from "./SpendingSummaryView";
+import MonthlySpendingBreakdown from "./MonthlySpendingBreakdown";
+import PeriodSpendingBreakdown from "./PeriodSpendingBreakdown";
 import SpendingTrendChart from "./SpendingTrendChart";
-import { TSpendingDetails, TSpendingSummary } from "./type/spending.types";
+import {
+  TMonthlyCategoryBreakdown,
+  TPeriodCategoryBreakdown,
+  TSpendingDetails,
+} from "./type/spending.types";
 import { generateSpendingPdf } from "./utils/generateSpendingPdf";
 
 type TPeriod = "month" | "year" | "lifetime" | "trend";
@@ -59,6 +64,31 @@ function getElapsedDaysInMonth(targetMonth: string): number {
   return getDaysInMonth(monthDate);
 }
 
+// Mirrors getElapsedDaysInMonth: full days for a past year, day-of-year for the current
+// year, 0 for a future year.
+function getElapsedDaysInYear(targetYear: string): number {
+  const year = Number(targetYear);
+  const now = new Date();
+  const currentYear = now?.getFullYear();
+  if (!year || year > currentYear) return 0;
+  if (year < currentYear) {
+    const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    return isLeap ? 366 : 365;
+  }
+  const yearStart = new Date(currentYear, 0, 0);
+  return Math.floor((now.getTime() - yearStart.getTime()) / 86_400_000);
+}
+
+// Days since the bike's ownership start (purchaseDate); 0 when absent/invalid so the
+// lifetime per-day line can be guarded off (never ৳NaN).
+function getDaysSinceOwnership(purchaseDate?: string): number {
+  if (!purchaseDate) return 0;
+  const start = new Date(purchaseDate);
+  if (Number.isNaN(start.getTime())) return 0;
+  const days = Math.floor((Date.now() - start.getTime()) / 86_400_000);
+  return days > 0 ? days : 0;
+}
+
 export default function Spending() {
   const params = useParams();
   const bikeId = params?.bikeId as string;
@@ -74,6 +104,7 @@ export default function Spending() {
     `/bikes/${bikeId}`,
   );
 
+  // Query string reused by the PDF export (unchanged — it still hits /details).
   const searchParams = new URLSearchParams();
   searchParams?.set("period", period);
   if (period === "month" && targetMonth)
@@ -81,32 +112,47 @@ export default function Spending() {
   if (period === "year" && targetYear)
     searchParams?.set("targetYear", targetYear);
 
-  const queryKey = [
-    "spending",
-    bikeId,
-    period,
-    period === "month" ? targetMonth : "",
-    period === "year" ? targetYear : "",
-  ];
+  // ── Month → category drill-down (server spec 60) ──
+  const monthQuery = useFetchData<TMonthlyCategoryBreakdown>(
+    ["spending", bikeId, "month-breakdown", targetMonth],
+    `/bikes/${bikeId}/spending-summary/monthly-breakdown?targetMonth=${targetMonth}`,
+    { enabled: period === "month" && !!targetMonth },
+  );
 
-  const { data, isLoading, isError, error, refetch } =
-    useFetchData<TSpendingSummary>(
-      queryKey,
-      `/bikes/${bikeId}/spending-summary?${searchParams?.toString()}`,
-      {
-        enabled:
-          period === "lifetime" ||
-          (period === "month" && !!targetMonth) ||
-          (period === "year" && !!targetYear),
-      },
-    );
+  // ── Year → per-month buckets (server spec 61) ──
+  const yearQuery = useFetchData<TPeriodCategoryBreakdown>(
+    ["spending", bikeId, "year-breakdown", targetYear],
+    `/bikes/${bikeId}/spending-summary/period-breakdown?period=year&targetYear=${targetYear}`,
+    { enabled: period === "year" && !!targetYear },
+  );
 
-  const spending = data?.data;
+  // ── Lifetime → per-year buckets (server spec 61) ──
+  const lifetimeQuery = useFetchData<TPeriodCategoryBreakdown>(
+    ["spending", bikeId, "lifetime-breakdown"],
+    `/bikes/${bikeId}/spending-summary/period-breakdown?period=lifetime`,
+    { enabled: period === "lifetime" },
+  );
 
-  const daysElapsed =
-    period === "month" ? getElapsedDaysInMonth(targetMonth) : 0;
-  const avgDailyExpense =
-    daysElapsed > 0 ? (spending?.totalSpending ?? 0) / daysElapsed : 0;
+  const monthBreakdown = monthQuery?.data?.data;
+  const yearBreakdown = yearQuery?.data?.data;
+  const lifetimeBreakdown = lifetimeQuery?.data?.data;
+
+  // ── Per-day figures ──
+  const monthDaysElapsed = getElapsedDaysInMonth(targetMonth);
+  const monthAvgDaily =
+    monthDaysElapsed > 0
+      ? (monthBreakdown?.totalSpending ?? 0) / monthDaysElapsed
+      : 0;
+
+  const yearDaysElapsed = getElapsedDaysInYear(targetYear);
+  const yearAvgDaily =
+    yearDaysElapsed > 0
+      ? (yearBreakdown?.totalSpending ?? 0) / yearDaysElapsed
+      : 0;
+
+  const ownershipDays = getDaysSinceOwnership(bikeData?.data?.purchaseDate);
+  const lifetimeAvgDaily =
+    ownershipDays > 0 ? (lifetimeBreakdown?.totalSpending ?? 0) / ownershipDays : 0;
 
   const handleExportPdf = async () => {
     if (isExporting) return;
@@ -198,19 +244,57 @@ export default function Spending() {
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-3">
-          {period === "trend" ? (
-            <SpendingTrendChart bikeId={bikeId} />
-          ) : (
-            <SpendingSummaryView
+          {period === "trend" && <SpendingTrendChart bikeId={bikeId} />}
+
+          {period === "month" && (
+            <MonthlySpendingBreakdown
+              key={targetMonth}
               periodLabel={getPeriodLabel(period, targetMonth, targetYear)}
-              totalSpending={spending?.totalSpending ?? 0}
-              categoryBreakdown={spending?.categoryBreakdown ?? []}
-              isLoading={isLoading}
-              isError={isError}
-              errorMessage={error?.message}
-              onRetry={() => refetch()}
-              {...(period === "month" && daysElapsed > 0
-                ? { avgDailyExpense, daysElapsed }
+              totalSpending={monthBreakdown?.totalSpending ?? 0}
+              categories={monthBreakdown?.categories ?? []}
+              isLoading={monthQuery?.isLoading}
+              isError={monthQuery?.isError}
+              errorMessage={monthQuery?.error?.message}
+              onRetry={() => monthQuery?.refetch()}
+              {...(monthDaysElapsed > 0
+                ? {
+                    avgDailyExpense: monthAvgDaily,
+                    daysElapsed: monthDaysElapsed,
+                  }
+                : {})}
+            />
+          )}
+
+          {period === "year" && (
+            <PeriodSpendingBreakdown
+              key={`year-${targetYear}`}
+              periodLabel={getPeriodLabel(period, targetMonth, targetYear)}
+              totalSpending={yearBreakdown?.totalSpending ?? 0}
+              categories={yearBreakdown?.categories ?? []}
+              isLoading={yearQuery?.isLoading}
+              isError={yearQuery?.isError}
+              errorMessage={yearQuery?.error?.message}
+              onRetry={() => yearQuery?.refetch()}
+              avgDailyScopeLabel="this year"
+              {...(yearDaysElapsed > 0
+                ? { avgDailyExpense: yearAvgDaily, daysElapsed: yearDaysElapsed }
+                : {})}
+            />
+          )}
+
+          {period === "lifetime" && (
+            <PeriodSpendingBreakdown
+              key="lifetime"
+              periodLabel={getPeriodLabel(period, targetMonth, targetYear)}
+              totalSpending={lifetimeBreakdown?.totalSpending ?? 0}
+              categories={lifetimeBreakdown?.categories ?? []}
+              isLoading={lifetimeQuery?.isLoading}
+              isError={lifetimeQuery?.isError}
+              errorMessage={lifetimeQuery?.error?.message}
+              onRetry={() => lifetimeQuery?.refetch()}
+              avgDailyScopeLabel="of ownership"
+              {...(ownershipDays > 0
+                ? { avgDailyExpense: lifetimeAvgDaily, daysElapsed: ownershipDays }
                 : {})}
             />
           )}
