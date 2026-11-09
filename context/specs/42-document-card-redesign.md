@@ -1,6 +1,6 @@
 # 42 — Document card redesign
 
-**Status**: 📝 Plan only — written 2026-11-09. App-parity catch-up. Mirrors `bikelog_app` spec **68**. **No backend change** — every field shown is already on `TBikeDocument`.
+**Status**: ✅ Complete — 2026-11-09 (code; browser pass owed). App-parity catch-up. Mirrors `bikelog_app` spec **68**. **No backend change** — every field shown is already on `TBikeDocument`.
 
 ---
 
