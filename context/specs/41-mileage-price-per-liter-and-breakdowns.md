@@ -1,6 +1,6 @@
 # 41 — Mileage: price/L everywhere, monthly fill-up records, lifetime per-year
 
-**Status**: 📝 Plan only — written 2026-11-09. App-parity catch-up. Mirrors `bikelog_app` spec **66**. Server half — `bikelog_server` spec **62** (`totalFuelCost` on every mileage summary + a `yearlySummary` per-year breakdown on the Lifetime response) — is **already implemented and deployed**. Pure web-client build.
+**Status**: ✅ Complete — 2026-11-09 (code; browser pass owed). App-parity catch-up. Mirrors `bikelog_app` spec **66**. Server half — `bikelog_server` spec **62** (`totalFuelCost` on every mileage summary + a `yearlySummary` per-year breakdown on the Lifetime response) — is **already implemented and deployed**. Pure web-client build.
 
 ---
 

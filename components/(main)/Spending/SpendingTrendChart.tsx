@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useFetchData } from "@/hooks/useApi";
 import { cn } from "@/lib/utils";
 import { format, parse } from "date-fns";
+import { Wallet } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -37,8 +38,11 @@ const tooltipStyle = {
 
 type TProps = {
   bikeId: string;
-  // "rail" = compact sidebar sparkline on the summary periods (desktop)
+  // "rail" = compact sidebar sparkline (rolling last 6 months) on the summary periods.
+  // "full" = the Trend tab: a fixed calendar year (Jan→Dec, 12 bars) for `targetYear`.
   variant?: "full" | "rail";
+  // full variant only — the calendar year to show (defaults to the current year).
+  targetYear?: string;
   onOpenTrend?: () => void;
   className?: string;
 };
@@ -46,18 +50,40 @@ type TProps = {
 export default function SpendingTrendChart({
   bikeId,
   variant = "full",
+  targetYear,
   onOpenTrend,
   className,
 }: TProps) {
+  const isRail = variant === "rail";
+  const year = targetYear ?? new Date()?.getFullYear()?.toString();
+
+  // Rail and the full year view must not share a cache key: the rail is a rolling
+  // 6-month window, the full tab a fixed calendar year. Both stay under the
+  // ["spending","trend",bikeId] prefix so mutations still invalidate them.
   const { data, isLoading, isError, error, refetch } =
     useFetchData<TSpendingTrend>(
-      ["spending", "trend", bikeId],
-      `/bikes/${bikeId}/spending-summary/trend?months=6`,
+      isRail
+        ? ["spending", "trend", bikeId, "rail6"]
+        : ["spending", "trend", bikeId, year],
+      isRail
+        ? `/bikes/${bikeId}/spending-summary/trend?months=6`
+        : `/bikes/${bikeId}/spending-summary/trend?targetYear=${year}`,
     );
 
   const monthlySummary = data?.data?.monthlySummary ?? [];
-  const latest = monthlySummary[monthlySummary?.length - 1];
-  const latestBreakdown = [...(latest?.categoryBreakdown ?? [])].sort(
+
+  // Donut/highlight month = latest month that actually has spending. For the rail
+  // that's just the last bucket; for the full year, December would leave the current
+  // year's donut empty until year-end, so pick the latest month *with data*.
+  const monthsWithSpending = monthlySummary?.filter((m) => m?.totalSpending > 0);
+  const donutMonth = isRail
+    ? monthlySummary[monthlySummary?.length - 1]
+    : monthsWithSpending[monthsWithSpending?.length - 1];
+  const highlightIdx = donutMonth
+    ? monthlySummary?.findIndex((m) => m?.targetMonth === donutMonth?.targetMonth)
+    : -1;
+
+  const latestBreakdown = [...(donutMonth?.categoryBreakdown ?? [])].sort(
     (a, b) => b?.total - a?.total,
   );
   const latestSum = latestBreakdown?.reduce((a, c) => a + c?.total, 0) || 1;
@@ -75,6 +101,7 @@ export default function SpendingTrendChart({
             tickLine={false}
             axisLine={false}
             fontSize={withLabels ? 11 : 10}
+            interval={0}
             tick={{ fill: "var(--muted-foreground)" }}
           />
           <Tooltip
@@ -92,7 +119,7 @@ export default function SpendingTrendChart({
               <Cell
                 key={m?.targetMonth}
                 fill="var(--chart-1)"
-                fillOpacity={i === monthlySummary?.length - 1 ? 1 : 0.55}
+                fillOpacity={i === highlightIdx ? 1 : 0.55}
               />
             ))}
             {withLabels && (
@@ -101,7 +128,11 @@ export default function SpendingTrendChart({
                 position="top"
                 fontSize={10.5}
                 fill="var(--muted-foreground)"
-                formatter={(v) => `৳${Math.round(Number(v)).toLocaleString()}`}
+                formatter={(v) =>
+                  Number(v) > 0
+                    ? `৳${Math.round(Number(v)).toLocaleString()}`
+                    : ""
+                }
               />
             )}
           </Bar>
@@ -110,7 +141,7 @@ export default function SpendingTrendChart({
     </div>
   );
 
-  if (variant === "rail") {
+  if (isRail) {
     return (
       <div className={cn("panel flex-col px-4 pt-3.5 pb-2.5", className)}>
         <div className="mb-2.5 flex justify-between text-[12.5px]">
@@ -149,12 +180,23 @@ export default function SpendingTrendChart({
     );
   }
 
+  // A calendar year with no spending in any month → single empty state, not a flat
+  // all-zero chart.
+  if (monthsWithSpending?.length === 0) {
+    return (
+      <StateCard
+        icon={Wallet}
+        title={`Nothing spent in ${year}`}
+        message="No fuel, maintenance, oil or accessory spending was logged this year."
+        className="max-w-none"
+      />
+    );
+  }
+
   return (
     <>
       <div className="panel px-4 pt-4 pb-2.5">
-        <div className="mb-3 text-[13px] font-medium">
-          Spending, last 6 months
-        </div>
+        <div className="mb-3 text-[13px] font-medium">Spending in {year}</div>
         {bars("h-[200px]", true)}
       </div>
 
@@ -185,7 +227,7 @@ export default function SpendingTrendChart({
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5 text-[12.5px]">
               <div className="text-[13px] font-medium">
-                By category · {formatMonthLabel(latest?.targetMonth)}
+                By category · {formatMonthLabel(donutMonth?.targetMonth)}
               </div>
               {latestBreakdown?.map((c, i) => (
                 <div key={c?.category} className="flex items-center gap-2">

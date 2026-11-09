@@ -1,6 +1,6 @@
 # 40 — Spending Trend: a full calendar year (Jan→Dec)
 
-**Status**: 📝 Plan only — written 2026-11-09. App-parity catch-up. Mirrors `bikelog_app` spec **67**. Server half — `bikelog_server` spec **63** (the trend endpoint accepts `targetYear`) — is **already implemented and deployed**. Pure web-client build.
+**Status**: ✅ Complete — 2026-11-09 (code; browser pass owed). App-parity catch-up. Mirrors `bikelog_app` spec **67**. Server half — `bikelog_server` spec **63** (the trend endpoint accepts `targetYear`) — is **already implemented and deployed**. Pure web-client build.
 
 ---
 
@@ -33,7 +33,7 @@ Re-scope the Spending **Trend** tab from a rolling **6-month** window to a fixed
 ### Hazards
 
 - **D1 — fixed calendar year, not rolling 12.** The literal Jan→Dec labels only hold for a calendar year; `targetYear` exists for exactly this.
-- **D2 — donut month = latest *with data*.** Picking December would leave the current year’s donut empty until year-end.
+- **D2 — donut month = latest _with data_.** Picking December would leave the current year’s donut empty until year-end.
 - **H1 — older server.** `?targetYear=` on a pre-spec-63 server falls through to the rolling default (a short window); the tab still renders, just not Jan→Dec. Needs spec 63 deployed to be correct (it is).
 - **Rail untouched.** Don’t let the rail’s 6-month query and the full tab’s year query share a cache key.
 

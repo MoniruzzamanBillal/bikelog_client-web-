@@ -8,7 +8,11 @@ import { useFetchData } from "@/hooks/useApi";
 import { addMonths, format, isSameMonth, parse } from "date-fns";
 import { CalendarDays, Gauge } from "lucide-react";
 import { useState } from "react";
-import { TMonthlyMileage } from "./type/mileage.types";
+import MileageRecordCard from "./MileageRecordCard";
+import {
+  TMileageHistoryResponse,
+  TMonthlyMileage,
+} from "./type/mileage.types";
 
 function formatMonth(date: Date): string {
   return format(date, "yyyy-MM");
@@ -31,6 +35,26 @@ export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
     monthly?.totalLitersConsumed && monthly?.totalLitersConsumed > 0
       ? (monthly?.totalDistanceKm / monthly?.totalLitersConsumed)?.toFixed(2)
       : "—";
+
+  // FILL-UP RECORDS: the exact-mileage records whose period *closed* in this month.
+  // Reuse the History query (react-query dedupes — no new endpoint) and filter
+  // client-side on periodEndDate's YYYY-MM.
+  const { data: historyData } = useFetchData<TMileageHistoryResponse>(
+    ["mileage", "history", bikeId],
+    `/bikes/${bikeId}/mileage`,
+  );
+  const monthRecords = (historyData?.data?.exactRecords ?? [])
+    .filter((r) => format(new Date(r?.periodEndDate), "yyyy-MM") === targetMonth)
+    .sort(
+      (a, b) =>
+        new Date(b?.periodEndDate).getTime() -
+        new Date(a?.periodEndDate).getTime(),
+    );
+  const monthMaxKmpl = Math.max(
+    ...monthRecords.map((r) => r?.mileageKmPerLiter),
+    1,
+  );
+  const hasFuelLogs = !!monthly?.fuelLogCount && monthly?.fuelLogCount > 0;
 
   return (
     <>
@@ -70,7 +94,7 @@ export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
           onRetry={() => refetch()}
           className="max-w-none"
         />
-      ) : monthly?.fuelLogCount && monthly?.fuelLogCount > 0 ? (
+      ) : hasFuelLogs ? (
         <div className="grid grid-cols-2 gap-2.5">
           <StatTile
             label="Distance"
@@ -96,6 +120,27 @@ export default function MonthlyMileageTab({ bikeId }: { bikeId: string }) {
           message={`Nothing was logged in ${format(monthDate, "MMMM yyyy")}.`}
           className="max-w-none"
         />
+      )}
+
+      {!isLoading && !isError && hasFuelLogs && (
+        <>
+          <div className="mt-1 text-xs tracking-[0.08em] text-muted-foreground uppercase">
+            Fill-up records
+          </div>
+          {monthRecords.length > 0 ? (
+            monthRecords.map((record) => (
+              <MileageRecordCard
+                key={record?._id}
+                record={record}
+                maxKmpl={monthMaxKmpl}
+              />
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No exact record closed this month.
+            </p>
+          )}
+        </>
       )}
     </>
   );

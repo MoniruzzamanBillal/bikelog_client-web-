@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useFetchData } from "@/hooks/useApi";
 import { cn } from "@/lib/utils";
 import { Gauge } from "lucide-react";
+import MileageBreakdownList from "./MileageBreakdownList";
 import { TLifetimeMileage } from "./type/mileage.types";
 
 const useLifetime = (bikeId: string) =>
@@ -57,26 +58,40 @@ export default function LifetimeMileageTab({ bikeId }: { bikeId: string }) {
   }
 
   const avg = getAvg(lifetime);
+  const yearly = lifetime?.yearlySummary ?? [];
 
   return (
-    <div className="grid grid-cols-2 gap-2.5">
-      <StatTile
-        label="Total distance"
-        value={lifetime?.totalDistanceKm?.toLocaleString()}
-        unit="km"
-      />
-      <StatTile
-        label="Fuel used"
-        value={lifetime?.totalLitersConsumed?.toFixed(2)}
-        unit="L"
-      />
-      <StatTile label="Fill-ups" value={lifetime?.fuelLogCount} />
-      <StatTile
-        label="Average (derived)"
-        value={avg}
-        unit={avg === "—" ? undefined : "km/l"}
-      />
-    </div>
+    <>
+      <div className="grid grid-cols-2 gap-2.5">
+        <StatTile
+          label="Total distance"
+          value={lifetime?.totalDistanceKm?.toLocaleString()}
+          unit="km"
+        />
+        <StatTile
+          label="Fuel used"
+          value={lifetime?.totalLitersConsumed?.toFixed(2)}
+          unit="L"
+        />
+        <StatTile label="Fill-ups" value={lifetime?.fuelLogCount} />
+        <StatTile
+          label="Average (derived)"
+          value={avg}
+          unit={avg === "—" ? undefined : "km/l"}
+        />
+      </div>
+
+      {yearly.length > 0 && (
+        <>
+          <div className="mt-1 text-xs tracking-[0.08em] text-muted-foreground uppercase">
+            By year
+          </div>
+          <MileageBreakdownList
+            rows={yearly.map((y) => ({ ...y, label: y?.targetYear }))}
+          />
+        </>
+      )}
+    </>
   );
 }
 

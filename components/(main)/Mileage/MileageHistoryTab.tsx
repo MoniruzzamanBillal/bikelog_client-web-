@@ -3,9 +3,8 @@
 import StateCard from "@/components/shared/StateCard/StateCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFetchData } from "@/hooks/useApi";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { Gauge } from "lucide-react";
+import MileageRecordCard from "./MileageRecordCard";
 import { TMileageHistoryResponse } from "./type/mileage.types";
 
 export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
@@ -97,37 +96,11 @@ export default function MileageHistoryTab({ bikeId }: { bikeId: string }) {
         </p>
       ) : (
         records?.map((record) => (
-          <div
+          <MileageRecordCard
             key={record?._id}
-            className="panel grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 px-4 py-3 tabular-nums"
-          >
-            <div className="text-[12.5px] text-muted-foreground">
-              {format(new Date(record?.periodStartDate), "dd MMM")} →{" "}
-              {format(new Date(record?.periodEndDate), "dd MMM yyyy")}
-            </div>
-            <div className="row-span-2 self-center text-[17px] font-medium">
-              {record?.mileageKmPerLiter?.toFixed(2)}
-              <span className="ml-0.5 text-xs font-normal text-muted-foreground">
-                km/l
-              </span>
-            </div>
-            <div className="truncate text-[13px]">
-              {record?.distanceKm?.toLocaleString()} km ·{" "}
-              {record?.litersConsumed?.toFixed(2)} L{" "}
-              <span className="hidden text-muted-foreground sm:inline">
-                · {record?.startOdometer?.toLocaleString()} →{" "}
-                {record?.endOdometer?.toLocaleString()}
-              </span>
-            </div>
-            <div className="col-span-2 mt-1 h-[3px] rounded-full bg-muted">
-              <div
-                className={cn("h-[3px] rounded-full bg-chart-1")}
-                style={{
-                  width: `${Math.round((record?.mileageKmPerLiter / maxKmpl) * 100)}%`,
-                }}
-              />
-            </div>
-          </div>
+            record={record}
+            maxKmpl={maxKmpl}
+          />
         ))
       )}
     </>

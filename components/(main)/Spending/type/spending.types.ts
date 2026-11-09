@@ -19,6 +19,9 @@ export interface TMonthlySpending {
 
 export interface TSpendingTrend {
   months: number;
+  // ! spec 63: present when the trend was fetched for a fixed calendar year
+  // ! (?targetYear=YYYY → 12 entries Jan→Dec). Absent on the rolling ?months=N rail.
+  targetYear?: string;
   monthlySummary: TMonthlySpending[];
 }
 

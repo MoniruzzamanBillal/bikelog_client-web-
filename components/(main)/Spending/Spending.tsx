@@ -97,6 +97,8 @@ export default function Spending() {
   const [period, setPeriod] = useState<TPeriod>("month");
   const [targetMonth, setTargetMonth] = useState(formatMonth(now));
   const [targetYear, setTargetYear] = useState(now?.getFullYear()?.toString());
+  // Trend tab has its own year stepper, independent of the Year tab's.
+  const [trendYear, setTrendYear] = useState(now?.getFullYear()?.toString());
   const [isExporting, setIsExporting] = useState(false);
 
   const { data: bikeData } = useFetchData<TBike>(
@@ -222,6 +224,16 @@ export default function Spending() {
           />
         )}
 
+        {period === "trend" && (
+          <PeriodStepper
+            label={<span className="text-sm">{trendYear}</span>}
+            onPrev={() => setTrendYear((y) => (Number(y) - 1)?.toString())}
+            onNext={() => setTrendYear((y) => (Number(y) + 1)?.toString())}
+            disableNext={Number(trendYear) >= now?.getFullYear()}
+            className="[&_button]:size-9"
+          />
+        )}
+
         {period !== "trend" && (
           <Button
             variant="outline"
@@ -244,7 +256,9 @@ export default function Spending() {
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-3">
-          {period === "trend" && <SpendingTrendChart bikeId={bikeId} />}
+          {period === "trend" && (
+            <SpendingTrendChart bikeId={bikeId} targetYear={trendYear} />
+          )}
 
           {period === "month" && (
             <MonthlySpendingBreakdown
