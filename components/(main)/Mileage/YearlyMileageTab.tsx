@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { Gauge } from "lucide-react";
 import { useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import { perUnitStr } from "./mileageMoney";
 import { TYearlyMileage } from "./type/mileage.types";
 
 export default function YearlyMileageTab({ bikeId }: { bikeId: string }) {
@@ -109,7 +110,7 @@ export default function YearlyMileageTab({ bikeId }: { bikeId: string }) {
                   <th className="h-9 px-2 text-left text-[11px] font-normal tracking-[0.08em] text-muted-foreground uppercase">
                     Month
                   </th>
-                  {["Distance", "Liters", "Fills"].map((h) => (
+                  {["Distance", "Liters", "Price / L", "Fills"].map((h) => (
                     <th
                       key={h}
                       className="h-9 px-2 text-right text-[11px] font-normal tracking-[0.08em] text-muted-foreground uppercase"
@@ -136,6 +137,9 @@ export default function YearlyMileageTab({ bikeId }: { bikeId: string }) {
                     </td>
                     <td className="px-2 text-right">
                       {m?.totalLitersConsumed?.toFixed(2)} L
+                    </td>
+                    <td className="px-2 text-right">
+                      {perUnitStr(m?.totalFuelCost, m?.totalLitersConsumed)}
                     </td>
                     <td className="px-2 text-right">{m?.fuelLogCount}</td>
                   </tr>

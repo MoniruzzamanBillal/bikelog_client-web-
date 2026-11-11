@@ -82,9 +82,35 @@ export interface TEngineOilStatus {
   kmRemaining?: number;
   percentUsed?: number;
   projectedDaysRemaining?: number;
+  // ! now ALSO present when overdue — a PAST instant (server spec 56). Parse with
+  // ! `new Date()` + a NaN guard, never a UTC-midnight date-only parser (spec 37 H-C).
   projectedDueDate?: string;
+  // ! positive days past due; set only with status "overdue" AND a usable rate. The
+  // ! overdue day-count comes from here, not projectedDaysRemaining (which the server
+  // ! omits when overdue — it would go negative).
+  overdueDays?: number;
   kmPerDay?: number;
-  rateBasis?: { spanDays: number; distanceKm: number };
+  // ! `source` tells which window the rate came from; append a suffix for longRun/lifetime,
+  // ! none for "recent" (and absent) so the common case reads as before (spec 37 D5).
+  rateBasis?: {
+    spanDays: number;
+    distanceKm: number;
+    source?: "recent" | "longRun" | "lifetime";
+  };
+  // ! present ONLY when lastChange has NO intervalKm of its own but an oil type resolves —
+  // ! a provisional forecast derived server-side from the oil type's suggestedIntervalKm.
+  // ! Everything it produces is a different KIND of fact and must carry `est.` (spec 37 H-B).
+  estimate?: {
+    basis: "oilTypeSuggestion";
+    status: "ok" | "upcoming" | "overdue";
+    intervalKm: number;
+    nextDueOdometer: number;
+    kmRemaining: number; // signed
+    percentUsed: number;
+    projectedDaysRemaining?: number;
+    projectedDueDate?: string;
+    overdueDays?: number;
+  };
 }
 
 /** The oil type's display name, whichever of the three forms the server sent. */
