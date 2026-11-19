@@ -74,6 +74,10 @@ export interface TSpendingPeriodBucket {
   label: string; // "Jan" | "2026" — pre-formatted server-side, render raw
   total: number;
   liters: number | null;
+  // ! Spec 43 (server spec 64): a LIFETIME year bucket's per-month children, pre-bucketed
+  // ! server-side (Jan→Dec). A month bucket and every Year-tab bucket carry `children: null`,
+  // ! so the drill-down's second level is gated on this being a non-empty array.
+  children?: TSpendingPeriodBucket[] | null;
 }
 
 export interface TSpendingPeriodGroup {

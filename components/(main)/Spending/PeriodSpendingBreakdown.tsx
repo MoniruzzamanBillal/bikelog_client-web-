@@ -40,6 +40,14 @@ export default function PeriodSpendingBreakdown({
   avgDailyScopeLabel,
 }: TProps) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  // ! Spec 43: the SECOND level — which year rows are drilled into their months, keyed
+  // ! "category:bucketKey" (unique across categories). Lifetime only; on the Year tab no
+  // ! bucket carries children, so this stays empty and inert. No reset effect: the caller's
+  // ! `key` remounts the component on a period change, collapsing both levels at once — the
+  // ! same mechanism the `open` state above already relies on.
+  const [expandedBuckets, setExpandedBuckets] = useState<
+    Record<string, boolean>
+  >({});
 
   if (isLoading) {
     return (
@@ -156,25 +164,92 @@ export default function PeriodSpendingBreakdown({
                 <span />
               </button>
 
-              {/* ── expanded body: time buckets ── */}
+              {/* ── expanded body: time buckets (Year tab = months, Lifetime = years) ── */}
               {isOpen && (
                 <div className="flex flex-col gap-0.5 px-4 pb-2.5">
-                  {cat?.buckets?.map((b) => (
-                    <div
-                      key={b?.key}
-                      className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-x-3 rounded-md bg-muted/20 px-3 py-1.5"
-                    >
-                      <span className="text-[12.5px] tabular-nums">
-                        {b?.label}
-                      </span>
-                      <span className="text-[11.5px] text-muted-foreground tabular-nums">
-                        {formatLiters(b?.liters)}
-                      </span>
-                      <span className="text-[12.5px] font-medium tabular-nums">
-                        {formatTaka(b?.total)}
-                      </span>
-                    </div>
-                  ))}
+                  {cat?.buckets?.map((b) => {
+                    // ! A lifetime year bucket carries month children; a month bucket (Year
+                    // ! tab) carries none, so it stays a plain, non-tappable row exactly as
+                    // ! before — the whole second level is gated on this (spec 43).
+                    const hasChildren = !!b?.children && b.children.length > 0;
+                    const bucketId = `${cat?.category}:${b?.key}`;
+                    const bucketOpen =
+                      hasChildren && !!expandedBuckets[bucketId];
+
+                    // ! 4-col grid with a trailing chevron slot so a drill row and a plain
+                    // ! leaf row keep the same amount-column alignment.
+                    const rowInner = (
+                      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_14px] items-baseline gap-x-3 px-3 py-1.5">
+                        <span className="text-[12.5px] tabular-nums">
+                          {b?.label}
+                        </span>
+                        <span className="text-[11.5px] text-muted-foreground tabular-nums">
+                          {formatLiters(b?.liters)}
+                        </span>
+                        <span className="text-[12.5px] font-medium tabular-nums">
+                          {formatTaka(b?.total)}
+                        </span>
+                        <span className="flex justify-end self-center">
+                          {hasChildren && (
+                            <ChevronDown
+                              className={`size-3.5 text-muted-foreground transition-transform ${
+                                bucketOpen ? "rotate-180" : ""
+                              }`}
+                            />
+                          )}
+                        </span>
+                      </div>
+                    );
+
+                    if (!hasChildren) {
+                      return (
+                        <div key={b?.key} className="rounded-md bg-muted/20">
+                          {rowInner}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={b?.key} className="rounded-md bg-muted/20">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedBuckets((prev) => ({
+                              ...prev,
+                              [bucketId]: !prev[bucketId],
+                            }))
+                          }
+                          aria-expanded={bucketOpen}
+                          className="w-full rounded-md text-left hover:bg-muted/40"
+                        >
+                          {rowInner}
+                        </button>
+
+                        {/* ── third row: the year's months, indented under it ── */}
+                        {bucketOpen && (
+                          <div className="mb-1 ml-3 flex flex-col gap-0.5 border-l border-border/40 pl-2.5">
+                            {b?.children?.map((child) => (
+                              <div
+                                key={child?.key}
+                                className="grid grid-cols-[auto_minmax(0,1fr)_auto_14px] items-baseline gap-x-3 px-3 py-1.5"
+                              >
+                                <span className="text-[12px] text-muted-foreground tabular-nums">
+                                  {child?.label}
+                                </span>
+                                <span className="text-[11.5px] text-muted-foreground tabular-nums">
+                                  {formatLiters(child?.liters)}
+                                </span>
+                                <span className="text-[12px] tabular-nums">
+                                  {formatTaka(child?.total)}
+                                </span>
+                                <span />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

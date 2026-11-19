@@ -60,7 +60,9 @@ export default function ImageLightbox({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isFirst, isLast]);
 
-  const currentImage = images[currentIndex];
+  // ! `images?.[...]`: callers pass `someList?.map(...)`, which is `undefined` when the
+  // ! source list is — a raw `images[currentIndex]` then throws before the guard below.
+  const currentImage = images?.[currentIndex];
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
