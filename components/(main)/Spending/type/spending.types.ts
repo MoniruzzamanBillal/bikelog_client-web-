@@ -39,7 +39,8 @@ export type TSpendingRecordSource =
   | "fuel"
   | "maintenance"
   | "accessory"
-  | "oil";
+  | "oil"
+  | "service";
 
 export interface TSpendingRecord {
   date: string;

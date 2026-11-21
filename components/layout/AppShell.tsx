@@ -69,8 +69,17 @@ const bikeSections: {
     key: "maintenance",
     segment: "maintenance-logs",
     label: "Maintenance",
-    short: "Service",
+    // ! spec 44 OQ1 (option a): renamed from "Service" so the new warranty-service module
+    // ! can own the "Service" tab below without two screens sharing the label.
+    short: "Maint.",
     icon: Wrench,
+  },
+  {
+    key: "service",
+    segment: "service",
+    label: "Service",
+    short: "Service",
+    icon: ShieldCheck,
   },
   { key: "spending", segment: "spending", label: "Spending", short: "Spend", icon: Wallet },
   { key: "issues", segment: "issues", label: "Issues", icon: AlertTriangle },
@@ -80,7 +89,9 @@ const bikeSections: {
   { key: "assistant", segment: "assistant", label: "AI Assistant", icon: Sparkles },
 ];
 
-const mobileBikeTabKeys = ["overview", "fuel", "maintenance", "spending"];
+// ! spec 44 OQ1: the "Service" mobile tab now opens the service module; Maintenance moves to
+// ! the More overflow (still in the desktop sidebar). Keeps the bar at four primary tabs.
+const mobileBikeTabKeys = ["overview", "fuel", "service", "spending"];
 
 const bikeSectionHref = (bikeId: string, segment: string) =>
   segment ? `/bikes/${bikeId}/${segment}` : `/bikes/${bikeId}`;
